@@ -116,10 +116,10 @@ var readFile = function(file, res) {
         
         // Convert modified JSON back to string.
         data = JSON.stringify(dataObject);
-        
+
         files.push(data);
         counter--;
-        
+
         if (counter === 0) {
             buildJsonString(res);
         }
@@ -138,23 +138,17 @@ app.get('/results.json', function(req, res){
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
+    files = [];
+    counter = 0;
     var results = general.getFileListForFolder(RESULTS_DIR);
     readFiles(results, res); 
 });
 
 app.configure(function() {
-  app.use(express.static(REPORTING_DIR));
-  app.use(express.directory(REPORTING_DIR));
-  app.use(express.errorHandler());
+    app.use(express.static(REPORTING_DIR));
+    app.use(express.directory(REPORTING_DIR));
+    app.use(express.errorHandler());
 });
-/*
-app.get('/', function(req, res){
-    res.writeHead(200, {
-        'Content-Type': 'application/json'
-    });
-    var results = general.getFileListForFolder(RESULTS_DIR);
-    readFiles(results, res); 
-});*/
 
 app.listen(1337);
 
