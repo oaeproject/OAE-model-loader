@@ -2,6 +2,7 @@ var general = require("./../api/general.js");
 var suiteAPI = require("./../api/suite.js");
 
 exports.Suite = function(datamodel, SERVER_URL){
+    var id = "search";
     var title = "Search";
     var threshold = 90;
     var target = 100;
@@ -70,6 +71,6 @@ exports.Suite = function(datamodel, SERVER_URL){
     }
 
     // Define elements
-    var suite = new suiteAPI.Suite(title, threshold, target, elements, runs);
+    var suite = new suiteAPI.Suite(id, title, threshold, target, elements, runs);
     return suite;
 }

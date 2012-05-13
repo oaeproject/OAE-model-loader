@@ -17,14 +17,14 @@ var runSuites = function(datamodel, runid, SERVER_URL, callback){
     for (var b = 0; b < datamodel.length; b++){
         run.numberOfUsers += datamodel[b].users.length;
     }
-    run.results = [];
+    run.results = {};
     var currentSuite = -1;
     var runSuite = function(){
         currentSuite++;
         if (currentSuite < suites.length){
             var suite = suites[currentSuite];
             suite.run(function(results){
-                run.results.push(results);
+                run.results[suite.id] = results;
                 runSuite();
             });
         } else {

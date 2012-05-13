@@ -1,17 +1,9 @@
-// An element looks like this:
-// {
-//     "type": feedid,
-//     "url": url,
-//     "method": GET/POST,
-//     "parameters": {options},
-//     "user": user:password
-// }
-
 var general = require("./general.js");
 
-exports.Suite = function(title, threshold, target, elements, runs){
+exports.Suite = function(id, title, threshold, target, elements, runs){
     var that = {};
 
+    that.id = id;
     that.title = title;
     that.threshold = threshold;
     that.target = target;
