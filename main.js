@@ -2,10 +2,14 @@ var http = require('http');
 var fs = require('fs');
 var general = require('./api/general.js');
 
-var readFile = function(file) {
-    fs.readFile(file, 'ascii', function(err,data){
+var RESULTS_DIR = './results/'
 
+var readFile = function(file) {
+    fs.readFile(RESULTS_DIR+file, 'ascii', function(err,data){
+    
+    console.log(file);
     if(err) {
+        console.log('There is an error');
         console.error("Could not open file: %s", err);
         process.exit(1);
     }
@@ -19,6 +23,7 @@ var readFile = function(file) {
 }
 
 var readFiles = function(results) {
+    console.log('readFiles');
     for (var i=0, len=results.length; i<len; i++) {
         readFile(results[i]);
     }
