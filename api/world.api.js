@@ -153,6 +153,7 @@ var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
             })
         }
     }
+    console.log("Number of requests for adding groups: " + requests.length);
     if (requests.length){
         general.urlReq(SERVER_URL + "/system/batch", {
             method: 'POST',
@@ -206,6 +207,7 @@ var sendGroupInvite = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
             });
         }
     }
+    console.log("Number of requests for sending messages: " + requests.length);
     if (requests.length){
         general.urlReq(SERVER_URL + "/system/batch", {
             method: 'POST',

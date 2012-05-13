@@ -77,8 +77,8 @@ var loadContacts = function(users, contacts, worlds){
             loadWorlds(users, worlds);
         } else {
             var nextContact = contacts[currentContact];
-            contactAPI.loadContact(nextContact, users, SERVER_URL, ADMIN_PASSWORD, loadNextContact);
             currentContact++;
+            contactAPI.loadContact(nextContact, users, SERVER_URL, ADMIN_PASSWORD, loadNextContact);
         }
     }
     loadNextContact();
@@ -89,31 +89,31 @@ var loadContacts = function(users, contacts, worlds){
 ////////////
 
 var loadWorlds = function(users, worlds){
-    var currentWorld = 0;
+    var currentWorld = -1;
     var loadNextWorld = function(){
-        console.log("  Finished Loading World " + currentWorld + " of " + worlds.length);
+        console.log("  Finished Loading World " + (currentWorld + 1) + " of " + worlds.length);
         if (currentWorld >= worlds.length){
             loadWorldGroupMemberships(users, worlds);
         } else {
             var nextWorld = worlds[currentWorld];
-            worldAPI.loadWorld(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorld);
             currentWorld++;
+            worldAPI.loadWorld(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorld);
         }
     }
     loadNextWorld();
 }
 
 var loadWorldGroupMemberships = function(users, worlds){
-    var currentWorldGroupMembership = 0;
+    var currentWorldGroupMembership = -1;
     var loadNextWorldGroupMembership = function(){
-        console.log("  Finished Loading Group Memberships " + currentWorldGroupMembership + " of " + worlds.length);
+        console.log("  Finished Loading Group Memberships " + (currentWorldGroupMembership + 1) + " of " + worlds.length);
         if (currentWorldGroupMembership >= worlds.length){
             finishBatch();
         } else {
             console.log(currentWorldGroupMembership);
+            currentWorldGroupMembership++;
             var nextWorld = worlds[currentWorldGroupMembership];
             worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorldGroupMembership);
-            currentWorldGroupMembership++;
         }
     }
     loadNextWorldGroupMembership();
