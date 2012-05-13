@@ -1,1 +1,1 @@
-{"search":{"title":"Search","threshold":90,"target":100}}
+{"search":{"title":"Search","threshold":90,"target":100,"elements":[{"id":"searchall-noquery","title":"Search All - No Query","targetAverage":500,"upperLimitAverage":2000,"tolerance":0.05,"weight":1},{"id":"searchall-query-lots","title":"Search All - Query - Lots","targetAverage":500,"upperLimitAverage":2000,"tolerance":0.05,"weight":1},{"id":"searchall-query-few","title":"Search All - Query - Few","targetAverage":500,"upperLimitAverage":2000,"tolerance":0.05,"weight":2}]}}

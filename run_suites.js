@@ -15,7 +15,19 @@ exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
         suitesToWrite[suite.id] = {
             "title": suite.title,
             "threshold": suite.threshold,
-            "target": suite.target
+            "target": suite.target,
+            "elements": []
+        }
+        for (var e = 0; e < suite.elements.length; e++){
+            var element = suite.elements[e];
+            suitesToWrite[suite.id].elements.push({
+                "id": element.id,
+                "title": element.title,
+                "targetAverage": element.targetAverage,
+                "upperLimitAverage": element.upperLimitAverage,
+                "tolerance": element.tolerance,
+                "weight": element.weight
+            });            
         }
     }
     // Write the suites.json file
@@ -54,18 +66,18 @@ exports.clearResults = function(){
 // TEST SCRIPT //
 /////////////////
 
-//var batches = [];
-//var users = general.loadJSONFileIntoArray("./scripts/users/0.txt");
-//var contacts = general.loadJSONFileIntoArray("./scripts/contacts/0.txt");
-//var worlds = general.loadJSONFileIntoArray("./scripts/worlds/0.txt");
-//batches.push({
-//    "users": users,
-//    "contacts": contacts,
-//    "worlds": worlds
-//});
-//exports.clearResults();
-//exports.runSuites(batches, 0, "http://localhost:8080", function(){
-//    exports.runSuites(batches, 1, "http://localhost:8080", function(){
-//        console.log("Finished");
-//    });
-//});
+var batches = [];
+var users = general.loadJSONFileIntoArray("./scripts/users/0.txt");
+var contacts = general.loadJSONFileIntoArray("./scripts/contacts/0.txt");
+var worlds = general.loadJSONFileIntoArray("./scripts/worlds/0.txt");
+batches.push({
+    "users": users,
+    "contacts": contacts,
+    "worlds": worlds
+});
+exports.clearResults();
+exports.runSuites(batches, 0, "http://localhost:8080", function(){
+    exports.runSuites(batches, 1, "http://localhost:8080", function(){
+        console.log("Finished");
+    });
+});
