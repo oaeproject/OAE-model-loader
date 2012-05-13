@@ -61,23 +61,3 @@ exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
 exports.clearResults = function(){
     general.removeFilesInFolder("./results");
 }
-
-/////////////////
-// TEST SCRIPT //
-/////////////////
-
-var batches = [];
-var users = general.loadJSONFileIntoArray("./scripts/users/0.txt");
-var contacts = general.loadJSONFileIntoArray("./scripts/contacts/0.txt");
-var worlds = general.loadJSONFileIntoArray("./scripts/worlds/0.txt");
-batches.push({
-    "users": users,
-    "contacts": contacts,
-    "worlds": worlds
-});
-exports.clearResults();
-exports.runSuites(batches, 0, "http://localhost:8080", function(){
-    exports.runSuites(batches, 1, "http://localhost:8080", function(){
-        console.log("Finished");
-    });
-});

@@ -9,6 +9,7 @@
     
     var counter = 0;
     var files = [];
+    var runs = [];
     var suites = {};
 
     var closeRequest = function(res) {
@@ -138,10 +139,33 @@
         return dataObject;
     }
 
+    var getRuns = function(suiteid) {
+        var localRuns = [];
+        for (var i = 0; i < runs.length; i++) {
+            if(runs[i].results[suiteid]) {
+                localRuns.push({
+                    users: runs[i].users,
+                    id: runs[i].id,
+                    results: runs[i].results[suiteid]
+                });
+            }
+        }
+        return localRuns;
+    };
+
     var buildJsonString = function(res) {
-        var arr = files.join(',');
-        var results = '{ "results" : ['+arr+']}';
-        res.write(results);
+
+        var reponseJSON = {
+            results: []
+        };
+
+        for (var i in suites) {
+            var responseSuite = suites[i];
+            responseSuite.runs = getRuns(i);
+            reponseJSON.results.push(responseSuite);
+        };
+
+        res.write(JSON.stringify(reponseJSON));
         closeRequest(res);
     }
 
@@ -158,13 +182,9 @@
             //dataObject = calculateResults(dataObject);
             
             // Convert modified JSON back to string.
-            data = JSON.stringify(dataObject);
-            
-            console.log(counter);
-            
-            files.push(data);
+            dataObject.id = options.file.replace('.json', '');
+            runs.push(dataObject);
             counter--;
-            console.log(counter);
             
             if (counter === 0) {
                 buildJsonString(options.response);
