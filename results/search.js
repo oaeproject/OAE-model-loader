@@ -1,5 +1,7 @@
 {
     "title": "Search",
+    "threshold": 90,
+    "target": 100,
     "elements": [
         {
             "id": "searchall-all",

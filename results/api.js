@@ -1,5 +1,7 @@
 {
     "title": "API",
+    "threshold": 90,
+    "target": 100,
     "elements": [
         {
             "id": "createworld",
