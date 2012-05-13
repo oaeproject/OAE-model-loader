@@ -1,6 +1,5 @@
-[
-    {
-        "id": "search"
+{
+    "search": {
         "title": "Search",
         "threshold": 90,
         "target": 100,
@@ -31,8 +30,7 @@
             }
         ]
     },
-    {
-        "id": "suite2"
+    "suite2": {
         "title": "Suite 2 Description",
         "threshold": 90,
         "target": 100,
@@ -55,4 +53,4 @@
             }
         ]
     }
-];
+};
