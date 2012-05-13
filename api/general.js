@@ -121,15 +121,19 @@ exports.urlReq = function(reqUrl, options, cb){
     // if there are params:
     if(options.params){
         options.params = querystring.stringify(options.params);
-        settings.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        settings.headers['Content-Length'] = options.params.length;
+        if (settings.method === "GET"){
+            settings.path += "?" + options.params;
+        } else if (settings.method === "POST"){
+            settings.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+            settings.headers['Content-Length'] = options.params.length;
+        }
     };
 
     // MAKE THE REQUEST
     var req = http.request(settings);
 
     // if there are params: write them to the request
-    if(options.params){ req.write(options.params) };
+    if(options.params && settings.method === "POST"){ req.write(options.params) };
 
     // when the response comes back
     req.on('response', function(res){
@@ -147,7 +151,7 @@ exports.urlReq = function(reqUrl, options, cb){
             if (res.statusCode === 500 || res.statusCode === 400){
                 if (!options.ignoreFail){
                     exports.errors++;
-                    console.log(res.body);
+                    console.log(res);
                 }
                 cb(res.body, false, res);
             } else {
@@ -299,7 +303,7 @@ exports.generateParagraph = function(total){
 
 exports.generateFirstName = function(sex){
     if (!sex){
-        sex = randomize([[0.5, "M"],[0.5, "F"]]);
+        sex = exports.randomize([[0.5, "M"],[0.5, "F"]]);
     }
     var firstName = "";
     if (sex === "M"){

@@ -2,6 +2,7 @@ var general = require("./api/general.js");
 var userAPI = require("./api/user.api.js");
 var contactAPI = require("./api/contacts.api.js");
 var worldAPI = require("./api/world.api.js");
+var suites = require("./run_suites.js");
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
@@ -9,19 +10,21 @@ var worldAPI = require("./api/world.api.js");
 
 var SCRIPT_FOLDER = "scripts";
 
-if (process.argv.length !== 5){
-    throw new Error("Please run this program in the following way: node loaddata.js <NUMBER OF BATCHES TO LOAD> <SERVER_URL> <ADMIN PASSWORD>");
+if (process.argv.length !== 6){
+    throw new Error("Please run this program in the following way: node loaddata.js <NUMBER OF BATCHES TO LOAD> <SERVER_URL> <ADMIN PASSWORD> <BATCH_INTERVAL_FOR_TEST_SUITE/0 for no suites>");
 }
 
 var BATCHES = parseInt(process.argv[2], 10);
 var SERVER_URL = process.argv[3];
 var ADMIN_PASSWORD = process.argv[4];
+var RUN_SUITES = parseInt(RUN_SUITES, 10);
 
 ////////////////////
 // KICK OFF BATCH //
 ////////////////////
 
 var currentBatch = 0;
+var batches = [];
 
 var loadNextBatch = function(){
     if (currentBatch < BATCHES){
@@ -30,12 +33,25 @@ var loadNextBatch = function(){
         var users = general.loadJSONFileIntoArray("./scripts/users/" + currentBatch + ".txt");
         var contacts = general.loadJSONFileIntoArray("./scripts/contacts/" + currentBatch + ".txt");
         var worlds = general.loadJSONFileIntoArray("./scripts/worlds/" + currentBatch + ".txt");
+        batches.push({
+            "users": users,
+            "contacts": contacts,
+            "worlds": worlds
+        });
         loadUsers(users, contacts, worlds);
     } else {
         console.log("*****************************");
         console.log("Finished generating " + BATCHES + " batches");
         console.log("Requests made: " + general.requests);
         console.log("Request errors: " + general.errors);
+    }
+}
+
+var checkRunSuites = function(){
+    if (RUN_SUITES){
+        
+    } else {
+        finishBatch();
     }
 }
 
@@ -112,7 +128,7 @@ var loadWorldGroupMemberships = function(users, worlds){
             var nextWorld = worlds[currentWorldGroupMembership];
             worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorldGroupMembership);
         } else {
-            finishBatch();
+            checkRunSuites();
         }
     }
     loadNextWorldGroupMembership();
