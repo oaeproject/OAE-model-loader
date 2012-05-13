@@ -2,7 +2,7 @@ var general = require("./api/general.js");
 var userAPI = require("./api/user.api.js");
 var contactAPI = require("./api/contacts.api.js");
 var worldAPI = require("./api/world.api.js");
-var suites = require("./run_suites.js");
+var runSuites = require("./run_suites.js");
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
@@ -17,7 +17,10 @@ if (process.argv.length !== 6){
 var BATCHES = parseInt(process.argv[2], 10);
 var SERVER_URL = process.argv[3];
 var ADMIN_PASSWORD = process.argv[4];
-var RUN_SUITES = parseInt(RUN_SUITES, 10);
+var RUN_SUITES = parseInt(process.argv[5], 10);
+if (RUN_SUITES){
+    runSuites.clearResults();
+}
 
 ////////////////////
 // KICK OFF BATCH //
@@ -47,19 +50,20 @@ var loadNextBatch = function(){
     }
 }
 
-var checkRunSuites = function(){
-    if (RUN_SUITES){
-        
-    } else {
-        finishBatch();
-    }
-}
-
 var finishBatch = function(){
     console.log("Finished Loading Batch " + currentBatch);
     console.log("=================================");
-    currentBatch++;
     loadNextBatch();
+}
+
+var checkRunSuites = function(){
+    currentBatch++;
+    if (RUN_SUITES && currentBatch % RUN_SUITES === 0){
+        // run the test suite before continuing
+        runSuites.runSuites(batches, currentBatch - 1, SERVER_URL, finishBatch);
+    } else {
+        finishBatch();
+    }
 }
 
 ///////////

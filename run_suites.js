@@ -4,18 +4,28 @@ var getAvailableSuites = function(){
     return general.getFileListForFolder("./suites");
 }
 
-var runSuites = function(datamodel, runid, SERVER_URL, callback){
+exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
     runid = runid || 0;
     var registeredSuites = getAvailableSuites();
     var suites = [];
+    var suitesToWrite = {};
     for (var s = 0; s < registeredSuites.length; s++){
-        var suite = require("./suites/" + registeredSuites[s]);
-        suites.push(new suite.Suite(datamodel, SERVER_URL));
+        var suite = require("./suites/" + registeredSuites[s]).Suite(datamodel, SERVER_URL);
+        suites.push(suite);
+        suitesToWrite[suite.id] = {
+            "title": suite.title,
+            "threshold": suite.threshold,
+            "target": suite.target
+        }
     }
+    // Write the suites.json file
+    general.writeFile("./results/suites.json", JSON.stringify(suitesToWrite));
+
+    // Run the suite
     var run = {};
-    run.numberOfUsers = 0;
+    run.users = 0;
     for (var b = 0; b < datamodel.length; b++){
-        run.numberOfUsers += datamodel[b].users.length;
+        run.users += datamodel[b].users.length;
     }
     run.results = {};
     var currentSuite = -1;
@@ -28,43 +38,34 @@ var runSuites = function(datamodel, runid, SERVER_URL, callback){
                 runSuite();
             });
         } else {
-            // Write the results to a file
-            console.log(JSON.stringify(run));
+            // Write the run file
+            general.writeFile("./results/run" + runid + ".json", JSON.stringify(run));
             callback();
         }
     }
     runSuite();
 }
 
-/*
- * runSuite();
-    var run = {};
-    run.numberOfUsers = 0;
-    for (var b = 0; b < datamodel.length; b++){
-        run.numberOfUsers += datamodel[b].users.length;
-    }
-    run.results = [];
-    for (var s = 0; s < suites.length; s++){
-        suites[s].run(function(results){
-            run.results.push(results)
-            callback(results);
-        });
-    }
- */
+exports.clearResults = function(){
+    general.removeFilesInFolder("./results");
+}
 
 /////////////////
 // TEST SCRIPT //
 /////////////////
 
-var batches = [];
-var users = general.loadJSONFileIntoArray("./scripts/users/0.txt");
-var contacts = general.loadJSONFileIntoArray("./scripts/contacts/0.txt");
-var worlds = general.loadJSONFileIntoArray("./scripts/worlds/0.txt");
-batches.push({
-    "users": users,
-    "contacts": contacts,
-    "worlds": worlds
-});
-runSuites(batches, 0, "http://localhost:8080", function(results){
-    console.log(results);
-});
+//var batches = [];
+//var users = general.loadJSONFileIntoArray("./scripts/users/0.txt");
+//var contacts = general.loadJSONFileIntoArray("./scripts/contacts/0.txt");
+//var worlds = general.loadJSONFileIntoArray("./scripts/worlds/0.txt");
+//batches.push({
+//    "users": users,
+//    "contacts": contacts,
+//    "worlds": worlds
+//});
+//exports.clearResults();
+//exports.runSuites(batches, 0, "http://localhost:8080", function(){
+//    exports.runSuites(batches, 1, "http://localhost:8080", function(){
+//        console.log("Finished");
+//    });
+//});
