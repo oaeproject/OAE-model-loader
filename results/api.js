@@ -1,21 +1,23 @@
-var suite = {
-    "title": "Search",
+{
+    "title": "API",
+    "threshold": 90,
+    "target": 100,
     "elements": [
         {
-            "id": "searchall-all",
-            "title": "Search All - No Query",
+            "id": "createworld",
+            "title": "Worlds - Create a new world",
+            "targetAverage": 5000,
+            "upperLimitAverage": 10000,
+            "tolerance": 0.05,
+            "weight": 1
+        },
+        {
+            "id": "invitecontact",
+            "title": "Contacts - Invite a contact",
             "targetAverage": 500,
             "upperLimitAverage": 2000,
             "tolerance": 0.05,
             "weight": 2
-        },
-        {
-            "id": "searchall-lots",
-            "title": "Search All - Query - Lots of results",
-            "targetAverage": 500,
-            "upperLimitAverage": 2000,
-            "tolerance": 0.05,
-            "weight": 1
         }
     ],
     "runs": [
@@ -24,22 +26,22 @@ var suite = {
             "users": 1000,
             "results": [
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user1",
-                    "result": 179
+                    "result": 5302
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user1",
                     "result": 356
                 },
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user2",
-                    "result": 210
+                    "result": 7800
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user2",
                     "result": 390
                 }
@@ -50,24 +52,24 @@ var suite = {
             "users": 2000,
             "results": [
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user1",
-                    "result": 219
+                    "result": 6401
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user1",
-                    "result": 756
+                    "result": 420
                 },
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user2",
-                    "result": 256
+                    "result": 6800
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user2",
-                    "result": 850
+                    "result": 410
                 }
             ]
         },
@@ -76,24 +78,24 @@ var suite = {
             "users": 3000,
             "results": [
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user1",
-                    "result": 345
+                    "result": 12893
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user1",
-                    "result": 2256
+                    "result": 510
                 },
                 {
-                    "type": "searchall-all",
+                    "type": "createworld",
                     "user": "user2",
-                    "result": 390
+                    "result": 14932
                 },
                 {
-                    "type": "searchall-lots",
+                    "type": "invitecontact",
                     "user": "user2",
-                    "result": 2190
+                    "result": 495
                 }
             ]
         }
