@@ -43,7 +43,7 @@ var getData = function() {
             renderTestSuites();
             addBinding();
         }
-    })
+    });
 };
 
 /**
