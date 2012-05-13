@@ -1,0 +1,179 @@
+{
+    "users": 10,
+    "results": {
+        "search2": [
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-tyron-donachie-521",
+                "result": 1838
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-tyron-donachie-521",
+                "result": 686
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-tyron-donachie-521",
+                "result": 4296
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-henry-aini-491",
+                "result": 805
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-henry-aini-491",
+                "result": 98
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-henry-aini-491",
+                "result": 8757
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-glayds-canter-945",
+                "result": 1132
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-glayds-canter-945",
+                "result": 99
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-glayds-canter-945",
+                "result": 1283
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-billy-walizer-440",
+                "result": 1059
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-billy-walizer-440",
+                "result": 160
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-billy-walizer-440",
+                "result": 1017
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-earl-pachlin-492",
+                "result": 818
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-earl-pachlin-492",
+                "result": 93
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-earl-pachlin-492",
+                "result": 265
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-pasty-acklen-139",
+                "result": 812
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-pasty-acklen-139",
+                "result": 86
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-pasty-acklen-139",
+                "result": 1898
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-clara-theden-364",
+                "result": 808
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-clara-theden-364",
+                "result": 82
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-clara-theden-364",
+                "result": 3369
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-johnnie-osler-148",
+                "result": 842
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-johnnie-osler-148",
+                "result": 85
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-johnnie-osler-148",
+                "result": 6614
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-vincenzo-rosbough-409",
+                "result": 844
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-vincenzo-rosbough-409",
+                "result": 85
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-vincenzo-rosbough-409",
+                "result": 1471
+            },
+            {
+                "type": "searchall-noquery",
+                "user": "batch0-russel-kluka-138",
+                "result": 869
+            },
+            {
+                "type": "searchall-query-lots",
+                "user": "batch0-russel-kluka-138",
+                "result": 83
+            },
+            {
+                "type": "searchall-query-few",
+                "user": "batch0-russel-kluka-138",
+                "result": 168
+            }
+        ],
+        "suite2-2": [
+            {
+                "type": "feed1",
+                "user": "batch0-tyron-donachie-521",
+                "result": 1838
+            },
+            {
+                "type": "feed2",
+                "user": "batch0-tyron-donachie-521",
+                "result": 686
+            },
+            {
+                "type": "feed1",
+                "user": "batch0-tyron-donachie-521",
+                "result": 4296
+            },
+            {
+                "type": "feed2",
+                "user": "batch0-henry-aini-491",
+                "result": 805
+            }
+        ]
+    }
+}
