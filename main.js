@@ -145,8 +145,7 @@
             if(runs[i].results[suiteid]) {
                 localRuns.push({
                     users: runs[i].users,
-                    id: runs[i].id,
-                    results: runs[i].results[suiteid]
+                    id: runs[i].id
                 });
             }
         }
@@ -209,7 +208,11 @@
     var readSuites = function(options) {
         fs.readFile(RESULTS_DIR + 'suites.json', 'ascii', function(err,data) {
             suites = JSON.parse(data);
-            
+
+            for (var i in suites) {
+                suites[i].id = i;
+            }
+
             readRunFiles(options);
         });
     }
