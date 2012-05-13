@@ -223,6 +223,8 @@
         });
         files = [];
         counter = 0;
+        runs = [];
+        suites = {};
         var results = general.getFileListForFolder(RESULTS_DIR);
         
         readSuites({
