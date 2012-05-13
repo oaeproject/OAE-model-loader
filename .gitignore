@@ -1,3 +1,4 @@
 data/files
 data/pictures
 .DS_Store
+node_modules/canvas
