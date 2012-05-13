@@ -1,8 +1,10 @@
-var http = require('http');
+var express = require('express');
+var app = express.createServer();
 var fs = require('fs');
 var general = require('./api/general.js');
 
 var RESULTS_DIR = './results/';
+var REPORTING_DIR = './reporting/';
 
 var counter = 0;
 var files = [];
@@ -48,13 +50,29 @@ var readFiles = function(results, res) {
     }
 }
 
-http.createServer(function (req, res) {
+app.get('/results.json', function(req, res){
     res.writeHead(200, {
         'Content-Type': 'application/json'
     });
     var results = general.getFileListForFolder(RESULTS_DIR);
     readFiles(results, res); 
-}).listen(1337, '127.0.0.1');
+});
+
+app.configure(function() {
+  app.use(express.static(REPORTING_DIR));
+  app.use(express.directory(REPORTING_DIR));
+  app.use(express.errorHandler());
+});
+/*
+app.get('/', function(req, res){
+    res.writeHead(200, {
+        'Content-Type': 'application/json'
+    });
+    var results = general.getFileListForFolder(RESULTS_DIR);
+    readFiles(results, res); 
+});*/
+
+app.listen(1337);
 
 console.log('Server running at http://127.0.0.1:1337/');
 
