@@ -32,6 +32,13 @@ exports.loadJSONFileIntoArray = function(filename){
     return items;
 }
 
+exports.writeFile = function(filename, content){
+    try {
+        fs.unlinkSync(filename);
+    } catch (err) {}
+    fs.writeFileSync(filename, content, "utf8");
+}
+
 exports.writeFileIntoArray = function(filename, array){
     try {
         fs.unlinkSync(filename);
@@ -47,6 +54,13 @@ exports.writeFileIntoArray = function(filename, array){
 exports.getFileListForFolder = function(foldername){
     var files = fs.readdirSync(foldername);
     return files;
+}
+
+exports.removeFilesInFolder = function(foldername){
+    var files = exports.getFileListForFolder(foldername);
+    for (var f = 0; f < files.length; f++){
+        fs.unlinkSync(foldername + "/" + files[f]);
+    }
 }
 
 // Randomize function
