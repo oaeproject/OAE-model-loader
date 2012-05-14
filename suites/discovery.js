@@ -10,7 +10,7 @@ exports.Suite = function(datamodel, SERVER_URL){
     var runs = [];
 
     // Recent Activity Feed
-    elements.push(new suiteAPI.SuiteElement("recentactivity-data", "Recentactivity Feed", 500, 2000, 0.05, 1));
+    elements.push(new suiteAPI.SuiteElement("recentactivity", "Recentactivity Feed", 500, 2000, 0.05, 1));
 
     elements.push(new suiteAPI.SuiteElement("related-content", "Related Content Feed", 500, 2000, 0.05, 1));
 
@@ -18,7 +18,7 @@ exports.Suite = function(datamodel, SERVER_URL){
         for (var u = 0; u < datamodel[b].users.length; u++){
             var user = datamodel[b].users[u];
             runs.push({
-                "type": "recentactivity-data",
+                "type": "recentactivity",
                 "url": SERVER_URL + "/var/search/activity/all.json",
                 "user": user,
                 "method": "GET",
@@ -30,7 +30,7 @@ exports.Suite = function(datamodel, SERVER_URL){
             });
 
             runs.push({
-                "type": "related-content-data",
+                "type": "related-content",
                 "url": SERVER_URL + "/var/search/pool/me/related-content.json",
                 "user": user,
                 "method": "GET",
