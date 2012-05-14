@@ -400,3 +400,11 @@ exports.generateWorldPicture = function(){
 exports.generateCity = function(){
     return cities[Math.floor(Math.random() * cities.length)];
 }
+
+exports.generateRandomURL = function(){
+    
+}
+
+exports.generateRandomYoutubeUrl = function(){
+    
+}
