@@ -17,6 +17,39 @@ var oaeTestSuite = function () {
             res.end('\n');
         },
 
+        calulateAverageRun : function(results, testid) {
+            var total = 0;
+            var amount = 0;
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].type === testid) {
+                    total += results[i].result;
+                    amount++;
+                }
+            }
+            var average = total / amount;
+            return Math.round(average * 100)/100;
+        },
+
+        calulateAverageTest : function(suite, testid) {
+            var that = this;
+            var tests = {};
+            for (var i = 0; i < suite.runs.length; i++) {
+                tests[suite.runs[i].id] = {
+                    users: suite.runs[i].users,
+                    result: that.calulateAverageRun(suite.runs[i].results, testid)
+                }
+            }
+            return tests;
+        },
+
+        calulateAverage : function(suite) {
+            var that = this;
+            for (var i = 0; i < suite.elements.length; i++) {
+                suite.elements[i].resultAverage = that.calulateAverageTest(suite, suite.elements[i].id);
+            }
+            return suite.elements;
+        },
+
         getRuns : function(suiteid) {
             var localRuns = [];
             for (var i = 0; i < runs.length; i++) {
@@ -24,7 +57,7 @@ var oaeTestSuite = function () {
                     localRuns.push({
                         users: runs[i].users,
                         id: runs[i].id,
-                        //results: runs[i].results[suiteid]
+                        results: runs[i].results[suiteid]
                     });
                 }
             }
@@ -32,6 +65,7 @@ var oaeTestSuite = function () {
         },
 
         buildJsonString : function(res) {
+            var that = this;
             var reponseJSON = {
                 results: []
             };
@@ -39,6 +73,7 @@ var oaeTestSuite = function () {
             for (var i in suites) {
                 var responseSuite = suites[i];
                 responseSuite.runs = this.getRuns(i);
+                responseSuite.elements = that.calulateAverage(responseSuite);
                 reponseJSON.results.push(responseSuite);
             };
 
@@ -85,7 +120,6 @@ var oaeTestSuite = function () {
         
         readSuites : function(options) {
             var that = this;
-            console.log(this);
             fs.readFile(RESULTS_DIR + 'suites.json', 'ascii', function(err,data) {
                 suites = JSON.parse(data);
 
