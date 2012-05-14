@@ -49,13 +49,16 @@ var generateBatch = function(id){
     var batch = {};
     batch.users = [];
     for (var u = 0; u < USERS_PER_BATCH; u++){
-        batch.users.push(new user.User(id));
+        try {
+            batch.users.push(new user.User(id));
+        } catch (err){u--;}
     }
     batch.contacts = contacts.generateContacts(batch.users);
     batch.worlds = [];
     for (var w = 0; w < WORLDS_PER_BATCH; w++){
-        batch.worlds.push(new world.World(id, batch.users));
-        //console.log(JSON.stringify(batch.worlds[w]));
+        try {
+            batch.worlds.push(new world.World(id, batch.users));
+        } catch (err){w--;}
     }
     batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
     console.log("Finished Generating Batch " + id);
