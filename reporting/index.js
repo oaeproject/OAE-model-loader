@@ -129,15 +129,19 @@ var createChart = function(chartData) {
  * Render the charts of all tests rendered on the page
  */
 var renderCharts = function() {
-    $.each(resultData.results, function(i, result) {
+    $.each(resultData.suites, function(i, result) {
         // Render overall results first
-        var categories = [1000, 2000, 3000];
+        var categories = [];
         var singleSerie = {
             'name': result.title + ' - Overall',
-            'data': [85, 87, 100]
+            'data': []
         };
+        $.each(result.weighted, function(j, test) {
+            categories.push(test.users);
+            singleSerie.data.push(test.result);
+        });
         createChart({
-            chartId: 'reporting_chart_' + result.id + '_overall',
+            chartId: 'reporting_chart_' + i + '_overall',
             chartTitle: result.title + ' - Overall',
             categories: categories,
             series: [singleSerie],
@@ -145,25 +149,28 @@ var renderCharts = function() {
             target: result.target // Target we aim for
         });
 
+        // Render the runs
         $.each(result.elements, function(ii, test) {
             var categories = [];
             var singleSerie = {
-                'name': result.title + ' - ' + test.title,
+                'name': i + ' - ' + test.title,
                 'data': []
             };
-            $.each(test.resultAverage, function(iii, rA) {
+            $.each(test.runs, function(iii, rA) {
                 if (rA.users) {
                     categories.push(rA.users)
                 }
-                if (rA.result) {
-                    singleSerie.data.push(rA.result);
+                if (rA.average) {
+                    singleSerie.data.push(rA.average);
                 }
             });
             createChart({
-                chartId: 'reporting_chart_' + result.id + '_' + test.id,
+                chartId: 'reporting_chart_' + i + '_' + test.id,
                 chartTitle: test.title,
                 categories: categories,
-                series: [singleSerie]
+                series: [singleSerie],
+                threshold: test.upperLimitAverage, // Highest acceptable average
+                target: test.targetAverage // Target we aim for
             });
         });
     });
@@ -178,11 +185,15 @@ var renderCharts = function() {
  * Render the top navigation based on the tests in the suite
  */
 var renderNavigation = function() {
-    $.each(resultData.results, function(i, result) {
+    $.each(resultData.suites, function(i, result) {
         $('#reporting_navigation_container').append(
             $('<li><a href="#' + result.title + '" data-toggle="tab">' + result.title + '</a></li>')
         );
     });
+};
+
+var renderUsersSupported = function() {
+    $('#reporting_users_supported').text(resultData.numberOfUsersSupported);
 };
 
 /**
@@ -190,15 +201,15 @@ var renderNavigation = function() {
  */
 var renderTestSuites = function() {
     var htmlOutput = '';
-    $.each(resultData.results, function(i, result) {
+    $.each(resultData.suites, function(i, result) {
         htmlOutput += '<div class="reporting_test_suite" data-title="' + result.title + '"><div class="navbar"><div class="navbar-inner"><div class="container">' +
         '<a name="' + result.title + '" class="brand">' + result.title + '</a></div></div></div><div class="reporting_results" style="display:none">';
 
         // Add an 'overall' section to all suites
-        htmlOutput += '<div class="well"><h3>Overall</h3><div id="reporting_chart_' + result.id + '_overall"></div></div>';
+        htmlOutput += '<div class="well"><h3>Overall</h3><div id="reporting_chart_' + i + '_overall"></div></div>';
 
         $.each(result.elements, function(ii, test) {
-            htmlOutput += '<div class="well"><h3>' + test.title + '</h3><div id="reporting_chart_' + result.id + '_' + test.id + '"></div></div>';
+            htmlOutput += '<div class="well"><h3>' + test.title + '</h3><div id="reporting_chart_' + i + '_' + test.id + '"></div></div>';
         });
         htmlOutput += '</div></div>';
     });
@@ -219,6 +230,7 @@ var getData = function() {
         success: function(data) {
             resultData = data;
             renderNavigation();
+            renderUsersSupported();
             renderTestSuites();
             renderCharts();
             addBinding();
