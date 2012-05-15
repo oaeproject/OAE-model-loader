@@ -43,11 +43,11 @@ exports.writeFileIntoArray = function(filename, array){
     try {
         fs.unlinkSync(filename);
     } catch (err) {}
-    var file = fs.createWriteStream(filename, {"flags": "a"});
+    var finalArray = [];
     for (var i = 0; i < array.length; i++){
-        file.write(JSON.stringify(array[i]) + "\n", "utf8");
+        finalArray.push(JSON.stringify(array[i])); 
     }
-    file.end();
+    fs.writeFileSync(filename, finalArray.join("\n"), "utf8");
 }
 
 // List files in a folder
