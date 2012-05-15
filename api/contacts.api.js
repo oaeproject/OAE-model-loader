@@ -25,7 +25,7 @@ exports.loadContact = function(contact, users, SERVER_URL, ADMIN_PASSWORD, callb
             callback();
         }
     });
-}
+};
 
 var sendContactRequest = function(contact, inviter, invitee, SERVER_URL, ADMIN_PASSWORD, callback){
     var auth = inviter.userid + ":" + inviter.password;
@@ -51,7 +51,7 @@ var sendContactRequest = function(contact, inviter, invitee, SERVER_URL, ADMIN_P
             "sakai:subject": inviter.firstName + " " + inviter.lastName + " has invited you to become a connection",
             "sakai:to": "internal:" + invitee.userid,
             "sakai:type": "internal"
-        }
+        };
         general.urlReq(SERVER_URL + "/~" + inviter.userid + "/message.create.html", {
             method: 'POST',
             params: message,
@@ -70,7 +70,7 @@ var sendContactRequest = function(contact, inviter, invitee, SERVER_URL, ADMIN_P
                 "sakai:templatePath": "/var/templates/email/contact_invitation",
                 "sakai:to": "internal:" + invitee.userid,
                 "sakai:type": "smtp"   
-            }
+            };
             general.urlReq(SERVER_URL + "/~" + inviter.userid + "/message.create.html", {
                 method: 'POST',
                 params: message,
@@ -78,7 +78,7 @@ var sendContactRequest = function(contact, inviter, invitee, SERVER_URL, ADMIN_P
             }, callback);
         });
     });
-}
+};
 
 var acceptContactRequest = function(contact, inviter, invitee, SERVER_URL, ADMIN_PASSWORD, callback){
     var auth = invitee.userid + ":" + invitee.password;

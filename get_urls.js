@@ -20,7 +20,7 @@ var getUrl = function(){
         toDo = 1000;
         getYouTubeUrl();
     }
-}
+};
 
 var getYouTubeUrl = function(){
     if (done.length < toDo){
@@ -41,5 +41,5 @@ var getYouTubeUrl = function(){
     } else {
         general.writeFileIntoArray("./data/urls/youtube.txt", done);
     }
-}
+};
 getUrl();

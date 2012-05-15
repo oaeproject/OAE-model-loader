@@ -89,7 +89,7 @@ var DISTRIBUTIONS = {
         "HAS_PICTURE": [[0.7, true], [0.3, false]],
         "WORLDS_WEIGHTING": [[0.2, 1], [0.5, 3], [0.3, 5]]
     }
-}
+};
 
 
 ////////////////
@@ -124,7 +124,7 @@ exports.User = function(batchid) {
         tags: general.generateKeywords(general.ASM(DISTRIBUTIONS[that.userType].TAGS)),
         hasDirectory: general.randomize(DISTRIBUTIONS[that.userType].HAS_DIRECTORY),
         directory: general.generateDirectory(general.ASM(DISTRIBUTIONS[that.userType].DIRECTORY))
-    }
+    };
 
     that.aboutMe = {
         hasAboutMeSection: general.randomize(DISTRIBUTIONS[that.userType].HAS_ABOUT_ME_SECTION),
@@ -137,7 +137,7 @@ exports.User = function(batchid) {
         personalInterests: general.generateKeywords(general.ASM(DISTRIBUTIONS[that.userType].PERSONAL_INTERESTS)),
         hasHobbies: general.randomize(DISTRIBUTIONS[that.userType].HAS_HOBBIES),
         hobbies: general.generateKeywords(general.ASM(DISTRIBUTIONS[that.userType].HOBBIES))
-    }
+    };
 
     var publications = [];
     var numberOfPublications = general.ASM(DISTRIBUTIONS[that.userType].PUBLICATIONS);
@@ -147,18 +147,18 @@ exports.User = function(batchid) {
     that.publications = {
         publicationsPrivacy: general.randomize(DISTRIBUTIONS[that.userType].PUBLICATIONS_PRIVACY),
         publications: publications
-    }
+    };
 
     that.picture = {
         hasPicture: general.randomize(DISTRIBUTIONS[that.userType].HAS_PICTURE),
         picture: general.generatePersonPicture()
-    }
+    };
 
     that.worldWeighting = general.randomize(DISTRIBUTIONS[that.userType].WORLDS_WEIGHTING);
     that.contentWeighting = 0;
 
     return that;
-}
+};
 
 exports.Publication = function(user){
     var that = {};
@@ -170,4 +170,4 @@ exports.Publication = function(user){
     that.year = general.ASM([2005, 15, 1990, 2012]);
 
     return that;
-}
+};

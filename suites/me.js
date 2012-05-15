@@ -31,4 +31,4 @@ exports.Suite = function(datamodel, SERVER_URL){
     // Define elements
     var suite = new suiteAPI.Suite(id, title, threshold, target, elements, runs);
     return suite;
-}
+};
