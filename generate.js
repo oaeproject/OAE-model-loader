@@ -9,7 +9,7 @@ var world = require("./api/world.model.js");
 
 var SCRIPT_FOLDER = "scripts";
 
-var TOTAL_BATCHES = 5;
+var TOTAL_BATCHES = 10;
 var USERS_PER_BATCH = 10; //1000;
 var WORLDS_PER_BATCH = 25; //2500;
 var CONTENT_PER_BATCH = 0;

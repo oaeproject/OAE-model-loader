@@ -10,14 +10,15 @@ var runSuites = require("./run_suites.js");
 
 var SCRIPT_FOLDER = "scripts";
 
-if (process.argv.length !== 6){
-    throw new Error("Please run this program in the following way: node loaddata.js <NUMBER OF BATCHES TO LOAD> <SERVER_URL> <ADMIN PASSWORD> <BATCH_INTERVAL_FOR_TEST_SUITE/0 for no suites>");
+if (process.argv.length !== 7){
+    throw new Error("Please run this program in the following way: node loaddata.js <NUMBER OF BATCHES TO LOAD> <SERVER_URL> <ADMIN PASSWORD> <NUMBER_OF_CONCURRENT_BATCHES> <BATCH_INTERVAL_FOR_TEST_SUITE/0 for no suites>");
 }
 
 var BATCHES = parseInt(process.argv[2], 10);
 var SERVER_URL = process.argv[3];
 var ADMIN_PASSWORD = process.argv[4];
-var RUN_SUITES = parseInt(process.argv[5], 10);
+var CONCURRENT_BATCHES = parseInt(process.argv[5], 10);
+var RUN_SUITES = parseInt(process.argv[6], 10);
 if (RUN_SUITES){
     runSuites.clearResults();
 }
@@ -26,10 +27,11 @@ if (RUN_SUITES){
 // KICK OFF BATCH //
 ////////////////////
 
-var currentBatch = 0;
+var currentBatch = -1;
 var batches = [];
 
 var loadNextBatch = function(){
+    currentBatch++;
     if (currentBatch < BATCHES){
         console.log("Loading Batch " + currentBatch);
         // Load the data from the model
@@ -57,7 +59,6 @@ var finishBatch = function(){
 }
 
 var checkRunSuites = function(){
-    currentBatch++;
     if (RUN_SUITES && currentBatch % RUN_SUITES === 0){
         // run the test suite before continuing
         runSuites.runSuites(batches, currentBatch - 1, SERVER_URL, finishBatch);
@@ -142,4 +143,6 @@ var loadWorldGroupMemberships = function(users, worlds){
 // START //
 ///////////
 
-loadNextBatch();
+for (var b = 0; b < CONCURRENT_BATCHES && b < BATCHES; b++){
+    loadNextBatch();
+}
