@@ -30,18 +30,18 @@ exports.Suite = function(id, title, threshold, target, elements, runs){
                         "type": run.type,
                         "user": run.user.userid,
                         "result": endTime - startTime
-                    })
+                    });
                     runTest();
                 });
             } else {
                 callback(results);
             }
-        }
+        };
         runTest();
-    }
+    };
 
     return that;
-}
+};
 
 exports.SuiteElement = function(id, title, targetAverage, upperLimitAverage, tolerance, weight){
     var that = {};
@@ -54,4 +54,4 @@ exports.SuiteElement = function(id, title, targetAverage, upperLimitAverage, tol
     that.weight = weight;
 
     return that;
-}
+};

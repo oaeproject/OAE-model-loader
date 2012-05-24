@@ -2,7 +2,7 @@ var general = require("./api/general.js");
 
 var getAvailableSuites = function(){
     return general.getFileListForFolder("./suites");
-}
+};
 
 exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
     runid = runid || 0;
@@ -17,7 +17,7 @@ exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
             "threshold": suite.threshold,
             "target": suite.target,
             "elements": []
-        }
+        };
         for (var e = 0; e < suite.elements.length; e++){
             var element = suite.elements[e];
             suitesToWrite[suite.id].elements.push({
@@ -54,10 +54,10 @@ exports.runSuites = function(datamodel, runid, SERVER_URL, callback){
             general.writeFile("./results/run" + runid + ".json", JSON.stringify(run));
             callback();
         }
-    }
+    };
     runSuite();
-}
+};
 
 exports.clearResults = function(){
     general.removeFilesInFolder("./results");
-}
+};

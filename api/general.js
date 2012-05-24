@@ -22,7 +22,7 @@ exports.loadFileIntoArray = function(filename){
         }
     }
     return finallines;
-}
+};
 
 exports.loadJSONFileIntoArray = function(filename){
     var items = exports.loadFileIntoArray(filename);
@@ -30,14 +30,14 @@ exports.loadJSONFileIntoArray = function(filename){
         items[i] = JSON.parse(items[i]);
     }
     return items;
-}
+};
 
 exports.writeFile = function(filename, content){
     try {
         fs.unlinkSync(filename);
     } catch (err) {}
     fs.writeFileSync(filename, content, "utf8");
-}
+};
 
 exports.writeFileIntoArray = function(filename, array){
     try {
@@ -48,20 +48,20 @@ exports.writeFileIntoArray = function(filename, array){
         finalArray.push(JSON.stringify(array[i])); 
     }
     fs.writeFileSync(filename, finalArray.join("\n"), "utf8");
-}
+};
 
 // List files in a folder
 exports.getFileListForFolder = function(foldername){
     var files = fs.readdirSync(foldername);
     return files;
-}
+};
 
 exports.removeFilesInFolder = function(foldername){
     var files = exports.getFileListForFolder(foldername);
     for (var f = 0; f < files.length; f++){
         fs.unlinkSync(foldername + "/" + files[f]);
     }
-}
+};
 
 // Randomize function
 // Pass this something along the lines of [[0.5, "M"],[0.5, "F"]]
@@ -72,17 +72,17 @@ exports.randomize = function(mapfunc){
     }
     var rand = Math.random() * totalprob;
     var curProgress = 0;
-    for (var i = 0; i < mapfunc.length; i++){
-        curProgress += mapfunc[i][0];
+    for (var j = 0; j < mapfunc.length; j++){
+        curProgress += mapfunc[j][0];
         if (rand <= curProgress){
-            if (typeof mapfunc[i][1] === "function"){
-                return mapfunc[i][1]();
+            if (typeof mapfunc[j][1] === "function"){
+                return mapfunc[j][1]();
             } else {
-                return mapfunc[i][1];
+                return mapfunc[j][1];
             }
         }
     }
-}
+};
 
 // Calculate a value given an average, standard deviation and maximum
 exports.ASM = function(vars){
@@ -102,7 +102,7 @@ exports.ASM = function(vars){
         }
         return R;
     }
-}
+};
 
 /////////////////
 // API RELATED //
@@ -141,13 +141,13 @@ exports.urlReq = function(reqUrl, options, cb){
             settings.headers['Content-Type'] = 'application/x-www-form-urlencoded';
             settings.headers['Content-Length'] = options.params.length;
         }
-    };
+    }
 
     // MAKE THE REQUEST
     var req = http.request(settings);
 
     // if there are params: write them to the request
-    if(options.params && settings.method === "POST"){ req.write(options.params) };
+    if(options.params && settings.method === "POST"){ req.write(options.params); }
 
     // when the response comes back
     req.on('response', function(res){
@@ -155,7 +155,7 @@ exports.urlReq = function(reqUrl, options, cb){
         res.setEncoding('utf-8');
 
         // concat chunks
-        res.on('data', function(chunk){ res.body += chunk });
+        res.on('data', function(chunk){ res.body += chunk; });
 
         // when the response has finished
         res.on('end', function(){
@@ -176,7 +176,7 @@ exports.urlReq = function(reqUrl, options, cb){
 
     // end the request
     req.end();
-}
+};
 
 exports.importRequest = function(reqUrl, content, options, cb){
     options.params = options.params || {};
@@ -192,7 +192,7 @@ exports.importRequest = function(reqUrl, content, options, cb){
         }
         cb(body, success, res);
     });
-}
+};
 
 exports.filePost = function(reqUrl, file, name, options, cb){
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
@@ -233,8 +233,8 @@ exports.filePost = function(reqUrl, file, name, options, cb){
 
     // MAKE THE REQUEST
     var req = http.request(settings);
-    for (var i = 0; i < post_data.length; i++) {
-        req.write(post_data[i]);
+    for (var k = 0; k < post_data.length; k++) {
+        req.write(post_data[k]);
     }
 
     // when the response comes back
@@ -243,7 +243,7 @@ exports.filePost = function(reqUrl, file, name, options, cb){
         res.setEncoding('utf-8');
 
         // concat chunks
-        res.on('data', function(chunk){ res.body += chunk });
+        res.on('data', function(chunk){ res.body += chunk; });
 
         // when the response has finished
         res.on('end', function(){
@@ -264,7 +264,7 @@ exports.filePost = function(reqUrl, file, name, options, cb){
 
     // end the request
     req.end();
-}
+};
 
 ////////////////
 // LOAD NAMES //
@@ -305,7 +305,7 @@ exports.generateSentence = function(total){
         sentences.push(Generators.english.sentence());
     }
     return sentences.join(" ");
-}
+};
 
 exports.generateParagraph = function(total){
     if (!total || total === 1){
@@ -313,7 +313,7 @@ exports.generateParagraph = function(total){
     } else {
         return Generators.english.paragraphs(total);
     }
-}
+};
 
 exports.generateFirstName = function(sex){
     if (!sex){
@@ -326,30 +326,30 @@ exports.generateFirstName = function(sex){
         firstName = femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)].toLowerCase();
     }
     return firstName[0].toUpperCase() + firstName.substring(1);
-}
+};
 
 exports.generateLastName = function(){
     var lastName = lastNames[Math.floor(Math.random() * lastNames.length)].toLowerCase();
     return lastName[0].toUpperCase() + lastName.substring(1);
-}
+};
 
 exports.generateName = function(sex){
     return exports.generateFirstName(sex) + " " + exports.generateLastName();
-}
+};
 
 exports.generateId = function(batchid, seed){
     return "batch" + batchid + "-" + (seed.join("-").toLowerCase()) + "-" + Math.round(Math.random() * 1000);
-}
+};
 
 exports.generateEmail = function(seed){
     var domains = ["googlemail.com", "hotmail.com", "gmail.com", "cam.ac.uk", "yahoo.com"];
     return seed.join("_").toLowerCase() + "@" + domains[Math.floor(Math.random() * domains.length)];
-}
+};
 
 exports.generatePassword = function(){
     var passwords = exports.loadFileIntoArray("./data/passwords.txt");
     return passwords[Math.floor(Math.random() * passwords.length)];
-}
+};
 
 exports.generateDirectory = function(total){
     var directorytags = exports.loadFileIntoArray("./data/categories.txt");
@@ -363,7 +363,7 @@ exports.generateDirectory = function(total){
         directorytags.splice(index, 1);
     }
     return toReturn;
-}
+};
 
 exports.generateKeywords = function(total){
     var toReturn = [];
@@ -377,34 +377,34 @@ exports.generateKeywords = function(total){
         }
     }
     return toReturn;
-}
+};
 
 exports.generateDepartment = function(){
     var departments = exports.loadFileIntoArray("./data/departments.txt");
     return departments[Math.floor(Math.random() * departments.length)];
-}
+};
 
 exports.generateCollege = function(){
     var colleges = exports.loadFileIntoArray("./data/colleges.txt");
     return colleges[Math.floor(Math.random() * colleges.length)];
-}
+};
 
 exports.generatePersonPicture = function(){
     return userPictures[Math.floor(Math.random() * userPictures.length)];
-}
+};
 
 exports.generateWorldPicture = function(){
     return worldPictures[Math.floor(Math.random() * worldPictures.length)];
-}
+};
 
 exports.generateCity = function(){
     return cities[Math.floor(Math.random() * cities.length)];
-}
+};
 
 exports.generateRandomURL = function(){
     
-}
+};
 
 exports.generateRandomYoutubeUrl = function(){
     
-}
+};

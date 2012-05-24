@@ -16,5 +16,5 @@ Add create the following folders & add image files to
 ## Run
 
 * node generate.js
-* node loaddata.js 10 http://localhost:8080 admin 10
+* node loaddata.js <number of batches to load> <Sakai OAE Url> <admin password> <number of concurrent batches to load> <0 for no suites/interval for running the suites>
 * node main.js

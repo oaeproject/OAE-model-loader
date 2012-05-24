@@ -158,7 +158,7 @@ var renderCharts = function() {
             };
             $.each(test.runs, function(iii, rA) {
                 if (rA.users) {
-                    categories.push(rA.users)
+                    categories.push(rA.users);
                 }
                 if (rA.average) {
                     singleSerie.data.push(rA.average);

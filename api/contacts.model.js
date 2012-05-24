@@ -20,7 +20,7 @@ var DISTRIBUTIONS = {
         "TOTAL": [8, 2, 1, 800],
         "ACCEPT_REQUEST": [[0.95, true],[0.05, false]]
     }
-}
+};
 
 
 ////////////////
@@ -37,20 +37,20 @@ exports.generateContacts = function(users) {
         user.targetContacts = general.ASM(DISTRIBUTIONS[user.userType].TOTAL);
     }
 
-    for (var u = 0; u < users.length; u++){
-        var user = users[u];
+    for (var s = 0; s < users.length; s++){
+        var cuser = users[s];
         // Check how many contacts the current user already has
         var contactsAlready = 0; var contactsToGo = 0;
         for (var c = 0; c < contacts.length; c++){
-            if (contacts[c].inviter === user.userid || contacts[c].invitee === user.userid){
+            if (contacts[c].inviter === cuser.userid || contacts[c].invitee === cuser.userid){
                 contactsAlready++;
             }
         }
-        contactsToGo = user.targetContacts - contactsAlready;
+        contactsToGo = cuser.targetContacts - contactsAlready;
         // Decide which users the current one accepts
         // Create a possibility curve based on target contacts
         var possibilities = [];
-        for (var p = u + 1; p < users.length; p++){
+        for (var p = s + 1; p < users.length; p++){
             if (users[p].hasContacts){
                 possibilities.push([users[p].targetContacts, users[p]]);
             }
@@ -58,13 +58,13 @@ exports.generateContacts = function(users) {
         if (possibilities.length && contactsToGo){
             for (var t = 0; t < contactsToGo; t++){
                 var nextContact = general.randomize(possibilities);
-                contacts.push(new exports.Contact(user, nextContact));
+                contacts.push(new exports.Contact(cuser, nextContact));
                 contactsAlready++;
                 // Remove the contact from the possibilities curve
                 var toRemove = 0;
-                for (var p = 0; p < possibilities.length; p++){
-                    if (possibilities[p][1].userid === nextContact.userid){
-                        toRemove = p;
+                for (var q = 0; q < possibilities.length; q++){
+                    if (possibilities[q][1].userid === nextContact.userid){
+                        toRemove = q;
                     }
                 }
                 possibilities.splice(toRemove, 1);
@@ -76,7 +76,7 @@ exports.generateContacts = function(users) {
     }
 
     return contacts;
-}
+};
 
 exports.Contact = function(user1, user2){
     var that = {};
@@ -84,8 +84,8 @@ exports.Contact = function(user1, user2){
 
     that.inviter = user1.userid;
     that.invitee = user2.userid;
-    that.type = types[Math.floor(Math.random() * types.length)];;
+    that.type = types[Math.floor(Math.random() * types.length)];
     that.willAccept = general.randomize(DISTRIBUTIONS[user2.userType].ACCEPT_REQUEST);
 
     return that;
-}
+};

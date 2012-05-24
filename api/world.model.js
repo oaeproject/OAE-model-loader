@@ -170,7 +170,7 @@ var DISTRIBUTIONS = {
             }
         }
     }
-}
+};
 
 ////////////////
 // USER MODEL //
@@ -179,13 +179,13 @@ var DISTRIBUTIONS = {
 exports.World = function(batchid, users) {
     var that = {};
 
-    that.template = general.randomize([[0.7, "simple-group"],[0.01, "math-course"],[0.05, "basic-course"],[0.1, "research-project"],[0.14, "research-support"]]);;
+    that.template = general.randomize([[0.7, "simple-group"],[0.01, "math-course"],[0.05, "basic-course"],[0.1, "research-project"],[0.14, "research-support"]]);
     if (that.template === "simple-group"){
         that.type = "group";
     } else if (that.template === "math-course" || that.template === "basic-course"){
         that.type = "course";
     } else {
-        that.type = "research"
+        that.type = "research";
     }
 
     that.title = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.template].TITLE)).join(" ");
@@ -223,18 +223,18 @@ exports.World = function(batchid, users) {
             totalGroups: general.ASM(DISTRIBUTIONS[that.template].ROLES[i].TOTAL_GROUPS),
             users: [],
             groups: []
-        }
+        };
         for (var m = 0; m < that.roles[i].totalUsers; m++){
             var type = general.randomize(DISTRIBUTIONS[that.template].ROLES[i].DISTRIBUTION);
             // Generate probability distribution
-            var distribution = [];
-            for (var u = 0; u < users.length; u++){
-                var user = users[u];
-                if (user.userType === type && allmembers.indexOf(user.userid) === -1){
-                    distribution.push([user.worldWeighting, user.userid]);
+            var dist = [];
+            for (var t = 0; t < users.length; t++){
+                var duser = users[t];
+                if (duser.userType === type && allmembers.indexOf(duser.userid) === -1){
+                    dist.push([duser.worldWeighting, duser.userid]);
                 }
             }
-            if (distribution.length === 0){
+            if (dist.length === 0){
                 break;
             } else {
                 // Select the user to add
@@ -256,10 +256,10 @@ exports.World = function(batchid, users) {
     that.picture = {
         hasPicture: general.randomize(DISTRIBUTIONS[that.template].HAS_PICTURE),
         picture: general.generateWorldPicture()
-    }
+    };
 
     return that;
-}
+};
 
 exports.setWorldMemberships = function(batchid, worlds, users){
     for (var w = 0; w < worlds.length; w++){
@@ -271,4 +271,4 @@ exports.setWorldMemberships = function(batchid, worlds, users){
         }
     }
     return worlds;
-}
+};

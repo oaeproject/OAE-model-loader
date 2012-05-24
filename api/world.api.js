@@ -14,7 +14,7 @@ exports.loadWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback)
             callback();
         });
     });
-}
+};
 
 exports.loadGroupMembership = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
     addGroupMembers(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
@@ -22,7 +22,7 @@ exports.loadGroupMembership = function(world, users, SERVER_URL, ADMIN_PASSWORD,
             callback();
         });
     });
-}
+};
 
 var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
     var creator = userAPI.getUser(world.creator, users);
@@ -78,7 +78,7 @@ var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
     }, function(res, success){
         callback();
     });
-}
+};
 
 var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
     if (world.picture.hasPicture){
@@ -90,7 +90,7 @@ var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, call
          }, function(res, success){
              // Calculate what to cut out
              var pic = fs.readFileSync(picture);
-            img = new canvas.Image;
+            img = new canvas.Image();
             img.src = pic;
             var dimension = img.width > img.height ? img.height : img.width;
             var cropit = {
@@ -102,7 +102,7 @@ var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, call
                 "y": 0,
                 "img": "/~" + world.id + "/public/profile/" + world.picture.picture,
                 "save": "/~" + world.id + "/public/profile"
-            }
+            };
             general.urlReq(SERVER_URL + "/var/image/cropit", {
                 method: 'POST',
                 params: cropit,
@@ -119,7 +119,7 @@ var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, call
                         "selectedy1": 0,
                         "selectedx2": dimension,
                         "selectedy2": dimension
-                    }
+                    };
                     general.urlReq(SERVER_URL + "/~" + world.id + "/public/authprofile.profile.json", {
                         method: 'POST',
                         params: {"picture": JSON.stringify(profileData)},
@@ -133,7 +133,7 @@ var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, call
     } else {
         callback();
     }
-}
+};
 
 var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
     var creator = userAPI.getUser(world.creator, users);
@@ -150,7 +150,7 @@ var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
                     "_charset_":"utf-8"
                 },
                 "_charset_":"utf-8"
-            })
+            });
         }
     }
     if (requests.length){
@@ -162,7 +162,7 @@ var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
     } else {
         callback();
     }
-}
+};
 
 var sendGroupInvite = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
     var creator = userAPI.getUser(world.creator, users);
@@ -215,4 +215,4 @@ var sendGroupInvite = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
     } else {
         callback();
     }
-}
+};

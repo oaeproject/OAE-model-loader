@@ -58,7 +58,7 @@ var generateBatch = function(id){
     for (var w = 0; w < WORLDS_PER_BATCH; w++){
         try {
             batch.worlds.push(new world.World(id, batch.users));
-        } catch (err){w--;}
+        } catch (err2){w--;}
     }
     batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
     console.log("Finished Generating Batch " + id);

@@ -82,7 +82,7 @@ var getRuns = function(callback){
         toReturn["numberOfUsersSupported"] = highestNumberOfUsers;
         callback(toReturn);
     });
-}
+};
 
 app.get('/results.json', function(req, res){
     res.writeHead(200, {

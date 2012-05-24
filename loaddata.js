@@ -50,13 +50,13 @@ var loadNextBatch = function(){
         console.log("Requests made: " + general.requests);
         console.log("Request errors: " + general.errors);
     }
-}
+};
 
 var finishBatch = function(){
     console.log("Finished Loading Batch " + currentBatch);
     console.log("=================================");
     loadNextBatch();
-}
+};
 
 var checkRunSuites = function(){
     if (RUN_SUITES && currentBatch % RUN_SUITES === 0){
@@ -65,7 +65,7 @@ var checkRunSuites = function(){
     } else {
         finishBatch();
     }
-}
+};
 
 ///////////
 // USERS //
@@ -82,9 +82,9 @@ var loadUsers = function(users, contacts, worlds){
         } else {
             loadContacts(users, contacts, worlds);
         }
-    }
+    };
     loadNextUser();
-}
+};
 
 //////////////
 // CONTACTS //
@@ -101,9 +101,9 @@ var loadContacts = function(users, contacts, worlds){
         } else {
             loadWorlds(users, worlds);
         }
-    }
+    };
     loadNextContact();
-}
+};
 
 ////////////
 // WORLDS //
@@ -120,9 +120,9 @@ var loadWorlds = function(users, worlds){
         } else {
             loadWorldGroupMemberships(users, worlds);
         }
-    }
+    };
     loadNextWorld();
-}
+};
 
 var loadWorldGroupMemberships = function(users, worlds){
     var currentWorldGroupMembership = -1;
@@ -135,9 +135,9 @@ var loadWorldGroupMemberships = function(users, worlds){
         } else {
             checkRunSuites();
         }
-    }
+    };
     loadNextWorldGroupMembership();
-}
+};
 
 ///////////
 // START //
