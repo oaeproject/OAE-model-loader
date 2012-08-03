@@ -1,3 +1,19 @@
+var argv = require('optimist')
+    .usage('Usage: $0 -b <number of batches to generate> [-u <number of users>] [-w <number of worlds>]')
+    
+    .demand('b')
+    .alias('b', 'batches')
+    .describe('b', 'Number of batches to generate')
+    
+    .alias('u', 'users')
+    .describe('u', 'Number of users per batch')
+    .default('u', 500)
+    
+    .alias('w', 'worlds')
+    .describe('w', 'Number of worlds per batch')
+    .default('w', 250)
+    .argv;
+
 var general = require("./api/general.js");
 var user = require("./api/user.model.js");
 var contacts = require("./api/contacts.model.js");
@@ -9,9 +25,9 @@ var world = require("./api/world.model.js");
 
 var SCRIPT_FOLDER = "scripts";
 
-var TOTAL_BATCHES = 10;
-var USERS_PER_BATCH = 10; //1000;
-var WORLDS_PER_BATCH = 25; //2500;
+var TOTAL_BATCHES = argv.batches;
+var USERS_PER_BATCH = argv.users;
+var WORLDS_PER_BATCH = argv.worlds;
 var CONTENT_PER_BATCH = 0;
 var COLLECTIONS_PER_BATCH = 0;
 
