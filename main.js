@@ -1,5 +1,5 @@
-var express = require('express');
-var app = express.createServer();
+var express = require("express");
+var app = express();
 var fs = require('fs');
 var general = require('./api/general.js');
 
