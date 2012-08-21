@@ -2,3 +2,7 @@ data/files
 data/pictures
 .DS_Store
 node_modules/canvas
+results
+scripts/contacts
+scripts/users
+scripts/worlds
