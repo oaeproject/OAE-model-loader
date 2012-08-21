@@ -23,6 +23,13 @@ if (RUN_SUITES){
     runSuites.clearResults();
 }
 
+//////////////////////
+// CLEAN PARAMETERS //
+//////////////////////
+
+// clear trailing slashes from server url
+SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, "$1");
+
 ////////////////////
 // KICK OFF BATCH //
 ////////////////////
