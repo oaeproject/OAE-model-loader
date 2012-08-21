@@ -1,3 +1,31 @@
+var argv = require('optimist')
+    .usage('Usage: $0 -b 9 [-s 0] [-h "http://localhost:8080"] [-p admin] [-c 1] [-i 0]')
+    
+    .demand('b')
+    .alias('b', 'end-batch')
+    .describe('b', 'The last batch to load (exclusive, so "-s 0 -b 1" will only load the 0th batch)')
+    
+    .alias('s', 'start')
+    .describe('s', 'The batch to start at (0-based, so the first batch is "0")')
+    .default('s', 0)
+    
+    .alias('h', 'server-url')
+    .describe('h', 'Server URL')
+    .default('h', 'http://localhost:8080')
+    
+    .alias('p', 'admin-pw')
+    .describe('p', 'Admin Password')
+    .default('p', 'admin')
+    
+    .alias('c', 'concurrent-batches')
+    .describe('c', 'Number of concurrent batches')
+    .default('c', 1)
+    
+    .alias('i', 'test-batch-interval')
+    .describe('i', 'Batch interval for test suites (0 for no test suites)')
+    .default('i', 0)    
+    .argv;
+
 var general = require("./api/general.js");
 var userAPI = require("./api/user.api.js");
 var contactAPI = require("./api/contacts.api.js");
@@ -10,15 +38,11 @@ var runSuites = require("./run_suites.js");
 
 var SCRIPT_FOLDER = "scripts";
 
-if (process.argv.length !== 7){
-    throw new Error("Please run this program in the following way: node loaddata.js <NUMBER OF BATCHES TO LOAD> <SERVER_URL> <ADMIN PASSWORD> <NUMBER_OF_CONCURRENT_BATCHES> <BATCH_INTERVAL_FOR_TEST_SUITE/0 for no suites>");
-}
-
-var BATCHES = parseInt(process.argv[2], 10);
-var SERVER_URL = process.argv[3];
-var ADMIN_PASSWORD = process.argv[4];
-var CONCURRENT_BATCHES = parseInt(process.argv[5], 10);
-var RUN_SUITES = parseInt(process.argv[6], 10);
+var BATCHES = argv['end-batch'];
+var SERVER_URL = argv['server-url'];
+var ADMIN_PASSWORD = argv['admin-pw'];
+var CONCURRENT_BATCHES = argv['concurrent-batches']
+var RUN_SUITES = argv['test-batch-interval'];
 if (RUN_SUITES){
     runSuites.clearResults();
 }
@@ -34,7 +58,7 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, "$1");
 // KICK OFF BATCH //
 ////////////////////
 
-var currentBatch = -1;
+var currentBatch = argv.start - 1;
 var batches = [];
 
 var loadNextBatch = function(){
