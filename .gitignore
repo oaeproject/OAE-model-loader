@@ -1,8 +1,7 @@
 data/files
 data/pictures
 .DS_Store
-node_modules/canvas
+node_modules/*
+!node_modules/gen.js
 results
-scripts/contacts
-scripts/users
-scripts/worlds
+scripts

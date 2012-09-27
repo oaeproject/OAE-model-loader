@@ -50,6 +50,17 @@ exports.writeFileIntoArray = function(filename, array){
     fs.writeFileSync(filename, finalArray.join("\n"), "utf8");
 };
 
+// Folder specific functions
+exports.folderExists = function(path){
+    return fs.existsSync(path);
+};
+
+exports.createFolder = function(path){
+    if (!exports.folderExists(path)){
+        fs.mkdirSync(path);
+    };
+};
+
 // List files in a folder
 exports.getFileListForFolder = function(foldername){
     var files = fs.readdirSync(foldername);
@@ -178,22 +189,6 @@ exports.urlReq = function(reqUrl, options, cb){
     req.end();
 };
 
-exports.importRequest = function(reqUrl, content, options, cb){
-    options.params = options.params || {};
-    options.params[":content"] = JSON.stringify(content);
-    options.params[":contentType"] = "json";
-    options.params[":merge"] = true;
-    options.params[":operation"] = "import";
-    options.params[":replace"] = true;
-    options.params[":replaceProperties"] = true;
-    exports.urlReq(reqUrl, options, function(body, success, res){
-        if (!success){
-            console.log(body);
-        }
-        cb(body, success, res);
-    });
-};
-
 exports.filePost = function(reqUrl, file, name, options, cb){
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
 
@@ -278,8 +273,6 @@ var lastNames = exports.loadFileIntoArray("./data/all.last.txt");
 // LOAD FILES //
 ////////////////
 
-var userPictures = exports.getFileListForFolder("./data/pictures/users");
-var worldPictures = exports.getFileListForFolder("./data/pictures/worlds");
 var cities = exports.loadFileIntoArray("./data/cities.txt");
 
 ////////////////
@@ -351,20 +344,6 @@ exports.generatePassword = function(){
     return passwords[Math.floor(Math.random() * passwords.length)];
 };
 
-exports.generateDirectory = function(total){
-    var directorytags = exports.loadFileIntoArray("./data/categories.txt");
-    var toReturn = [];
-    if (!total){
-        total = 1;
-    }
-    for (var i = 0; i < total; i++){
-        var index = Math.floor(Math.random() * directorytags.length);
-        toReturn.push(directorytags[index]);
-        directorytags.splice(index, 1);
-    }
-    return toReturn;
-};
-
 exports.generateKeywords = function(total){
     var toReturn = [];
     for (var i = 0; i < total; i++){
@@ -389,22 +368,6 @@ exports.generateCollege = function(){
     return colleges[Math.floor(Math.random() * colleges.length)];
 };
 
-exports.generatePersonPicture = function(){
-    return userPictures[Math.floor(Math.random() * userPictures.length)];
-};
-
-exports.generateWorldPicture = function(){
-    return worldPictures[Math.floor(Math.random() * worldPictures.length)];
-};
-
 exports.generateCity = function(){
     return cities[Math.floor(Math.random() * cities.length)];
-};
-
-exports.generateRandomURL = function(){
-    
-};
-
-exports.generateRandomYoutubeUrl = function(){
-    
 };

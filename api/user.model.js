@@ -7,17 +7,12 @@ var general = require("./general.js");
 var DISTRIBUTIONS = {
     "student": {
         "SEX": [[0.5, "M"],[0.5, "F"]],
-        "REORDERED_PUBPRIVSPACE": [[0.9, false],[0.1, true]],
         "USER_ACCOUNT_PRIVACY": [[0.7, "public"], [0.3, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.9, true], [0.1, false]],
         "HAS_PREFERRED_NAME": [[0.15, true], [0.85, false]],
         "HAS_DEPARTMENT": [[0.8, true], [0.2, false]],
         "HAS_COLLEGE": [[0.5, true], [0.5, false]],
-        "HAS_TAGS": [[0.25, true], [0.75, false]],
-        "TAGS": [2, 1, 1, 10],
-        "HAS_DIRECTORY": [[0.3, true], [0.7, false]],
-        "DIRECTORY": [3, 2, 1, 20],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
         "ABOUT_ME_PRIVACY": [[0.4, "public"], [0.25, "loggedin"], [0.25, "contacts"], [0.10, "private"]],
         "HAS_ABOUT_ME": [[0.7, true], [0.3, false]],
@@ -30,22 +25,16 @@ var DISTRIBUTIONS = {
         "HOBBIES": [3, 2, 1, 50],
         "PUBLICATIONS_PRIVACY": [[0.8, "public"], [0.1, "everyone"], [0.09, "contacts"], [0.01, "private"]],
         "PUBLICATIONS": [1, 3, 0, 20],
-        "HAS_PICTURE": [[0.8, true], [0.2, false]],
         "WORLDS_WEIGHTING": [[0.3, 1], [0.5, 3], [0.2, 5]]
     },
     "lecturer": {
         "SEX": [[0.5, "M"],[0.5, "F"]],
-        "REORDERED_PUBPRIVSPACE": [[0.85, false],[0.15, true]],
         "USER_ACCOUNT_PRIVACY": [[0.4, "public"], [0.6, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.7, true], [0.3, false]],
         "HAS_PREFERRED_NAME": [[0.05, true], [0.95, false]],
         "HAS_DEPARTMENT": [[0.7, true], [0.3, false]],
         "HAS_COLLEGE": [[0.3, true], [0.7, false]],
-        "HAS_TAGS": [[0.1, true], [0.9, false]],
-        "TAGS": [2, 1, 1, 10],
-        "HAS_DIRECTORY": [[0.2, true], [0.8, false]],
-        "DIRECTORY": [3, 2, 1, 20],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
         "ABOUT_ME_PRIVACY": [[0.2, "public"], [0.25, "loggedin"], [0.15, "contacts"], [0.40, "private"]],
         "HAS_ABOUT_ME": [[0.5, true], [0.5, false]],
@@ -58,22 +47,16 @@ var DISTRIBUTIONS = {
         "HOBBIES": [3, 2, 1, 20],
         "PUBLICATIONS_PRIVACY": [[0.6, "public"], [0.25, "loggedin"], [0.10, "contacts"], [0.05, "private"]],
         "PUBLICATIONS": [3, 3, 0, 50],
-        "HAS_PICTURE": [[0.5, true], [0.5, false]],
         "WORLDS_WEIGHTING": [[0.4, 1], [0.4, 3], [0.2, 5]]
     },
     "researcher": {
         "SEX": [[0.5, "M"],[0.5, "F"]],
-        "REORDERED_PUBPRIVSPACE": [[0.85, false],[0.15, true]],
         "USER_ACCOUNT_PRIVACY": [[0.7, "public"], [0.3, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.8, true], [0.2, false]],
         "HAS_PREFERRED_NAME": [[0.05, true], [0.95, false]],
         "HAS_DEPARTMENT": [[0.7, true], [0.3, false]],
         "HAS_COLLEGE": [[0.3, true], [0.7, false]],
-        "HAS_TAGS": [[0.3, true], [0.7, false]],
-        "HAS_DIRECTORY": [[0.4, true], [0.6, false]],
-        "DIRECTORY": [3, 2, 1, 20],
-        "TAGS": [2, 1, 1, 10],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
         "ABOUT_ME_PRIVACY": [[0.6, "public"], [0.25, "loggedin"], [0.10, "contacts"], [0.05, "private"]],
         "HAS_ABOUT_ME": [[0.7, true], [0.3, false]],
@@ -86,7 +69,6 @@ var DISTRIBUTIONS = {
         "HOBBIES": [3, 2, 1, 30],
         "PUBLICATIONS_PRIVACY": [[0.9, "public"], [0.05, "loggedin"], [0.03, "contacts"], [0.02, "private"]],
         "PUBLICATIONS": [10, 6, 0, 100],
-        "HAS_PICTURE": [[0.7, true], [0.3, false]],
         "WORLDS_WEIGHTING": [[0.2, 1], [0.5, 3], [0.3, 5]]
     }
 };
@@ -107,7 +89,6 @@ exports.User = function(batchid) {
     that.userid = general.generateId(batchid, [that.firstName, that.lastName]);
     that.password = general.generatePassword();
 
-    that.reordersPubprivspace = general.randomize(DISTRIBUTIONS[that.userType].REORDERED_PUBPRIVSPACE);
     that.userAccountPrivacy = general.randomize(DISTRIBUTIONS[that.userType].USER_ACCOUNT_PRIVACY);
 
     that.basicInfo = {
@@ -119,11 +100,7 @@ exports.User = function(batchid) {
         hasDepartment: general.randomize(DISTRIBUTIONS[that.userType].HAS_DEPARTMENT),
         department: general.generateDepartment(),
         hasCollege: general.randomize(DISTRIBUTIONS[that.userType].HAS_COLLEGE),
-        college: general.generateCollege(),
-        hasTags: general.randomize(DISTRIBUTIONS[that.userType].HAS_TAGS),
-        tags: general.generateKeywords(general.ASM(DISTRIBUTIONS[that.userType].TAGS)),
-        hasDirectory: general.randomize(DISTRIBUTIONS[that.userType].HAS_DIRECTORY),
-        directory: general.generateDirectory(general.ASM(DISTRIBUTIONS[that.userType].DIRECTORY))
+        college: general.generateCollege()
     };
 
     that.aboutMe = {
@@ -147,11 +124,6 @@ exports.User = function(batchid) {
     that.publications = {
         publicationsPrivacy: general.randomize(DISTRIBUTIONS[that.userType].PUBLICATIONS_PRIVACY),
         publications: publications
-    };
-
-    that.picture = {
-        hasPicture: general.randomize(DISTRIBUTIONS[that.userType].HAS_PICTURE),
-        picture: general.generatePersonPicture()
     };
 
     that.worldWeighting = general.randomize(DISTRIBUTIONS[that.userType].WORLDS_WEIGHTING);

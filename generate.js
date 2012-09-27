@@ -14,9 +14,9 @@ var argv = require('optimist')
     .default('w', 250)
     .argv;
 
+var fs = require("fs");
 var general = require("./api/general.js");
 var user = require("./api/user.model.js");
-var contacts = require("./api/contacts.model.js");
 var world = require("./api/world.model.js");
 
 //////////////////////////////////////
@@ -42,20 +42,9 @@ var run = function(){
         var batch = generateBatch(i);
         // Write users to file
         general.writeFileIntoArray("./" + SCRIPT_FOLDER + "/users/" + i + ".txt", batch.users);
-        // Write contacts to file
-        general.writeFileIntoArray("./" + SCRIPT_FOLDER + "/contacts/" + i + ".txt", batch.contacts);
         // Write worlds to file
         general.writeFileIntoArray("./" + SCRIPT_FOLDER + "/worlds/" + i + ".txt", batch.worlds);
-        // Write content to file
-        // TODO
-        // Write collections to file
-        // TODO
-        // Write sharing to file
-        // TODO
-        // Write areas to file
-        // TODO
-        // Write messages to file
-        // TODO
+
         batches.push(batch);
     }
 };
@@ -65,16 +54,11 @@ var generateBatch = function(id){
     var batch = {};
     batch.users = [];
     for (var u = 0; u < USERS_PER_BATCH; u++){
-        try {
-            batch.users.push(new user.User(id));
-        } catch (err){u--;}
+        batch.users.push(new user.User(id));
     }
-    batch.contacts = contacts.generateContacts(batch.users);
     batch.worlds = [];
     for (var w = 0; w < WORLDS_PER_BATCH; w++){
-        try {
-            batch.worlds.push(new world.World(id, batch.users));
-        } catch (err2){w--;}
+        batch.worlds.push(new world.World(id, batch.users));
     }
     batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
     console.log("Finished Generating Batch " + id);
@@ -82,4 +66,15 @@ var generateBatch = function(id){
     return batch;
 };
 
-run();
+var checkDirectories = function() {
+    general.createFolder("scripts");
+    general.createFolder("scripts/users");
+    general.createFolder("scripts/worlds");
+};
+
+var init = function() {
+    checkDirectories();
+    run();
+};
+
+init();

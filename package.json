@@ -1,0 +1,16 @@
+{
+  "name": "OAE Model Loader",
+  "author": "Sakai Foundation",
+  "version": "0.1.0",
+  "dependencies": {
+    "express": "latest",
+    "underscore": "latest",
+    "request": "request"
+  },
+  "devDependencies": {
+    "optimist": "latest"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
