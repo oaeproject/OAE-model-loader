@@ -122,7 +122,6 @@ exports.ASM = function(vars){
 var http = require('http');
 var querystring = require('querystring');
 var url = require('url');
-var mime = require('mime');
 
 exports.requests = 0;
 exports.errors = 0;
