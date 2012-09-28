@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "latest",
+    "mkdirp": "latest",
+    "moment": "latest",
+    "ncp": "latest",
     "underscore": "latest"
   },
   "devDependencies": {

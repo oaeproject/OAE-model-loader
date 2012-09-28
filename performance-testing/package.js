@@ -12,7 +12,7 @@ var argv = require('optimist')
     
     .alias('s', 'source')
     .describe('s', 'The location of the source scripts (relative to the current)')
-    .default('s', '..')
+    .default('s', '.')
     
     .argv;
 
@@ -30,8 +30,6 @@ var perf = require('./lib/perf');
   console.log('Result will be output to: '+argv.output);
  
   mkdirp.sync(argv.output+'/source/scripts/users');
-  mkdirp.sync(argv.output+'/source/scripts/contacts');
-  mkdirp.sync(argv.output+'/source/scripts/worlds');
   mkdirp.sync(argv.output+'/source/data');
 
   console.log('Copying all source scripts to '+rawOutput+'/source/scripts');  
@@ -57,18 +55,11 @@ var perf = require('./lib/perf');
       return;
     }
   
+    // copy from the source, to the output dir
     ncp(util.format('%s/users/%d.txt', sourceDir, batchNum),
-        util.format('%s/users/%d.txt', outputDir, batchNum), function(err) {
-      assert(err);
-      ncp(util.format('%s/contacts/%d.txt', sourceDir, batchNum),
-          util.format('%s/contacts/%d.txt', outputDir, batchNum), function(err) {
+            util.format('%s/users/%d.txt', outputDir, batchNum), function(err) {
         assert(err);
-        ncp(util.format('%s/worlds/%d.txt', sourceDir, batchNum),
-            util.format('%s/worlds/%d.txt', outputDir, batchNum), function(err) {
-          assert(err);
-          copySource(sourceDir, outputDir, batchNum+1, callback);
-        });
-      });
+        copySource(sourceDir, outputDir, batchNum+1, callback);
     });
   }
   
@@ -81,6 +72,7 @@ var perf = require('./lib/perf');
   function assert(err) {
     if (err) {
       console.log(err);
+      console.log(err.stack);
       process.exit(1);
     }
   }
