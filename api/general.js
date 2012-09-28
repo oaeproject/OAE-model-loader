@@ -123,25 +123,52 @@ var http = require('http');
 var querystring = require('querystring');
 var url = require('url');
 
+var cookies = {};
+
 exports.requests = 0;
 exports.errors = 0;
 exports.urlReq = function(reqUrl, options, cb){
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
-
+    
     // parse url to chunks
     reqUrl = url.parse(reqUrl);
 
+    // Check if we need to log the user in first
+    if (options.auth) {
+        if (!cookies[options.auth.userid]) {
+            // Log in the user first
+            exports.urlReq(reqUrl.protocol + "//" + reqUrl.host + '/api/auth/login', {
+                method: 'POST',
+                params: {'username': options.auth.userid, 'password': options.auth.password}
+            }, function(body, success, res) {
+                cookies[options.auth.userid] = res.headers['set-cookie'][0].split(";")[0];
+                finishUrlReq(reqUrl, options, cb);
+            });
+        } else {
+            finishUrlReq(reqUrl, options, cb);
+        }
+    } else {
+        finishUrlReq(reqUrl, options, cb);
+    }
+}
+
+var finishUrlReq = function(reqUrl, options, cb) {
     // http.request settings
     var settings = {
         host: reqUrl.hostname,
         port: reqUrl.port || 80,
         path: reqUrl.pathname,
         headers: options.headers || {},
-        method: options.method || 'GET',
-        auth: options.auth
+        method: options.method || 'GET'
     };
 
     settings.headers['Referer'] = reqUrl.protocol + "//" + reqUrl.host + "/test";
+    // Check if there already is a cookie for this user
+    settings.headers['Host'] = reqUrl.host;
+    if (options.auth) {
+        settings.headers['Cookie'] = cookies[options.auth.userid];
+    }
+
     // if there are params:
     if(options.params){
         options.params = querystring.stringify(options.params);
@@ -172,7 +199,7 @@ exports.urlReq = function(reqUrl, options, cb){
             
             // fire callback
             exports.requests++;
-            if (res.statusCode === 500 || res.statusCode === 400){
+            if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403){
                 if (!options.ignoreFail){
                     exports.errors++;
                     console.log(res);

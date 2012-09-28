@@ -18,12 +18,11 @@ exports.Suite = function(id, title, threshold, target, elements, runs){
             console.log(" Running request " + (currentRun + 1) + " of " + that.runs.length);
             if (currentRun < that.runs.length){
                 var run = that.runs[currentRun];
-                var auth = run.user.userid + ":" + run.user.password;
                 var startTime = new Date().getTime();
                 general.urlReq(run.url, {
                     method: run.method || "GET",
                     params: run.params || {},
-                    auth: auth
+                    auth: run.user
                 }, function(res, success){
                     var endTime = new Date().getTime();
                     results.push({

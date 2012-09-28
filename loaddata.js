@@ -28,7 +28,6 @@ var argv = require('optimist')
 
 var general = require("./api/general.js");
 var userAPI = require("./api/user.api.js");
-var contactAPI = require("./api/contacts.api.js");
 var worldAPI = require("./api/world.api.js");
 var runSuites = require("./run_suites.js");
 
@@ -67,15 +66,14 @@ var loadNextBatch = function(){
         console.log("Loading Batch " + currentBatch);
         // Load the data from the model
         var users = general.loadJSONFileIntoArray("./scripts/users/" + currentBatch + ".txt");
-        var contacts = general.loadJSONFileIntoArray("./scripts/contacts/" + currentBatch + ".txt");
         var worlds = general.loadJSONFileIntoArray("./scripts/worlds/" + currentBatch + ".txt");
         batches.push({
             "users": users,
-            "contacts": contacts,
             "worlds": worlds
         });
-        loadUsers(users, contacts, worlds);
+        loadUsers(users, worlds);
     } else {
+        console.timeEnd("Loading Batches");
         console.log("*****************************");
         console.log("Finished generating " + BATCHES + " batches");
         console.log("Requests made: " + general.requests);
@@ -102,7 +100,7 @@ var checkRunSuites = function(){
 // USERS //
 ///////////
 
-var loadUsers = function(users, contacts, worlds){
+var loadUsers = function(users, worlds){
     var currentUser = -1;
     var loadNextUser = function(){
         console.log("  Finished Loading User " + (currentUser + 1) + " of " + users.length);
@@ -111,29 +109,10 @@ var loadUsers = function(users, contacts, worlds){
             var nextUser = users[currentUser];
             userAPI.loadUser(nextUser, SERVER_URL, ADMIN_PASSWORD, loadNextUser);
         } else {
-            loadContacts(users, contacts, worlds);
-        }
-    };
-    loadNextUser();
-};
-
-//////////////
-// CONTACTS //
-//////////////
-
-var loadContacts = function(users, contacts, worlds){
-    var currentContact = -1;
-    var loadNextContact = function(){
-        console.log("  Finished Loading Contact " + (currentContact + 1) + " of " + contacts.length);
-        currentContact++;
-        if (currentContact < contacts.length){
-            var nextContact = contacts[currentContact];
-            contactAPI.loadContact(nextContact, users, SERVER_URL, ADMIN_PASSWORD, loadNextContact);
-        } else {
             loadWorlds(users, worlds);
         }
     };
-    loadNextContact();
+    loadNextUser();
 };
 
 ////////////
@@ -177,3 +156,5 @@ var loadWorldGroupMemberships = function(users, worlds){
 for (var b = 0; b < CONCURRENT_BATCHES && b < BATCHES; b++){
     loadNextBatch();
 }
+
+console.time("Loading Batches");

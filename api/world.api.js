@@ -1,4 +1,3 @@
-var canvas = require('canvas');
 var fs = require("fs");
 
 var general = require("./general.js");
@@ -9,19 +8,19 @@ var userAPI = require("./user.api.js");
 //////////////
 
 exports.loadWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
-    createWorld(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
-        uploadWorldPicture(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
+    //createWorld(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
+    //    uploadWorldPicture(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
             callback();
-        });
-    });
+    //    });
+    //});
 };
 
 exports.loadGroupMembership = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
-    addGroupMembers(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
-        sendGroupInvite(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
+    //addGroupMembers(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
+    //    sendGroupInvite(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
             callback();
-        });
-    });
+    //    });
+    //});
 };
 
 var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
@@ -47,16 +46,6 @@ var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
         "usersToAdd" : [],
         "description": world.hasDescription ? world.description : ""
     };
-    if (world.hasTags){
-        for (var t = 0; t < world.tags.length; t++){
-            worldObject.tags.push(world.tags[t]);
-        }
-    }
-    if (world.hasDirectory){
-        for (var d = 0; d < world.directory.length; d++){
-            worldObject.tags.push("directory/" + world.directory[d]);
-        }
-    }
     for (var r in world.roles){
         for (var u = 0; u < world.roles[r].users.length; u++){
             worldObject.usersToAdd.push({
@@ -78,61 +67,6 @@ var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
     }, function(res, success){
         callback();
     });
-};
-
-var uploadWorldPicture = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
-    if (world.picture.hasPicture){
-         var auth = world.creator + ":" + userAPI.getUser(world.creator, users).password;
-         // Upload to the server
-         var picture = "./data/pictures/worlds/" + world.picture.picture;
-         general.filePost(SERVER_URL + "/~" + world.id + "/public/profile", picture, world.picture.picture, {
-             auth: auth
-         }, function(res, success){
-             // Calculate what to cut out
-             var pic = fs.readFileSync(picture);
-            img = new canvas.Image();
-            img.src = pic;
-            var dimension = img.width > img.height ? img.height : img.width;
-            var cropit = {
-                "_charset_": "utf-8",
-                "dimensions": "256x256",
-                "height": dimension,
-                "width": dimension,
-                "x": 0,
-                "y": 0,
-                "img": "/~" + world.id + "/public/profile/" + world.picture.picture,
-                "save": "/~" + world.id + "/public/profile"
-            };
-            general.urlReq(SERVER_URL + "/var/image/cropit", {
-                method: 'POST',
-                params: cropit,
-                auth: auth,
-                ignoreFail: true
-            }, function(res, success) {
-                if (success){
-                    // Update the authprofile
-                    var profileData = {
-                        "_charset_": "utf-8",
-                        "name": "256x256_" + world.picture.picture,
-                        "_name": world.picture.picture,
-                        "selectedx1": 0,
-                        "selectedy1": 0,
-                        "selectedx2": dimension,
-                        "selectedy2": dimension
-                    };
-                    general.urlReq(SERVER_URL + "/~" + world.id + "/public/authprofile.profile.json", {
-                        method: 'POST',
-                        params: {"picture": JSON.stringify(profileData)},
-                        auth: auth
-                    }, callback);
-                } else {
-                    callback();
-                }
-            });
-         });
-    } else {
-        callback();
-    }
 };
 
 var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){

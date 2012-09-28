@@ -10,11 +10,10 @@ var DISTRIBUTIONS = {
         "USER_ACCOUNT_PRIVACY": [[0.7, "public"], [0.3, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.9, true], [0.1, false]],
-        "HAS_PREFERRED_NAME": [[0.15, true], [0.85, false]],
         "HAS_DEPARTMENT": [[0.8, true], [0.2, false]],
         "HAS_COLLEGE": [[0.5, true], [0.5, false]],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
-        "ABOUT_ME_PRIVACY": [[0.4, "public"], [0.25, "loggedin"], [0.25, "contacts"], [0.10, "private"]],
+        "ABOUT_ME_PRIVACY": [[0.4, "public"], [0.4, "loggedin"], [0.10, "private"]],
         "HAS_ABOUT_ME": [[0.7, true], [0.3, false]],
         "ABOUT_ME": [2, 2, 1, 25],
         "HAS_ACADEMIC_INTERESTS": [[0.6, true], [0.4, false]],
@@ -23,7 +22,7 @@ var DISTRIBUTIONS = {
         "PERSONAL_INTERESTS": [3, 2, 1, 50],
         "HAS_HOBBIES": [[0.5, true], [0.5, false]],
         "HOBBIES": [3, 2, 1, 50],
-        "PUBLICATIONS_PRIVACY": [[0.8, "public"], [0.1, "everyone"], [0.09, "contacts"], [0.01, "private"]],
+        "PUBLICATIONS_PRIVACY": [[0.8, "public"], [0.19, "loggedin"], [0.01, "private"]],
         "PUBLICATIONS": [1, 3, 0, 20],
         "WORLDS_WEIGHTING": [[0.3, 1], [0.5, 3], [0.2, 5]]
     },
@@ -32,11 +31,10 @@ var DISTRIBUTIONS = {
         "USER_ACCOUNT_PRIVACY": [[0.4, "public"], [0.6, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.7, true], [0.3, false]],
-        "HAS_PREFERRED_NAME": [[0.05, true], [0.95, false]],
         "HAS_DEPARTMENT": [[0.7, true], [0.3, false]],
         "HAS_COLLEGE": [[0.3, true], [0.7, false]],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
-        "ABOUT_ME_PRIVACY": [[0.2, "public"], [0.25, "loggedin"], [0.15, "contacts"], [0.40, "private"]],
+        "ABOUT_ME_PRIVACY": [[0.2, "public"], [0.40, "loggedin"], [0.40, "private"]],
         "HAS_ABOUT_ME": [[0.5, true], [0.5, false]],
         "ABOUT_ME": [2, 2, 1, 25],
         "HAS_ACADEMIC_INTERESTS": [[0.6, true], [0.4, false]],
@@ -45,7 +43,7 @@ var DISTRIBUTIONS = {
         "PERSONAL_INTERESTS": [3, 2, 1, 25],
         "HAS_HOBBIES": [[0.25, true], [0.75, false]],
         "HOBBIES": [3, 2, 1, 20],
-        "PUBLICATIONS_PRIVACY": [[0.6, "public"], [0.25, "loggedin"], [0.10, "contacts"], [0.05, "private"]],
+        "PUBLICATIONS_PRIVACY": [[0.6, "public"], [0.35, "loggedin"], [0.05, "private"]],
         "PUBLICATIONS": [3, 3, 0, 50],
         "WORLDS_WEIGHTING": [[0.4, 1], [0.4, 3], [0.2, 5]]
     },
@@ -54,11 +52,10 @@ var DISTRIBUTIONS = {
         "USER_ACCOUNT_PRIVACY": [[0.7, "public"], [0.3, "loggedin"]],
         "HAS_BASIC_INFO_SECTION": [[0.7, true],[0.3, false]],
         "HAS_EMAIL": [[0.8, true], [0.2, false]],
-        "HAS_PREFERRED_NAME": [[0.05, true], [0.95, false]],
         "HAS_DEPARTMENT": [[0.7, true], [0.3, false]],
         "HAS_COLLEGE": [[0.3, true], [0.7, false]],
         "HAS_ABOUT_ME_SECTION": [[0.4, true],[0.6, false]],
-        "ABOUT_ME_PRIVACY": [[0.6, "public"], [0.25, "loggedin"], [0.10, "contacts"], [0.05, "private"]],
+        "ABOUT_ME_PRIVACY": [[0.6, "public"], [0.35, "loggedin"], [0.05, "private"]],
         "HAS_ABOUT_ME": [[0.7, true], [0.3, false]],
         "ABOUT_ME": [2, 2, 1, 25],
         "HAS_ACADEMIC_INTERESTS": [[0.8, true], [0.2, false]],
@@ -67,7 +64,7 @@ var DISTRIBUTIONS = {
         "PERSONAL_INTERESTS": [3, 2, 1, 25],
         "HAS_HOBBIES": [[0.4, true], [0.6, false]],
         "HOBBIES": [3, 2, 1, 30],
-        "PUBLICATIONS_PRIVACY": [[0.9, "public"], [0.05, "loggedin"], [0.03, "contacts"], [0.02, "private"]],
+        "PUBLICATIONS_PRIVACY": [[0.9, "public"], [0.08, "loggedin"], [0.02, "private"]],
         "PUBLICATIONS": [10, 6, 0, 100],
         "WORLDS_WEIGHTING": [[0.2, 1], [0.5, 3], [0.3, 5]]
     }
@@ -86,7 +83,9 @@ exports.User = function(batchid) {
     that.sex = general.randomize(DISTRIBUTIONS[that.userType].SEX);
     that.firstName = general.generateFirstName(that.sex);
     that.lastName = general.generateLastName();
+    that.displayName = that.firstName + " " + that.lastName;
     that.userid = general.generateId(batchid, [that.firstName, that.lastName]);
+    that.id = 'u:cam:' + that.userid;
     that.password = general.generatePassword();
 
     that.userAccountPrivacy = general.randomize(DISTRIBUTIONS[that.userType].USER_ACCOUNT_PRIVACY);
@@ -95,8 +94,6 @@ exports.User = function(batchid) {
         hasBasicInfoSection: general.randomize(DISTRIBUTIONS[that.userType].HAS_BASIC_INFO_SECTION),
         hasEmail: general.randomize(DISTRIBUTIONS[that.userType].HAS_EMAIL),
         email: general.generateEmail([that.firstName, that.lastName]),
-        hasPreferredName: general.randomize(DISTRIBUTIONS[that.userType].HAS_PREFERRED_NAME),
-        preferredName: general.generateName(that.sex),
         hasDepartment: general.randomize(DISTRIBUTIONS[that.userType].HAS_DEPARTMENT),
         department: general.generateDepartment(),
         hasCollege: general.randomize(DISTRIBUTIONS[that.userType].HAS_COLLEGE),
