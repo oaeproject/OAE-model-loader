@@ -1,7 +1,7 @@
 var fs = require("fs");
 
 var general = require("./general.js");
-var userAPI = require("./user.api.js");
+var userAPI = require("./user.dataload.js");
 
 //////////////
 // USER API //
@@ -23,7 +23,7 @@ exports.loadGroupMembership = function(world, users, SERVER_URL, ADMIN_PASSWORD,
     //});
 };
 
-var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
+/* var createWorld = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback) {
     var creator = userAPI.getUser(world.creator, users);
     var auth = creator.userid + ":" + creator.password;
     var worldObject = {
@@ -149,4 +149,4 @@ var sendGroupInvite = function(world, users, SERVER_URL, ADMIN_PASSWORD, callbac
     } else {
         callback();
     }
-};
+}; */

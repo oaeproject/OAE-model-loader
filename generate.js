@@ -16,8 +16,8 @@ var argv = require('optimist')
 
 var fs = require("fs");
 var general = require("./api/general.js");
-var user = require("./api/user.model.js");
-var world = require("./api/world.model.js");
+var user = require("./api/user.generate.js");
+var world = require("./api/world.generate.js");
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //

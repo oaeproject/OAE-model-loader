@@ -27,8 +27,8 @@ var argv = require('optimist')
     .argv;
 
 var general = require("./api/general.js");
-var userAPI = require("./api/user.api.js");
-var worldAPI = require("./api/world.api.js");
+var userAPI = require("./api/user.dataload.js");
+var worldAPI = require("./api/world.dataload.js");
 var runSuites = require("./run_suites.js");
 
 //////////////////////////////////////
