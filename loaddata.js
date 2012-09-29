@@ -132,8 +132,7 @@ var loadWorlds = function(users, worlds){
             var nextWorld = worldsToLoad[currentWorld];
             worldAPI.loadWorld(nextWorld, users, SERVER_URL, loadNextWorld);
         } else {
-            checkRunSuites();
-            //loadWorldGroupMemberships(users, worlds);
+            loadWorldGroupMemberships(users, worlds);
         }
     };
     loadNextWorld();
@@ -141,11 +140,12 @@ var loadWorlds = function(users, worlds){
 
 var loadWorldGroupMemberships = function(users, worlds){
     var currentWorldGroupMembership = -1;
+    var worldsToLoad = _.values(worlds);
     var loadNextWorldGroupMembership = function(){
-        console.log("  Finished Loading Group Memberships " + (currentWorldGroupMembership + 1) + " of " + worlds.length);
+        console.log("  Finished Loading Group Memberships " + (currentWorldGroupMembership + 1) + " of " + worldsToLoad.length);
         currentWorldGroupMembership++;
-        if (currentWorldGroupMembership < worlds.length){
-            var nextWorld = worlds[currentWorldGroupMembership];
+        if (currentWorldGroupMembership < worldsToLoad.length){
+            var nextWorld = worldsToLoad[currentWorldGroupMembership];
             worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, loadNextWorldGroupMembership);
         } else {
             checkRunSuites();

@@ -1,3 +1,4 @@
+var _ = require('underscore');
 var fs = require("fs");
 
 var general = require("./general.js");
@@ -8,9 +9,11 @@ var userAPI = require("./user.dataload.js");
 //////////////
 
 exports.loadWorld = function(world, users, SERVER_URL, callback){
-    createWorld(world, users, SERVER_URL, function(){
-        callback();
-    });
+    createWorld(world, users, SERVER_URL, callback);
+};
+
+exports.loadGroupMembership = function(world, users, SERVER_URL, callback){
+    addGroupMembers(world, users, SERVER_URL, callback);
 };
 
 var createWorld = function(world, users, SERVER_URL, callback) {
@@ -36,44 +39,21 @@ var createWorld = function(world, users, SERVER_URL, callback) {
     }, callback);
 };
 
-
-/*exports.loadGroupMembership = function(world, users, SERVER_URL, callback){
-    //addGroupMembers(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
-    //    sendGroupInvite(world, users, SERVER_URL, ADMIN_PASSWORD, function(){
-            callback();
-    //    });
-    //});
-};*/
-
-/*
-
-var addGroupMembers = function(world, users, SERVER_URL, ADMIN_PASSWORD, callback){
-    var creator = userAPI.getUser(world.creator, users);
-    var auth = creator.userid + ":" + creator.password;
-    var requests = [];
-    for (var r in world.roles){
-        for (var g = 0; g < world.roles[r].groups.length; g++){
-            requests.push({
-                "url": "/system/userManager/group/" + world.id + "-" + r + ".update.json",
-                "method":"POST",
-                "parameters":{
-                    ":member": world.roles[r].groups[g],
-                    ":viewer": world.roles[r].groups[g],
-                    "_charset_":"utf-8"
-                },
-                "_charset_":"utf-8"
-            });
-        }
-    }
-    if (requests.length){
-        general.urlReq(SERVER_URL + "/system/batch", {
+var addGroupMembers = function(world, users, SERVER_URL, callback) {
+    var groupMembers = {};
+    for (var m = 0; m < world.roles['member'].groups.length; m++) {
+        groupMembers[world.roles['member'].groups[m]] = 'member';
+    };
+    for (var m = 0; m < world.roles['manager'].groups.length; m++) {
+        groupMembers[world.roles['manager'].groups[m]] = 'manager';
+    };
+    if (_.keys(groupMembers).length > 0) {
+        general.urlReq(SERVER_URL + "/api/group/" + world.id + "/members", {
             method: 'POST',
-            params: {"_charset_": "utf-8", "requests": JSON.stringify(requests)},
-            auth: auth
+            params: groupMembers,
+            auth: users[world.creator]
         }, callback);
     } else {
         callback();
     }
 };
-
-*/

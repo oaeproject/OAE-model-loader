@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 var general = require("./general.js");
 
 /////////////////////
@@ -104,14 +106,28 @@ exports.World = function(batchid, users) {
     return that;
 };
 
-/* exports.setWorldMemberships = function(batchid, worlds, users){
-    for (var w = 0; w < worlds.length; w++){
+exports.setWorldMemberships = function(batchid, worlds, users) {
+    // For now, only add non-private groups as group members
+    var nonPrivateGroups = [];
+    for (var w in worlds) {
+        if (worlds[w].visibility !== 'private') {
+            nonPrivateGroups.push(w);
+        }
+    }
+
+    for (var w in worlds){
         var world = worlds[w];
-        for (var r in world.roles){
-            for (var g = 0; g < world.roles[r].totalGroups; g++){
-                world.roles[r].groups.push(worlds[Math.floor(Math.random() * worlds.length)].id);
+        var availableworlds = nonPrivateGroups.slice(0);
+        // Remove the current world from the list of available worlds
+        availableworlds = _.without(availableworlds, world.id);
+        for (var r in world.roles) {
+            for (var g = 0; g < world.roles[r].totalGroups; g++) {
+                var randomWorld = availableworlds[Math.floor(Math.random() * availableworlds.length)];
+                // Make sure that this is no longer available for adding to the group
+                availableworlds = _.without(availableworlds, randomWorld);
+                world.roles[r].groups.push(randomWorld);
             }
         }
     }
     return worlds;
-}; */
+};

@@ -63,7 +63,7 @@ var generateBatch = function(id){
         var newWorld = new world.World(id, batch.users);
         batch.worlds[newWorld.id] = newWorld;
     }
-    //batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
+    batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
     console.log("Finished Generating Batch " + id);
     console.log("=================================");
     return batch;
