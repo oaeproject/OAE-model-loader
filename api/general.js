@@ -24,12 +24,14 @@ exports.loadFileIntoArray = function(filename){
     return finallines;
 };
 
-exports.loadJSONFileIntoArray = function(filename){
+exports.loadJSONFileIntoObject = function(filename){
     var items = exports.loadFileIntoArray(filename);
-    for (var i = 0; i < items.length; i++){
-        items[i] = JSON.parse(items[i]);
+    var finalitems = {};
+    for (var i = 0; i < items.length; i++) {
+        var item = JSON.parse(items[i]);
+        finalitems[item.id] = item;
     }
-    return items;
+    return finalitems;
 };
 
 exports.writeFile = function(filename, content){
@@ -39,13 +41,13 @@ exports.writeFile = function(filename, content){
     fs.writeFileSync(filename, content, "utf8");
 };
 
-exports.writeFileIntoArray = function(filename, array){
+exports.writeObjectToFile = function(filename, object){
     try {
         fs.unlinkSync(filename);
     } catch (err) {}
     var finalArray = [];
-    for (var i = 0; i < array.length; i++){
-        finalArray.push(JSON.stringify(array[i])); 
+    for (var i in object){
+        finalArray.push(JSON.stringify(object[i])); 
     }
     fs.writeFileSync(filename, finalArray.join("\n"), "utf8");
 };
@@ -202,7 +204,7 @@ var finishUrlReq = function(reqUrl, options, cb) {
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403){
                 if (!options.ignoreFail){
                     exports.errors++;
-                    console.log(res);
+                    console.log(res.body);
                 }
                 cb(res.body, false, res);
             } else {

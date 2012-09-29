@@ -8,8 +8,8 @@ var cookies = {};
 // USER API //
 //////////////
 
-exports.loadUser = function(user, SERVER_URL, ADMIN_PASSWORD, callback){
-    createUser(user, SERVER_URL, ADMIN_PASSWORD, function() {
+exports.loadUser = function(user, SERVER_URL, callback){
+    createUser(user, SERVER_URL, function() {
         fillUpBasicInfo(user, SERVER_URL, function() {
             fillUpAboutMe(user, SERVER_URL, function(){
                 fillUpPublications(user, SERVER_URL, function(){
@@ -20,7 +20,7 @@ exports.loadUser = function(user, SERVER_URL, ADMIN_PASSWORD, callback){
     });
 };
 
-var createUser = function(user, SERVER_URL, ADMIN_PASSWORD, callback) {
+var createUser = function(user, SERVER_URL, callback) {
     var userObj = {
         "username": user.userid,
         "password": user.password,

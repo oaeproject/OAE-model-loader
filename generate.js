@@ -41,26 +41,29 @@ var run = function(){
     for (var i = 0; i < TOTAL_BATCHES; i++){
         var batch = generateBatch(i);
         // Write users to file
-        general.writeFileIntoArray("./" + SCRIPT_FOLDER + "/users/" + i + ".txt", batch.users);
+        general.writeObjectToFile("./" + SCRIPT_FOLDER + "/users/" + i + ".txt", batch.users);
         // Write worlds to file
-        general.writeFileIntoArray("./" + SCRIPT_FOLDER + "/worlds/" + i + ".txt", batch.worlds);
-
+        general.writeObjectToFile("./" + SCRIPT_FOLDER + "/worlds/" + i + ".txt", batch.worlds);
+        // TODO: Write content to file
         batches.push(batch);
     }
 };
 
 var generateBatch = function(id){
     console.log("Generating Batch " + id);
-    var batch = {};
-    batch.users = [];
-    for (var u = 0; u < USERS_PER_BATCH; u++){
-        batch.users.push(new user.User(id));
+    var batch = {
+        users: {},
+        worlds: {}
+    };
+    for (var u = 0; u < USERS_PER_BATCH; u++) {
+        var newUser = new user.User(id)
+        batch.users[newUser.id] = newUser;
     }
-    batch.worlds = [];
-    for (var w = 0; w < WORLDS_PER_BATCH; w++){
-        batch.worlds.push(new world.World(id, batch.users));
+    for (var w = 0; w < WORLDS_PER_BATCH; w++) {
+        var newWorld = new world.World(id, batch.users);
+        batch.worlds[newWorld.id] = newWorld;
     }
-    batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
+    //batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
     console.log("Finished Generating Batch " + id);
     console.log("=================================");
     return batch;

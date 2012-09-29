@@ -26,6 +26,8 @@ var argv = require('optimist')
     .default('i', 0)    
     .argv;
 
+var _ = require('underscore');
+
 var general = require("./api/general.js");
 var userAPI = require("./api/user.dataload.js");
 var worldAPI = require("./api/world.dataload.js");
@@ -65,8 +67,8 @@ var loadNextBatch = function(){
     if (currentBatch < BATCHES){
         console.log("Loading Batch " + currentBatch);
         // Load the data from the model
-        var users = general.loadJSONFileIntoArray("./scripts/users/" + currentBatch + ".txt");
-        var worlds = general.loadJSONFileIntoArray("./scripts/worlds/" + currentBatch + ".txt");
+        var users = general.loadJSONFileIntoObject("./scripts/users/" + currentBatch + ".txt");
+        var worlds = general.loadJSONFileIntoObject("./scripts/worlds/" + currentBatch + ".txt");
         batches.push({
             "users": users,
             "worlds": worlds
@@ -102,12 +104,13 @@ var checkRunSuites = function(){
 
 var loadUsers = function(users, worlds){
     var currentUser = -1;
+    var usersToLoad = _.values(users);
     var loadNextUser = function(){
-        console.log("  Finished Loading User " + (currentUser + 1) + " of " + users.length);
+        console.log("  Finished Loading User " + (currentUser + 1) + " of " + usersToLoad.length);
         currentUser++;
-        if (currentUser < users.length){
-            var nextUser = users[currentUser];
-            userAPI.loadUser(nextUser, SERVER_URL, ADMIN_PASSWORD, loadNextUser);
+        if (currentUser < usersToLoad.length) {
+            var nextUser = usersToLoad[currentUser];
+            userAPI.loadUser(nextUser, SERVER_URL, loadNextUser);
         } else {
             loadWorlds(users, worlds);
         }
@@ -121,14 +124,16 @@ var loadUsers = function(users, worlds){
 
 var loadWorlds = function(users, worlds){
     var currentWorld = -1;
+    var worldsToLoad = _.values(worlds);
     var loadNextWorld = function(){
-        console.log("  Finished Loading World " + (currentWorld + 1) + " of " + worlds.length);
+        console.log("  Finished Loading World " + (currentWorld + 1) + " of " + worldsToLoad.length);
         currentWorld++;
-        if (currentWorld < worlds.length){
-            var nextWorld = worlds[currentWorld];
-            worldAPI.loadWorld(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorld);
+        if (currentWorld < worldsToLoad.length){
+            var nextWorld = worldsToLoad[currentWorld];
+            worldAPI.loadWorld(nextWorld, users, SERVER_URL, loadNextWorld);
         } else {
-            loadWorldGroupMemberships(users, worlds);
+            checkRunSuites();
+            //loadWorldGroupMemberships(users, worlds);
         }
     };
     loadNextWorld();
@@ -141,7 +146,7 @@ var loadWorldGroupMemberships = function(users, worlds){
         currentWorldGroupMembership++;
         if (currentWorldGroupMembership < worlds.length){
             var nextWorld = worlds[currentWorldGroupMembership];
-            worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, ADMIN_PASSWORD, loadNextWorldGroupMembership);
+            worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, loadNextWorldGroupMembership);
         } else {
             checkRunSuites();
         }

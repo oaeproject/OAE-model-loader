@@ -8,10 +8,10 @@ var DISTRIBUTIONS = {
     "group": {
         "TITLE": [2, 1, 1, 15],
         "HAS_METADATA": [[0.5, true], [0.5, false]],
-        "HAS_DESCRIPTION": [[0.4, true], [0.6, false]],
+        "HAS_DESCRIPTION": [[0.7, true], [0.3, false]],
         "DESCRIPTION": [2, 2, 1, 25],
-        "VISIBILITY": [[0.4, "public"], [0.2, "logged-in-only"], [0.4, "members-only"]],
-        "JOINABILITY": [[0.4, "yes"], [0.2, "withauth"], [0.4, "no"]],
+        "VISIBILITY": [[0.4, "public"], [0.2, "loggedin"], [0.4, "private"]],
+        "JOINABLE": [[0.4, "yes"], [0.2, "request"], [0.4, "no"]],
         "LIBRARY_SIZE": [[0.6, "few"], [0.3, "medium"], [0.1, "lots"]],
         "CREATOR": [[0.35, "student"], [0.2, "lecturer"], [0.45, "researcher"]],
         "CREATOR_ROLE": "manager",
@@ -38,12 +38,13 @@ exports.World = function(batchid, users) {
     var that = {};
 
     that.template = general.randomize([[1, 'group']]);
-    that.title = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.template].TITLE)).join(" ");
-    that.title = that.title[0].toUpperCase() + that.title.substring(1);
-    that.id = general.generateId(batchid, [that.title.toLowerCase().split(" ")]).replace(/[^a-zA-Z 0-9]+/g,'-');
+    that.name = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.template].TITLE)).join(" ");
+    that.name = that.name[0].toUpperCase() + that.name.substring(1);
+    that.worldid = general.generateId(batchid, [that.name.toLowerCase().split(" ")]).replace(/[^a-zA-Z 0-9]+/g,'-');
+    that.id = 'g:cam:' + that.worldid;
 
     that.visibility = general.randomize(DISTRIBUTIONS[that.template].VISIBILITY);
-    that.joinability = general.randomize(DISTRIBUTIONS[that.template].JOINABILITY);
+    that.joinable = general.randomize(DISTRIBUTIONS[that.template].JOINABLE);
 
     that.librarySize = general.randomize(DISTRIBUTIONS[that.template].LIBRARY_SIZE);
 
@@ -51,16 +52,18 @@ exports.World = function(batchid, users) {
     var creatorRole = general.randomize(DISTRIBUTIONS[that.template].CREATOR);
     var allmembers = [];
     var distribution = [];
-    for (var u = 0; u < users.length; u++){
+    for (var u in users) {
         var user = users[u];
         if (user.userType === creatorRole){
-            distribution.push([user.worldWeighting, user.userid]);
+            distribution.push([user.worldWeighting, user.id]);
         }
     }
     if (distribution.length){
         that.creator = general.randomize(distribution);
     } else {
-        that.creator = users[0].userid;
+        for (var u in users) {
+            that.creator = users[u].id;
+        }
     }
     that.creatorRole = DISTRIBUTIONS[that.template].CREATOR_ROLE;
     allmembers.push(that.creator);
@@ -78,23 +81,22 @@ exports.World = function(batchid, users) {
             var type = general.randomize(DISTRIBUTIONS[that.template].ROLES[i].DISTRIBUTION);
             // Generate probability distribution
             var dist = [];
-            for (var t = 0; t < users.length; t++){
+            for (var t in users){
                 var duser = users[t];
-                if (duser.userType === type && allmembers.indexOf(duser.userid) === -1){
-                    dist.push([duser.worldWeighting, duser.userid]);
+                if (duser.userType === type && allmembers.indexOf(duser.id) === -1){
+                    dist.push([duser.worldWeighting, duser.id]);
                 }
             }
             if (dist.length === 0){
                 break;
             } else {
                 // Select the user to add
-                var userToAdd = general.randomize(distribution);
+                var userToAdd = general.randomize(dist);
                 that.roles[i].users.push(userToAdd);
                 allmembers.push(userToAdd);
             }
         }
     }
-    that.roles[that.creatorRole].users.push(that.creator);
 
     that.hasDescription = general.randomize(DISTRIBUTIONS[that.template].HAS_DESCRIPTION);
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.template].DESCRIPTION));
@@ -102,7 +104,7 @@ exports.World = function(batchid, users) {
     return that;
 };
 
-exports.setWorldMemberships = function(batchid, worlds, users){
+/* exports.setWorldMemberships = function(batchid, worlds, users){
     for (var w = 0; w < worlds.length; w++){
         var world = worlds[w];
         for (var r in world.roles){
@@ -112,4 +114,4 @@ exports.setWorldMemberships = function(batchid, worlds, users){
         }
     }
     return worlds;
-};
+}; */
