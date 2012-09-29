@@ -37,14 +37,14 @@ var DISTRIBUTIONS = {
 // USER MODEL //
 ////////////////
 
-exports.World = function(batchid, users) {
+exports.World = function(batchid, users, TENANT_ALIAS) {
     var that = {};
 
     that.template = general.randomize([[1, 'group']]);
     that.name = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.template].TITLE)).join(" ");
     that.name = that.name[0].toUpperCase() + that.name.substring(1);
     that.worldid = general.generateId(batchid, [that.name.toLowerCase().split(" ")]).replace(/[^a-zA-Z 0-9]+/g,'-');
-    that.id = 'g:cam:' + that.worldid;
+    that.id = 'g:' + TENANT_ALIAS + ':' + that.worldid;
 
     that.visibility = general.randomize(DISTRIBUTIONS[that.template].VISIBILITY);
     that.joinable = general.randomize(DISTRIBUTIONS[that.template].JOINABLE);

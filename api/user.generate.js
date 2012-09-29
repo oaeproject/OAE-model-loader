@@ -78,7 +78,7 @@ var DISTRIBUTIONS = {
 // USER MODEL //
 ////////////////
 
-exports.User = function(batchid) {
+exports.User = function(batchid, TENANT_ALIAS) {
     var that = {};
 
     that.userType = general.randomize([[0.6, "student"],[0.1, "lecturer"],[0.3, "researcher"]]);
@@ -88,7 +88,7 @@ exports.User = function(batchid) {
     that.lastName = general.generateLastName();
     that.displayName = that.firstName + " " + that.lastName;
     that.userid = general.generateId(batchid, [that.firstName, that.lastName]);
-    that.id = 'u:cam:' + that.userid;
+    that.id = 'u:' + TENANT_ALIAS + ':' + that.userid;
     that.password = general.generatePassword();
 
     that.userAccountPrivacy = general.randomize(DISTRIBUTIONS[that.userType].USER_ACCOUNT_PRIVACY);

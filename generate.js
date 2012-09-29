@@ -5,6 +5,10 @@ var argv = require('optimist')
     .alias('b', 'batches')
     .describe('b', 'Number of batches to generate')
     
+    .demand('t')
+    .alias('t', 'tenant')
+    .describe('t', 'Tenant alias')
+    
     .alias('u', 'users')
     .describe('u', 'Number of users per batch')
     .default('u', 500)
@@ -33,6 +37,7 @@ var content = require('./api/content.generate.js');
 var SCRIPT_FOLDER = "scripts";
 
 var TOTAL_BATCHES = argv.batches;
+var TENANT_ALIAS = argv.tenant;
 var USERS_PER_BATCH = argv.users;
 var WORLDS_PER_BATCH = argv.worlds;
 var CONTENT_PER_BATCH = argv.content;
@@ -67,12 +72,12 @@ var generateBatch = function(id){
     };
     // Generate users
     for (var u = 0; u < USERS_PER_BATCH; u++) {
-        var newUser = new user.User(id)
+        var newUser = new user.User(id, TENANT_ALIAS)
         batch.users[newUser.id] = newUser;
     }
     // Generate worlds
     for (var w = 0; w < WORLDS_PER_BATCH; w++) {
-        var newWorld = new world.World(id, batch.users);
+        var newWorld = new world.World(id, batch.users, TENANT_ALIAS);
         batch.worlds[newWorld.id] = newWorld;
     }
     batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
