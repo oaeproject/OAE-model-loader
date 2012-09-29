@@ -25,13 +25,13 @@ exports.Suite = function(datamodel, SERVER_URL){
             });
             runs.push({
                 "type": "visibility-overview",
-                "url": SERVER_URL + "/api/users/" + user.id + "/visibility",
+                "url": SERVER_URL + "/api/user/" + user.id + "/visibility",
                 "user": user,
                 "method": "GET"
             }); 
             runs.push({
                 "type": "all-profile",
-                "url": SERVER_URL + "/api/users/" + user.id + "/profile",
+                "url": SERVER_URL + "/api/user/" + user.id + "/profile",
                 "user": user,
                 "method": "GET"
             });
