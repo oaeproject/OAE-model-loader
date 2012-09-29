@@ -31,6 +31,7 @@ var _ = require('underscore');
 var general = require("./api/general.js");
 var userAPI = require("./api/user.dataload.js");
 var worldAPI = require("./api/world.dataload.js");
+var contentAPI = require("./api/content.dataload.js");
 var runSuites = require("./run_suites.js");
 
 //////////////////////////////////////
@@ -69,11 +70,13 @@ var loadNextBatch = function(){
         // Load the data from the model
         var users = general.loadJSONFileIntoObject("./scripts/users/" + currentBatch + ".txt");
         var worlds = general.loadJSONFileIntoObject("./scripts/worlds/" + currentBatch + ".txt");
+        var content = general.loadJSONFileIntoObject("./scripts/content/" + currentBatch + ".txt");
         batches.push({
             "users": users,
-            "worlds": worlds
+            "worlds": worlds,
+            "content": content
         });
-        loadUsers(users, worlds);
+        loadUsers(users, worlds, content);
     } else {
         console.timeEnd("Loading Batches");
         console.log("*****************************");
@@ -102,7 +105,7 @@ var checkRunSuites = function(){
 // USERS //
 ///////////
 
-var loadUsers = function(users, worlds){
+var loadUsers = function(users, worlds, content){
     var currentUser = -1;
     var usersToLoad = _.values(users);
     var loadNextUser = function(){
@@ -112,7 +115,7 @@ var loadUsers = function(users, worlds){
             var nextUser = usersToLoad[currentUser];
             userAPI.loadUser(nextUser, SERVER_URL, loadNextUser);
         } else {
-            loadWorlds(users, worlds);
+            loadWorlds(users, worlds, content);
         }
     };
     loadNextUser();
@@ -122,7 +125,7 @@ var loadUsers = function(users, worlds){
 // WORLDS //
 ////////////
 
-var loadWorlds = function(users, worlds){
+var loadWorlds = function(users, worlds, content){
     var currentWorld = -1;
     var worldsToLoad = _.values(worlds);
     var loadNextWorld = function(){
@@ -132,13 +135,13 @@ var loadWorlds = function(users, worlds){
             var nextWorld = worldsToLoad[currentWorld];
             worldAPI.loadWorld(nextWorld, users, SERVER_URL, loadNextWorld);
         } else {
-            loadWorldGroupMemberships(users, worlds);
+            loadWorldGroupMemberships(users, worlds, content);
         }
     };
     loadNextWorld();
 };
 
-var loadWorldGroupMemberships = function(users, worlds){
+var loadWorldGroupMemberships = function(users, worlds, content){
     var currentWorldGroupMembership = -1;
     var worldsToLoad = _.values(worlds);
     var loadNextWorldGroupMembership = function(){
@@ -148,10 +151,30 @@ var loadWorldGroupMemberships = function(users, worlds){
             var nextWorld = worldsToLoad[currentWorldGroupMembership];
             worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, loadNextWorldGroupMembership);
         } else {
-            checkRunSuites();
+            loadContent(users, worlds, content);
         }
     };
     loadNextWorldGroupMembership();
+};
+
+/////////////
+// CONTENT //
+/////////////
+
+var loadContent = function(users, worlds, content){
+    var currentContent = -1;
+    var contentToLoad = _.values(content);
+    var loadNextContent = function(){
+        console.log("  Finished Loading Content " + (currentContent + 1) + " of " + contentToLoad.length);
+        currentContent++;
+        if (currentContent < contentToLoad.length){
+            var nextContent = contentToLoad[currentContent];
+            contentAPI.loadContent(nextContent, users, worlds, SERVER_URL, loadNextContent);
+        } else {
+            checkRunSuites();
+        }
+    };
+    loadNextContent();
 };
 
 ///////////

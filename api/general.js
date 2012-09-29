@@ -302,6 +302,8 @@ var lastNames = exports.loadFileIntoArray("./data/all.last.txt");
 ////////////////
 
 var cities = exports.loadFileIntoArray("./data/cities.txt");
+var randomUrls = exports.loadFileIntoArray("./data/urls/random.txt");
+var youtubeUrls = exports.loadFileIntoArray("./data/urls/youtube.txt");
 
 ////////////////
 // LOAD WORDS //
@@ -399,3 +401,12 @@ exports.generateCollege = function(){
 exports.generateCity = function(){
     return cities[Math.floor(Math.random() * cities.length)];
 };
+
+exports.generateUrl = function(type) {
+    if (type === "youtube") {
+        return youtubeUrls[Math.floor(Math.random() * youtubeUrls.length)];
+    } else {
+        return randomUrls[Math.floor(Math.random() * randomUrls.length)];
+    }
+};
+

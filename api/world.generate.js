@@ -28,7 +28,8 @@ var DISTRIBUTIONS = {
                 "TOTAL_GROUPS": [1, 2, 0, 20],
                 "DISTRIBUTION": [[0.4, "student"], [0.2, "lecturer"], [0.4, "researcher"]]
             }
-        }
+        },
+        "CONTENT_WEIGHTING": [[0.2, 1], [0.6, 3], [0.2, 5]]
     }
 };
 
@@ -67,7 +68,6 @@ exports.World = function(batchid, users) {
             that.creator = users[u].id;
         }
     }
-    that.creatorRole = DISTRIBUTIONS[that.template].CREATOR_ROLE;
     allmembers.push(that.creator);
 
     // Fill up the other roles
@@ -102,6 +102,8 @@ exports.World = function(batchid, users) {
 
     that.hasDescription = general.randomize(DISTRIBUTIONS[that.template].HAS_DESCRIPTION);
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.template].DESCRIPTION));
+
+    that.contentWeighting = general.randomize(DISTRIBUTIONS[that.template].CONTENT_WEIGHTING);
 
     return that;
 };

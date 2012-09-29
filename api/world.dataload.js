@@ -2,7 +2,6 @@ var _ = require('underscore');
 var fs = require("fs");
 
 var general = require("./general.js");
-var userAPI = require("./user.dataload.js");
 
 //////////////
 // USER API //
