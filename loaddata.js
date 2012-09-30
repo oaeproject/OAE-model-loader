@@ -63,6 +63,8 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, '$1');
 var currentBatch = argv.start - 1;
 var batches = [];
 
+console.time("Finished running data loader");
+
 var loadNextBatch = function() {
     currentBatch++;
     if (currentBatch < BATCHES) {
@@ -81,6 +83,7 @@ var loadNextBatch = function() {
         console.timeEnd('Loading Batches');
         console.log('*****************************');
         console.log('Finished generating ' + BATCHES + ' batches');
+        console.timeEnd("Finished running data loader");
         console.log('Requests made: ' + general.requests);
         console.log('Request errors: ' + general.errors);
     }
