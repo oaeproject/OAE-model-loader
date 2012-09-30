@@ -109,11 +109,22 @@ exports.Content = function(batchid, users, groups) {
     }
     allmembers.push(that.creator);
 
+
     // For now, only add non-private groups as group members
     var nonPrivateGroups = [];
     for (var g in groups) {
         if (groups[g].visibility !== 'private') {
             nonPrivateGroups.push(g);
+        }
+    }
+
+    // Generate the user distributions
+    var userDistributions = {};
+    for (var t in users) {
+        var user = users[t];
+        if (user.id !== that.creator) {
+            userDistributions[user.userType] = userDistributions[user.userType] || [];
+            userDistributions[user.userType].push([user.contentWeighting, user.id]);
         }
     }
 
@@ -130,13 +141,7 @@ exports.Content = function(batchid, users, groups) {
         for (var m = 0; m < that.roles[i].totalUsers; m++) {
             var type = general.randomize(DISTRIBUTIONS[that.contentType].ROLES[i].DISTRIBUTION);
             // Generate probability distribution
-            var dist = [];
-            for (var t in users) {
-                var duser = users[t];
-                if (duser.userType === type && allmembers.indexOf(duser.id) === -1) {
-                    dist.push([duser.contentWeighting, duser.id]);
-                }
-            }
+            var dist = userDistributions[type];
             if (dist.length === 0) {
                 break;
             } else {
@@ -144,6 +149,13 @@ exports.Content = function(batchid, users, groups) {
                 var userToAdd = general.randomize(dist);
                 that.roles[i].users.push(userToAdd);
                 allmembers.push(userToAdd);
+                // Remove from the distributions
+                for (var d = 0; d < userDistributions[type].length; d++) {
+                    if (userDistributions[type][d] === userToAdd) {
+                        userDistributions.splice(d, 1);
+                        break;
+                    }
+                }
             }
         }
         // Fill up the groups

@@ -25,7 +25,7 @@ var DISTRIBUTIONS = {
             },
             'member': {
                 'TOTAL_USERS': [10, 5, 0, 650],
-                'TOTAL_GROUPS': [1, 2, 0, 20],
+                'TOTAL_GROUPS': [0, 2, 0, 5],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
@@ -70,6 +70,16 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
     }
     allmembers.push(that.creator);
 
+    // Generate the user distributions
+    var userDistributions = {};
+    for (var t in users) {
+        var user = users[t];
+        if (user.id !== that.creator) {
+            userDistributions[user.userType] = userDistributions[user.userType] || [];
+            userDistributions[user.userType].push([user.contentWeighting, user.id]);
+        }
+    }
+
     // Fill up the other roles
     that.roles = {};
     for (var i in DISTRIBUTIONS[that.template].ROLES) {
@@ -82,13 +92,7 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
         for (var m = 0; m < that.roles[i].totalUsers; m++) {
             var type = general.randomize(DISTRIBUTIONS[that.template].ROLES[i].DISTRIBUTION);
             // Generate probability distribution
-            var dist = [];
-            for (var t in users) {
-                var duser = users[t];
-                if (duser.userType === type && allmembers.indexOf(duser.id) === -1) {
-                    dist.push([duser.groupWeighting, duser.id]);
-                }
-            }
+            var dist = userDistributions[type];
             if (dist.length === 0) {
                 break;
             } else {
@@ -96,6 +100,13 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
                 var userToAdd = general.randomize(dist);
                 that.roles[i].users.push(userToAdd);
                 allmembers.push(userToAdd);
+                // Remove from the distributions
+                for (var d = 0; d < userDistributions[type].length; d++) {
+                    if (userDistributions[type][d] === userToAdd) {
+                        userDistributions.splice(d, 1);
+                        break;
+                    }
+                }
             }
         }
     }

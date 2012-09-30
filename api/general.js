@@ -79,20 +79,20 @@ exports.removeFilesInFolder = function(foldername) {
 // Randomize function
 // Pass this something along the lines of [[0.5, 'M'],[0.5, 'F']]
 exports.randomize = function(mapfunc) {
-    var totalprob = 0;
-    for (var i = 0; i < mapfunc.length; i++) {
-        totalprob += mapfunc[i][0];
+    var mapFuncLength = mapfunc.length;
+    // Make it a Cummulative Density Function
+    for (var i = 0; i < mapFuncLength; i++) {
+        if (i !== 0) {
+            mapfunc[i][0] = mapfunc[i -1][0] + mapfunc[i][0];
+        } 
     }
-    var rand = Math.random() * totalprob;
-    var curProgress = 0;
-    for (var j = 0; j < mapfunc.length; j++) {
-        curProgress += mapfunc[j][0];
-        if (rand <= curProgress) {
-            if (typeof mapfunc[j][1] === 'function') {
-                return mapfunc[j][1]();
-            } else {
-                return mapfunc[j][1];
-            }
+    // Select the randoms
+    var random = Math.random() * mapfunc[mapFuncLength - 1][0];
+        
+    // Return the selected one
+    for (var j = 0; j < mapFuncLength; j++) {
+        if (random <= mapfunc[j][0]) {
+            return mapfunc[j][1];
         }
     }
 };
