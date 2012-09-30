@@ -109,15 +109,6 @@ exports.Content = function(batchid, users, groups) {
     }
     allmembers.push(that.creator);
 
-
-    // For now, only add non-private groups as group members
-    var nonPrivateGroups = [];
-    for (var g in groups) {
-        if (groups[g].visibility !== 'private') {
-            nonPrivateGroups.push(g);
-        }
-    }
-
     // Generate the user distributions
     var userDistributions = {};
     for (var t in users) {
@@ -125,6 +116,14 @@ exports.Content = function(batchid, users, groups) {
         if (user.id !== that.creator) {
             userDistributions[user.userType] = userDistributions[user.userType] || [];
             userDistributions[user.userType].push([user.contentWeighting, user.id]);
+        }
+    }
+    
+    // For now, only add non-private groups as group members
+    var nonPrivateGroups = [];
+    for (var g in groups) {
+        if (groups[g].visibility !== 'private') {
+            nonPrivateGroups.push(g);
         }
     }
 
@@ -161,9 +160,11 @@ exports.Content = function(batchid, users, groups) {
         // Fill up the groups
         for (var m = 0; m < that.roles[i].totalGroups; m++) {
             var randomGroup = nonPrivateGroups[Math.floor(Math.random() * nonPrivateGroups.length)];
-            nonPrivateGroups = _.without(nonPrivateGroups, randomGroup);
-            that.roles[i].groups.push(randomGroup);
-            allmembers.push(randomGroup);
+            if (randomGroup) {
+                nonPrivateGroups = _.without(nonPrivateGroups, randomGroup);
+                that.roles[i].groups.push(randomGroup);
+                allmembers.push(randomGroup);
+            }
         }
     }
 

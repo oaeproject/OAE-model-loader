@@ -74,13 +74,11 @@ var generateBatch = function(id) {
     // Generate users
     for (var u = 0; u < USERS_PER_BATCH; u++) {
         var newUser = new user.User(id, TENANT_ALIAS);
-        //console.timeEnd('Generate user ' + u + ' in batch ' + id);
         batch.users[newUser.id] = newUser;
     }
     // Generate groups
     for (var g = 0; g < GROUPS_PER_BATCH; g++) {
         var newGroup = new group.Group(id, batch.users, TENANT_ALIAS);
-        //console.timeEnd('Generate group ' + g + ' in batch ' + id);
         batch.groups[newGroup.id] = newGroup;
     }
     batch.groups = group.setGroupMemberships(id, batch.groups, batch.users);

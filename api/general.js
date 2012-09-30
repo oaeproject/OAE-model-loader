@@ -78,14 +78,18 @@ exports.removeFilesInFolder = function(foldername) {
 
 // Randomize function
 // Pass this something along the lines of [[0.5, 'M'],[0.5, 'F']]
-exports.randomize = function(mapfunc) {
-    var mapFuncLength = mapfunc.length;
+exports.randomize = function(_mapfunc) {
+    // Make a copy of the array
+    var mapFuncLength = _mapfunc.length;
+    var mapfunc = [];
     // Make it a Cummulative Density Function
     for (var i = 0; i < mapFuncLength; i++) {
+        mapfunc[i] = [_mapfunc[i][0], _mapfunc[i][1]];
         if (i !== 0) {
             mapfunc[i][0] = mapfunc[i -1][0] + mapfunc[i][0];
-        } 
+        }
     }
+    
     // Select the randoms
     var random = Math.random() * mapfunc[mapFuncLength - 1][0];
         
@@ -205,78 +209,6 @@ var finishUrlReq = function(reqUrl, options, cb) {
                 if (!options.ignoreFail) {
                     exports.errors++;
                     console.log(res.body);
-                }
-                cb(res.body, false, res);
-            } else {
-                cb(res.body, true, res);
-            }
-        });
-    });
-
-    // end the request
-    req.end();
-};
-
-exports.filePost = function(reqUrl, file, name, options, cb) {
-    if(typeof options === 'function') { cb = options; options = {}; }// incase no options passed in
-
-    var fileBody = fs.readFileSync(file);
-    var contentType = mime.lookup(file);
-    var boundary = '--' + Math.round(Math.random() * 1000000000000);
-    var post_data = [];
-    
-    var postHead = '--' + boundary + '\r\n';
-    postHead += 'Content-Disposition: form-data; name=\'' + name + '\'; filename=\'' + name + '\'\r\n';
-    postHead += 'Content-Type: ' + contentType + '\r\n\r\n';
-
-    post_data.push(new Buffer(postHead, 'ascii'));
-    post_data.push(new Buffer(fileBody, 'utf8'));
-    post_data.push(new Buffer('\r\n--' + boundary + '--'), 'ascii');
-
-    var length = 0;
-    for(var i = 0; i < post_data.length; i++) {
-        length += post_data[i].length;
-    }
-
-    // parse url to chunks
-    reqUrl = url.parse(reqUrl);
-
-    // http.request settings
-    var settings = {
-        host: reqUrl.hostname,
-        port: reqUrl.port || 80,
-        path: reqUrl.pathname,
-        headers: options.headers || {},
-        method: 'POST',
-        auth: options.auth
-    };
-    settings.headers['Referer'] = reqUrl.protocol + '//' + reqUrl.host + '/test';
-    settings.headers['Content-Type'] = 'multipart/form-data; boundary=' + boundary;
-    settings.headers['Content-Length'] = length;
-
-    // MAKE THE REQUEST
-    var req = http.request(settings);
-    for (var k = 0; k < post_data.length; k++) {
-        req.write(post_data[k]);
-    }
-
-    // when the response comes back
-    req.on('response', function(res) {
-        res.body = '';
-        res.setEncoding('utf-8');
-
-        // concat chunks
-        res.on('data', function(chunk) { res.body += chunk; });
-
-        // when the response has finished
-        res.on('end', function() {
-            
-            // fire callback
-            exports.requests++;
-            if (res.statusCode === 500 || res.statusCode === 400) {
-                if (!options.ignoreFail) {
-                    console.log(res.body);
-                    exports.errors++;
                 }
                 cb(res.body, false, res);
             } else {
