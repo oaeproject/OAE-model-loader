@@ -8,7 +8,7 @@ var argv = require('optimist')
     
     .alias('o', 'output')
     .describe('o', 'The target output directory. If not specified, will default a unique time-based directory in ~/.oae/mb-data')
-    .default('o', '~/.oae/mb-data/'+moment().format("YYYY-MMM-DD-H-mmss"))
+    .default('o', '~/.oae/mb-data/'+moment().format('YYYY-MMM-DD-H-mmss'))
     
     .alias('s', 'source')
     .describe('s', 'The location of the source scripts (relative to the current)')

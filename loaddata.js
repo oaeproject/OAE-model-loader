@@ -28,24 +28,24 @@ var argv = require('optimist')
 
 var _ = require('underscore');
 
-var general = require("./api/general.js");
-var userAPI = require("./api/user.dataload.js");
-var worldAPI = require("./api/world.dataload.js");
-var contentAPI = require("./api/content.dataload.js");
-var runSuites = require("./run_suites.js");
+var general = require('./api/general.js');
+var userAPI = require('./api/user.dataload.js');
+var groupAPI = require('./api/group.dataload.js');
+var contentAPI = require('./api/content.dataload.js');
+var runSuites = require('./run_suites.js');
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
 //////////////////////////////////////
 
-var SCRIPT_FOLDER = "scripts";
+var SCRIPT_FOLDER = 'scripts';
 
 var BATCHES = argv['end-batch'];
 var SERVER_URL = argv['server-url'];
 var ADMIN_PASSWORD = argv['admin-pw'];
 var CONCURRENT_BATCHES = argv['concurrent-batches']
 var RUN_SUITES = argv['test-batch-interval'];
-if (RUN_SUITES){
+if (RUN_SUITES) {
     runSuites.clearResults();
 }
 
@@ -54,7 +54,7 @@ if (RUN_SUITES){
 //////////////////////
 
 // clear trailing slashes from server url
-SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, "$1");
+SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, '$1');
 
 ////////////////////
 // KICK OFF BATCH //
@@ -63,37 +63,37 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, "$1");
 var currentBatch = argv.start - 1;
 var batches = [];
 
-var loadNextBatch = function(){
+var loadNextBatch = function() {
     currentBatch++;
-    if (currentBatch < BATCHES){
-        console.log("Loading Batch " + currentBatch);
+    if (currentBatch < BATCHES) {
+        console.log('Loading Batch ' + currentBatch);
         // Load the data from the model
-        var users = general.loadJSONFileIntoObject("./scripts/users/" + currentBatch + ".txt");
-        var worlds = general.loadJSONFileIntoObject("./scripts/worlds/" + currentBatch + ".txt");
-        var content = general.loadJSONFileIntoObject("./scripts/content/" + currentBatch + ".txt");
+        var users = general.loadJSONFileIntoObject('./scripts/users/' + currentBatch + '.txt');
+        var groups = general.loadJSONFileIntoObject('./scripts/groups/' + currentBatch + '.txt');
+        var content = general.loadJSONFileIntoObject('./scripts/content/' + currentBatch + '.txt');
         batches.push({
-            "users": users,
-            "worlds": worlds,
-            "content": content
+            'users': users,
+            'groups': groups,
+            'content': content
         });
-        loadUsers(users, worlds, content);
+        loadUsers(users, groups, content);
     } else {
-        console.timeEnd("Loading Batches");
-        console.log("*****************************");
-        console.log("Finished generating " + BATCHES + " batches");
-        console.log("Requests made: " + general.requests);
-        console.log("Request errors: " + general.errors);
+        console.timeEnd('Loading Batches');
+        console.log('*****************************');
+        console.log('Finished generating ' + BATCHES + ' batches');
+        console.log('Requests made: ' + general.requests);
+        console.log('Request errors: ' + general.errors);
     }
 };
 
-var finishBatch = function(){
-    console.log("Finished Loading Batch " + currentBatch);
-    console.log("=================================");
+var finishBatch = function() {
+    console.log('Finished Loading Batch ' + currentBatch);
+    console.log('=================================');
     loadNextBatch();
 };
 
-var checkRunSuites = function(){
-    if (RUN_SUITES && currentBatch % RUN_SUITES === 0){
+var checkRunSuites = function() {
+    if (RUN_SUITES && currentBatch % RUN_SUITES === 0) {
         // run the test suite before continuing
         runSuites.runSuites(batches, currentBatch - 1, SERVER_URL, finishBatch);
     } else {
@@ -105,71 +105,71 @@ var checkRunSuites = function(){
 // USERS //
 ///////////
 
-var loadUsers = function(users, worlds, content){
+var loadUsers = function(users, groups, content) {
     var currentUser = -1;
     var usersToLoad = _.values(users);
-    var loadNextUser = function(){
-        console.log("  Finished Loading User " + (currentUser + 1) + " of " + usersToLoad.length);
+    var loadNextUser = function() {
+        console.log('  Finished Loading User ' + (currentUser + 1) + ' of ' + usersToLoad.length);
         currentUser++;
         if (currentUser < usersToLoad.length) {
             var nextUser = usersToLoad[currentUser];
             userAPI.loadUser(nextUser, SERVER_URL, loadNextUser);
         } else {
-            loadWorlds(users, worlds, content);
+            loadGroups(users, groups, content);
         }
     };
     loadNextUser();
 };
 
 ////////////
-// WORLDS //
+// GROUPS //
 ////////////
 
-var loadWorlds = function(users, worlds, content){
-    var currentWorld = -1;
-    var worldsToLoad = _.values(worlds);
-    var loadNextWorld = function(){
-        console.log("  Finished Loading World " + (currentWorld + 1) + " of " + worldsToLoad.length);
-        currentWorld++;
-        if (currentWorld < worldsToLoad.length){
-            var nextWorld = worldsToLoad[currentWorld];
-            worldAPI.loadWorld(nextWorld, users, SERVER_URL, loadNextWorld);
+var loadGroups = function(users, groups, content) {
+    var currentGroup = -1;
+    var groupsToLoad = _.values(groups);
+    var loadNextGroup = function() {
+        console.log('  Finished Loading Group ' + (currentGroup + 1) + ' of ' + groupsToLoad.length);
+        currentGroup++;
+        if (currentGroup < groupsToLoad.length) {
+            var nextGroup = groupsToLoad[currentGroup];
+            groupAPI.loadGroup(nextGroup, users, SERVER_URL, loadNextGroup);
         } else {
-            loadWorldGroupMemberships(users, worlds, content);
+            loadGroupMemberships(users, groups, content);
         }
     };
-    loadNextWorld();
+    loadNextGroup();
 };
 
-var loadWorldGroupMemberships = function(users, worlds, content){
-    var currentWorldGroupMembership = -1;
-    var worldsToLoad = _.values(worlds);
-    var loadNextWorldGroupMembership = function(){
-        console.log("  Finished Loading Group Memberships " + (currentWorldGroupMembership + 1) + " of " + worldsToLoad.length);
-        currentWorldGroupMembership++;
-        if (currentWorldGroupMembership < worldsToLoad.length){
-            var nextWorld = worldsToLoad[currentWorldGroupMembership];
-            worldAPI.loadGroupMembership(nextWorld, users, SERVER_URL, loadNextWorldGroupMembership);
+var loadGroupMemberships = function(users, groups, content) {
+    var currentGroupMembership = -1;
+    var groupsToLoad = _.values(groups);
+    var loadNextGroupMembership = function() {
+        console.log('  Finished Loading Group Memberships ' + (currentGroupMembership + 1) + ' of ' + groupsToLoad.length);
+        currentGroupMembership++;
+        if (currentGroupMembership < groupsToLoad.length) {
+            var nextGroup = groupsToLoad[currentGroupMembership];
+            groupAPI.loadGroupMembership(nextGroup, users, SERVER_URL, loadNextGroupMembership);
         } else {
-            loadContent(users, worlds, content);
+            loadContent(users, groups, content);
         }
     };
-    loadNextWorldGroupMembership();
+    loadNextGroupMembership();
 };
 
 /////////////
 // CONTENT //
 /////////////
 
-var loadContent = function(users, worlds, content){
+var loadContent = function(users, groups, content) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
-    var loadNextContent = function(){
-        console.log("  Finished Loading Content " + (currentContent + 1) + " of " + contentToLoad.length);
+    var loadNextContent = function() {
+        console.log('  Finished Loading Content ' + (currentContent + 1) + ' of ' + contentToLoad.length);
         currentContent++;
-        if (currentContent < contentToLoad.length){
+        if (currentContent < contentToLoad.length) {
             var nextContent = contentToLoad[currentContent];
-            contentAPI.loadContent(nextContent, users, worlds, SERVER_URL, loadNextContent);
+            contentAPI.loadContent(nextContent, users, groups, SERVER_URL, loadNextContent);
         } else {
             checkRunSuites();
         }
@@ -181,8 +181,8 @@ var loadContent = function(users, worlds, content){
 // START //
 ///////////
 
-for (var b = 0; b < CONCURRENT_BATCHES && b < BATCHES; b++){
+for (var b = 0; b < CONCURRENT_BATCHES && b < BATCHES; b++) {
     loadNextBatch();
 }
 
-console.time("Loading Batches");
+console.time('Loading Batches');

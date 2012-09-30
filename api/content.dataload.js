@@ -1,17 +1,17 @@
 var _ = require('underscore');
-var fs = require("fs");
+var fs = require('fs');
 
-var general = require("./general.js");
+var general = require('./general.js');
 
 //////////////
 // USER API //
 //////////////
 
-exports.loadContent = function(content, users, worlds, SERVER_URL, callback){
-    createContent(content, users, worlds, SERVER_URL, callback);
+exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
+    createContent(content, users, groups, SERVER_URL, callback);
 };
 
-var createContent = function(content, users, worlds, SERVER_URL, callback) {
+var createContent = function(content, users, groups, SERVER_URL, callback) {
     var contentObj = {
         'contentType': content.contentType,
         'name': content.name,

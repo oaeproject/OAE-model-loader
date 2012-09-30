@@ -1,5 +1,5 @@
 var argv = require('optimist')
-    .usage('Usage: $0 -b <number of batches to generate> [-u <number of users>] [-w <number of worlds>]')
+    .usage('Usage: $0 -b <number of batches to generate> [-u <number of users>] [-g <number of groupss>]')
     
     .demand('b')
     .alias('b', 'batches')
@@ -13,9 +13,9 @@ var argv = require('optimist')
     .describe('u', 'Number of users per batch')
     .default('u', 500)
     
-    .alias('w', 'worlds')
-    .describe('w', 'Number of worlds per batch')
-    .default('w', 250)
+    .alias('g', 'groups')
+    .describe('g', 'Number of groups per batch')
+    .default('g', 250)
 
     .alias('c', 'content')
     .describe('c', 'Number of content items per batch')
@@ -23,23 +23,23 @@ var argv = require('optimist')
     .argv;
 
 
-var fs = require("fs");
+var fs = require('fs');
 
-var general = require("./api/general.js");
-var user = require("./api/user.generate.js");
-var world = require("./api/world.generate.js");
+var general = require('./api/general.js');
+var user = require('./api/user.generate.js');
+var group = require('./api/group.generate.js');
 var content = require('./api/content.generate.js');
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
 //////////////////////////////////////
 
-var SCRIPT_FOLDER = "scripts";
+var SCRIPT_FOLDER = 'scripts';
 
 var TOTAL_BATCHES = argv.batches;
 var TENANT_ALIAS = argv.tenant;
 var USERS_PER_BATCH = argv.users;
-var WORLDS_PER_BATCH = argv.worlds;
+var GROUPS_PER_BATCH = argv.groups;
 var CONTENT_PER_BATCH = argv.content;
 
 ////////////////////
@@ -48,26 +48,26 @@ var CONTENT_PER_BATCH = argv.content;
 
 var batches = [];
 
-var run = function(){
-    for (var i = 0; i < TOTAL_BATCHES; i++){
+var run = function() {
+    for (var i = 0; i < TOTAL_BATCHES; i++) {
         var batch = generateBatch(i);
 
         // Write users to file
-        general.writeObjectToFile("./" + SCRIPT_FOLDER + "/users/" + i + ".txt", batch.users);
-        // Write worlds to file
-        general.writeObjectToFile("./" + SCRIPT_FOLDER + "/worlds/" + i + ".txt", batch.worlds);
+        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/users/' + i + '.txt', batch.users);
+        // Write groups to file
+        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/groups/' + i + '.txt', batch.groups);
         // Write content to file
-        general.writeObjectToFile("./" + SCRIPT_FOLDER + "/content/" + i + ".txt", batch.content);
+        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/content/' + i + '.txt', batch.content);
 
         batches.push(batch);
     }
 };
 
-var generateBatch = function(id){
-    console.log("Generating Batch " + id);
+var generateBatch = function(id) {
+    console.log('Generating Batch ' + id);
     var batch = {
         users: {},
-        worlds: {},
+        groups: {},
         content: {}
     };
     // Generate users
@@ -75,27 +75,27 @@ var generateBatch = function(id){
         var newUser = new user.User(id, TENANT_ALIAS)
         batch.users[newUser.id] = newUser;
     }
-    // Generate worlds
-    for (var w = 0; w < WORLDS_PER_BATCH; w++) {
-        var newWorld = new world.World(id, batch.users, TENANT_ALIAS);
-        batch.worlds[newWorld.id] = newWorld;
+    // Generate groups
+    for (var w = 0; w < GROUPS_PER_BATCH; w++) {
+        var newGroup = new group.Group(id, batch.users, TENANT_ALIAS);
+        batch.groups[newGroup.id] = newGroup;
     }
-    batch.worlds = world.setWorldMemberships(id, batch.worlds, batch.users);
+    batch.groups = group.setGroupMemberships(id, batch.groups, batch.users);
     // Generate content
     for (var c = 0; c < CONTENT_PER_BATCH; c++) {
-        var newContent = new content.Content(id, batch.users, batch.worlds);
+        var newContent = new content.Content(id, batch.users, batch.groups);
         batch.content[newContent.id] = newContent;
     }
-    console.log("Finished Generating Batch " + id);
-    console.log("=================================");
+    console.log('Finished Generating Batch ' + id);
+    console.log('=================================');
     return batch;
 };
 
 var checkDirectories = function() {
-    general.createFolder("scripts");
-    general.createFolder("scripts/users");
-    general.createFolder("scripts/worlds");
-    general.createFolder("scripts/content");
+    general.createFolder('scripts');
+    general.createFolder('scripts/users');
+    general.createFolder('scripts/groups');
+    general.createFolder('scripts/content');
 };
 
 var init = function() {
