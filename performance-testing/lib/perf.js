@@ -18,31 +18,61 @@ exports.generateCsvData = function(numberOfBatches, modelBuilderBaseDir, outputD
         console.log('Processing batch #'+batchNumber);
       
         var usersBatchFile = modelBuilderBaseDir + '/scripts/users/' + batchNumber + '.txt';
+        var worldsBatchFile = modelBuilderBaseDir + '/scripts/groups/' + batchNumber + '.txt';
+        var contentBatchFile = modelBuilderBaseDir + '/scripts/content/' + batchNumber + '.txt';
       
-        fs.readFile(usersBatchFile, 'utf8', function(err, data) {
-            assert(err);
-          
-            var users = {};
-            
-            data = data.split('\n');
-            
-            // build the usernames and passwords
-            data.forEach(function(item) {
-                item = JSON.parse(item);
-                users[item.userid] = item.password;
-            });
+        fs.readFile(usersBatchFile, 'utf8', function(err, userData) {
+            fs.readFile(worldsBatchFile, 'utf8', function(err, groupData) {
+                fs.readFile(contentBatchFile, 'utf8', function(err, contentData) {
+                    assert(err);
 
-            // Writing username and password info
-            fs.open(usersOutput, 'w', function(err, fd) {
-                assert(err);
+                    var users = {};
 
-                for (var userId in users) {
-                    buffer = new Buffer(userId+','+users[userId]+'\n');
-                    fs.writeSync(fd, buffer, 0, buffer.length, null);       
-                }
-                fs.closeSync(fd);
+                    userData = userData.split('\n');
 
-                processBatch(batchNumber+1);
+                    // build the usernames and passwords
+                    userData.forEach(function(item) {
+                        item = JSON.parse(item);
+                        users[item.userid] = {};
+                        users[item.userid].password = item.password;
+                        users[item.userid].groups = [];
+                        users[item.userid].content = {'viewer': [], 'manager': []};
+                    });
+
+                    // Get the groups
+                    groupData = groupData.split('\n');
+                    groupData.forEach(function(group) {
+                        group = JSON.parse(group);
+                        group.roles.manager.users.forEach(function(member) {
+                            users[member.substr(6)].groups.push(group.id);
+                        });
+                    });
+
+                    // Get the content
+                    contentData = contentData.split('\n');
+                    contentData.forEach(function(content) {
+                        content = JSON.parse(content);
+                        content.roles.manager.users.forEach(function(manager) {
+                            users[manager.substr(6)].content.manager.push(content.id);
+                        });
+                        content.roles.viewer.users.forEach(function(viewer) {
+                            users[viewer.substr(6)].content.viewer.push(content.id);
+                        });
+                    });
+
+                    // Writing username, password info and groups
+                    fs.open(usersOutput, 'w', function(err, fd) {
+                        assert(err);
+
+                        for (var userId in users) {
+                            buffer = new Buffer(userId+','+users[userId].password + ',' + users[userId].groups[0] + ',' + users[userId].content.manager[0] + ',' + users[userId].content.viewer[0] +'\n');
+                            fs.writeSync(fd, buffer, 0, buffer.length, null);
+                        }
+                        fs.closeSync(fd);
+
+                        processBatch(batchNumber+1);
+                    });
+                });
             });
         });
     }; // end processBatch
