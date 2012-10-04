@@ -18,3 +18,9 @@ Add create the following folders & add image files to
 * node generate.js
 * node loaddata.js <number of batches to load> <Sakai OAE Url> <admin password> <number of concurrent batches to load> <0 for no suites/interval for running the suites>
 * node main.js
+
+The recommended batch size is:
+
+* 1000 users
+* 2000 groups
+* 10000 content items
