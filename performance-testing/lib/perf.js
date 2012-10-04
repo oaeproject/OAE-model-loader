@@ -33,7 +33,7 @@ exports.generateCsvData = function(numberOfBatches, modelBuilderBaseDir, outputD
             });
 
             // Writing username and password info
-            fs.open(usersOutput, 'w', function(err, fd) {
+            fs.open(usersOutput, 'a', function(err, fd) {
                 assert(err);
 
                 for (var userId in users) {
