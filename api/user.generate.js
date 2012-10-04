@@ -24,8 +24,8 @@ var DISTRIBUTIONS = {
         'HOBBIES': [3, 2, 1, 50],
         'PUBLICATIONS_PRIVACY': [[0.8, 'public'], [0.19, 'loggedin'], [0.01, 'private']],
         'PUBLICATIONS': [1, 3, 0, 20],
-        'GROUPS_WEIGHTING': [[0.3, 1], [0.5, 3], [0.2, 5]],
-        'CONTENT_WEIGHTING': [[0.25, 1], [0.4, 3], [0.35, 5]]
+        'GROUPS_WEIGHTING': [[0.3, 1], [0.5, 3], [0.2, 9]],
+        'CONTENT_WEIGHTING': [[0.25, 1], [0.4, 3], [0.35, 9]]
     },
     'lecturer': {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
@@ -46,8 +46,8 @@ var DISTRIBUTIONS = {
         'HOBBIES': [3, 2, 1, 20],
         'PUBLICATIONS_PRIVACY': [[0.6, 'public'], [0.35, 'loggedin'], [0.05, 'private']],
         'PUBLICATIONS': [3, 3, 0, 50],
-        'GROUPS_WEIGHTING': [[0.4, 1], [0.4, 3], [0.2, 5]],
-        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 5]]
+        'GROUPS_WEIGHTING': [[0.4, 1], [0.4, 3], [0.2, 9]],
+        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]]
     },
     'researcher': {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
@@ -68,8 +68,8 @@ var DISTRIBUTIONS = {
         'HOBBIES': [3, 2, 1, 30],
         'PUBLICATIONS_PRIVACY': [[0.9, 'public'], [0.08, 'loggedin'], [0.02, 'private']],
         'PUBLICATIONS': [10, 6, 0, 100],
-        'GROUPS_WEIGHTING': [[0.2, 1], [0.5, 3], [0.3, 5]],
-        'CONTENT_WEIGHTING': [[0.15, 1], [0.5, 3], [0.35, 5]]
+        'GROUPS_WEIGHTING': [[0.2, 1], [0.5, 3], [0.3, 9]],
+        'CONTENT_WEIGHTING': [[0.15, 1], [0.5, 3], [0.35, 9]]
     }
 };
 

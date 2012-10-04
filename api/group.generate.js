@@ -20,16 +20,16 @@ var DISTRIBUTIONS = {
         'ROLES': {
             'manager': {
                 'TOTAL_USERS': [5, 2, 0, 50],
-                'TOTAL_GROUPS': [0, 1, 0, 3],
+                'TOTAL_GROUPS': [0, 0.05, 0, 3],
                 'DISTRIBUTION': [[0.35, 'student'], [0.2, 'lecturer'], [0.45, 'researcher']]
             },
             'member': {
-                'TOTAL_USERS': [10, 5, 0, 650],
-                'TOTAL_GROUPS': [0, 2, 0, 5],
+                'TOTAL_USERS': [10, 10, 0, 1000],
+                'TOTAL_GROUPS': [0, 0.05, 0, 5],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 5]]
+        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]]
     }
 };
 

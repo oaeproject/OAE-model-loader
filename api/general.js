@@ -104,7 +104,7 @@ exports.randomize = function(_mapfunc) {
 // Calculate a value given an average, standard deviation and maximum
 exports.ASM = function(vars) {
     var average = vars[0]; var sdev = vars[1]; var minimum = vars[2]; var maximum = vars[3];
-    var outlier = exports.randomize([[0.05, true], [0.95, false]]);
+    var outlier = exports.randomize([[0.02, true], [0.98, false]]);
     if (outlier) {
         // Generate an outlier
         return Math.round(Math.random() * (maximum - average) + average);

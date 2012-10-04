@@ -17,12 +17,12 @@ var DISTRIBUTIONS = {
         'ROLES': {
             'manager': {
                 'TOTAL_USERS': [3, 2, 0, 25],
-                'TOTAL_GROUPS': [0, 1, 0, 5],
+                'TOTAL_GROUPS': [1, 3, 0, 5],
                 'DISTRIBUTION': [[0.2, 'student'], [0.35, 'lecturer'], [0.45, 'researcher']]
             },
             'viewer': {
-                'TOTAL_USERS': [5, 3, 0, 500],
-                'TOTAL_GROUPS': [1, 2, 0, 15],
+                'TOTAL_USERS': [5, 10, 0, 500],
+                'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         }
@@ -36,12 +36,12 @@ var DISTRIBUTIONS = {
         'ROLES': {
             'manager': {
                 'TOTAL_USERS': [3, 2, 0, 25],
-                'TOTAL_GROUPS': [0, 1, 0, 5],
+                'TOTAL_GROUPS': [1, 3, 0, 5],
                 'DISTRIBUTION': [[0.2, 'student'], [0.35, 'lecturer'], [0.45, 'researcher']]
             },
             'viewer': {
                 'TOTAL_USERS': [5, 3, 0, 500],
-                'TOTAL_GROUPS': [1, 2, 0, 15],
+                'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         }
@@ -55,12 +55,12 @@ var DISTRIBUTIONS = {
         'ROLES': {
             'manager': {
                 'TOTAL_USERS': [3, 2, 0, 25],
-                'TOTAL_GROUPS': [0, 1, 0, 5],
+                'TOTAL_GROUPS': [1, 3, 0, 5],
                 'DISTRIBUTION': [[0.2, 'student'], [0.35, 'lecturer'], [0.45, 'researcher']]
             },
             'viewer': {
                 'TOTAL_USERS': [5, 3, 0, 500],
-                'TOTAL_GROUPS': [1, 2, 0, 15],
+                'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         }
@@ -120,12 +120,7 @@ exports.Content = function(batchid, users, groups) {
     }
     
     // For now, only add non-private groups as group members
-    var nonPrivateGroups = [];
-    for (var g in groups) {
-        if (groups[g].visibility !== 'private') {
-            nonPrivateGroups.push(g);
-        }
-    }
+    var nonPrivateGroups = _.keys(groups);
 
     // Fill up the managers and viewers
     that.roles = {};
