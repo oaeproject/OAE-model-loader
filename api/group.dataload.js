@@ -34,7 +34,8 @@ var createGroup = function(group, users, SERVER_URL, callback) {
     general.urlReq(SERVER_URL + '/api/group/create', {
         method: 'POST',
         params: groupObj,
-        auth: users[group.creator]
+        auth: users[group.creator],
+        telemetry: 'Create group'
     }, callback);
 };
 
@@ -50,7 +51,8 @@ var addGroupMembers = function(group, users, SERVER_URL, callback) {
         general.urlReq(SERVER_URL + '/api/group/' + group.id + '/members', {
             method: 'POST',
             params: groupMembers,
-            auth: users[group.creator]
+            auth: users[group.creator],
+            telemetry: 'Add group members'
         }, callback);
     } else {
         callback();

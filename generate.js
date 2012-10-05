@@ -97,6 +97,7 @@ var checkDirectories = function() {
     general.createFolder('scripts/users');
     general.createFolder('scripts/groups');
     general.createFolder('scripts/content');
+    general.createFolder('results');
 };
 
 var init = function() {

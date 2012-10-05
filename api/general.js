@@ -128,6 +128,7 @@ exports.ASM = function(vars) {
 var http = require('http');
 var querystring = require('querystring');
 var url = require('url');
+var telemetry = require('./telemetry.js').Telemetry;
 
 var cookies = {};
 
@@ -143,11 +144,14 @@ exports.urlReq = function(reqUrl, options, cb) {
     if (options.auth) {
         if (!cookies[options.auth.userid]) {
             // Log in the user first
+            var requestStart = new Date().getTime();
             exports.urlReq(reqUrl.protocol + '//' + reqUrl.host + '/api/auth/login', {
                 method: 'POST',
                 params: {'username': options.auth.userid, 'password': options.auth.password}
             }, function(body, success, res) {
                 cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
+                var requestEnd = new Date().getTime();
+                telemetry('Login', requestEnd - requestStart);
                 finishUrlReq(reqUrl, options, cb);
             });
         } else {
@@ -159,6 +163,7 @@ exports.urlReq = function(reqUrl, options, cb) {
 }
 
 var finishUrlReq = function(reqUrl, options, cb) {
+    var requestStart = new Date().getTime();
     // http.request settings
     var settings = {
         host: reqUrl.hostname,
@@ -205,6 +210,10 @@ var finishUrlReq = function(reqUrl, options, cb) {
             
             // fire callback
             exports.requests++;
+            if (options.telemetry) {
+                var requestEnd = new Date().getTime();
+                telemetry(options.telemetry, requestEnd - requestStart);
+            }
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
                 if (!options.ignoreFail) {
                     exports.errors++;

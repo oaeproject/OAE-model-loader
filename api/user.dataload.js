@@ -2,8 +2,6 @@ var fs = require('fs');
 
 var general = require('./general.js');
 
-var cookies = {};
-
 //////////////
 // USER API //
 //////////////
@@ -31,7 +29,8 @@ var createUser = function(user, SERVER_URL, callback) {
     }
     general.urlReq(SERVER_URL + '/api/user/create', {
         method: 'POST',
-        params: userObj
+        params: userObj,
+        telemetry: 'Create user'
     }, callback);
 };
 
@@ -50,7 +49,8 @@ var fillUpBasicInfo = function(user, SERVER_URL, callback) {
          general.urlReq(SERVER_URL + '/api/user/' + user.id, {
             method: 'POST',
             params: basicInfo,
-            auth: user
+            auth: user,
+            telemetry: 'Add basic info'
         }, callback);
     } else {
         callback();
@@ -82,7 +82,8 @@ var fillUpAboutMe = function(user, SERVER_URL, callback) {
         general.urlReq(SERVER_URL + '/api/user/' + user.id + '/profile', {
             method: 'POST',
             params: section,
-            auth: user
+            auth: user,
+            telemetry: 'Add about me'
         }, callback);
     } else {
         callback();
@@ -100,7 +101,8 @@ var fillUpPublications = function(user, SERVER_URL, callback) {
         general.urlReq(SERVER_URL + '/api/user/' + user.id + '/profile', {
             method: 'POST',
             params: section,
-            auth: user
+            auth: user,
+            telemetry: 'Add publications'
         }, callback);
     } else {
         callback();

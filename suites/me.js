@@ -15,7 +15,7 @@ exports.Suite = function(datamodel, SERVER_URL) {
     elements.push(new suiteAPI.SuiteElement('all-profile', 'All profile', 200, 1000, 0.05, 1));
 
     for (var b = 0; b < datamodel.length; b++) {
-        for (var u = 0; u < datamodel[b].users.length; u++) {
+        for (var u in datamodel[b].users) {
             var user = datamodel[b].users[u];
             runs.push({
                 'type': 'me-data',

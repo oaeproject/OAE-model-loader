@@ -22,7 +22,8 @@ exports.Suite = function(id, title, threshold, target, elements, runs) {
                 general.urlReq(run.url, {
                     method: run.method || 'GET',
                     params: run.params || {},
-                    auth: run.user
+                    auth: run.user,
+                    telemetry: run.type
                 }, function(res, success) {
                     var endTime = new Date().getTime();
                     results.push({

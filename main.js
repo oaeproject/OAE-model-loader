@@ -96,6 +96,19 @@ app.get('/results.json', function(req, res) {
 
 });
 
+app.get('/telemetry.json', function(req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json'
+    });
+
+    // Read the telemetry file
+    fs.readFile('results/telemetry.json', 'utf8', function(err,data) {
+        res.write(data);
+        res.end();
+    });
+
+});
+
 app.configure(function() {
     app.use(express.static(REPORTING_DIR));
     app.use(express.directory(REPORTING_DIR));

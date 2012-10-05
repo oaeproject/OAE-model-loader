@@ -28,6 +28,8 @@ var argv = require('optimist')
 
 var _ = require('underscore');
 
+var telemetry = require('./api/telemetry.js');
+
 var general = require('./api/general.js');
 var userAPI = require('./api/user.dataload.js');
 var groupAPI = require('./api/group.dataload.js');
@@ -80,6 +82,7 @@ var loadNextBatch = function() {
         });
         loadUsers(users, groups, content);
     } else {
+        telemetry.stopTelemetry();
         console.timeEnd('Loading Batches');
         console.log('*****************************');
         console.log('Finished generating ' + BATCHES + ' batches');
@@ -184,8 +187,9 @@ var loadContent = function(users, groups, content) {
 // START //
 ///////////
 
-for (var b = 0; b < CONCURRENT_BATCHES && b < BATCHES; b++) {
+for (var b = 0; b < CONCURRENT_BATCHES; b++) {
     loadNextBatch();
 }
 
+telemetry.startTelemetry();
 console.time('Loading Batches');

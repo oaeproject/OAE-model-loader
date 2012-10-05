@@ -7,7 +7,8 @@
     "mkdirp": "latest",
     "moment": "latest",
     "ncp": "latest",
-    "underscore": "latest"
+    "underscore": "latest",
+    "fast-stats": "latest"
   },
   "devDependencies": {
     "optimist": "latest"
