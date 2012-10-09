@@ -133,7 +133,7 @@ var telemetry = require('./telemetry.js').Telemetry;
 var cookies = {};
 
 exports.requests = 0;
-exports.errors = 0;
+exports.errors = [];
 exports.urlReq = function(reqUrl, options, cb) {
     if(typeof options === 'function') { cb = options; options = {}; }// incase no options passed in
     
@@ -216,7 +216,10 @@ var finishUrlReq = function(reqUrl, options, cb) {
             }
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
                 if (!options.ignoreFail) {
-                    exports.errors++;
+                    exports.errors.push({
+                        'settings': settings,
+                        'response': res.body
+                    });
                     console.log(res.body);
                 }
                 cb(res.body, false, res);

@@ -63,6 +63,7 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, '$1');
 ////////////////////
 
 var currentBatch = argv.start - 1;
+var finishedBatches = 0;
 var batches = [];
 
 console.time("Finished running data loader");
@@ -82,13 +83,10 @@ var loadNextBatch = function() {
         });
         loadUsers(users, groups, content);
     } else {
-        telemetry.stopTelemetry();
-        console.timeEnd('Loading Batches');
-        console.log('*****************************');
-        console.log('Finished generating ' + BATCHES + ' batches');
-        console.timeEnd("Finished running data loader");
-        console.log('Requests made: ' + general.requests);
-        console.log('Request errors: ' + general.errors);
+        finishedBatches++;
+        if (finishedBatches === BATCHES) {
+            finishedAllBatches();
+        }
     }
 };
 
@@ -96,6 +94,21 @@ var finishBatch = function() {
     console.log('Finished Loading Batch ' + currentBatch);
     console.log('=================================');
     loadNextBatch();
+};
+
+var finishedAllBatches = function() {
+    telemetry.stopTelemetry();
+    console.timeEnd('Loading Batches');
+    console.log('*****************************');
+    if (general.errors.length) {
+        console.log('Error details:');
+        console.log(general.errors);
+    }
+    console.log('Requests made: ' + general.requests);
+    console.log('Request errors: ' + general.errors.length);
+    console.log('Finished generating ' + BATCHES + ' batches');
+    console.timeEnd("Finished running data loader");
+    console.log('*****************************');
 };
 
 var checkRunSuites = function() {
@@ -115,12 +128,15 @@ var loadUsers = function(users, groups, content) {
     var currentUser = -1;
     var usersToLoad = _.values(users);
     var loadNextUser = function() {
-        console.log('  Finished Loading User ' + (currentUser + 1) + ' of ' + usersToLoad.length);
         currentUser++;
         if (currentUser < usersToLoad.length) {
             var nextUser = usersToLoad[currentUser];
             userAPI.loadUser(nextUser, SERVER_URL, loadNextUser);
+            if (currentUser % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading User ' + currentUser + ' of ' + usersToLoad.length);
+            }
         } else {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
             loadGroups(users, groups, content);
         }
     };
@@ -135,12 +151,15 @@ var loadGroups = function(users, groups, content) {
     var currentGroup = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroup = function() {
-        console.log('  Finished Loading Group ' + (currentGroup + 1) + ' of ' + groupsToLoad.length);
         currentGroup++;
         if (currentGroup < groupsToLoad.length) {
             var nextGroup = groupsToLoad[currentGroup];
             groupAPI.loadGroup(nextGroup, users, SERVER_URL, loadNextGroup);
+            if (currentGroup % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading Group ' + currentGroup + ' of ' + groupsToLoad.length);
+            }    
         } else {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + ' Groups');
             loadGroupMemberships(users, groups, content);
         }
     };
@@ -151,12 +170,15 @@ var loadGroupMemberships = function(users, groups, content) {
     var currentGroupMembership = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroupMembership = function() {
-        console.log('  Finished Loading Group Memberships ' + (currentGroupMembership + 1) + ' of ' + groupsToLoad.length);
         currentGroupMembership++;
         if (currentGroupMembership < groupsToLoad.length) {
             var nextGroup = groupsToLoad[currentGroupMembership];
             groupAPI.loadGroupMembership(nextGroup, users, SERVER_URL, loadNextGroupMembership);
+            if (currentGroupMembership % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading Group Memberships ' + currentGroupMembership + ' of ' + groupsToLoad.length);
+            }
         } else {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + 'Group Memberships');
             loadContent(users, groups, content);
         }
     };
@@ -171,12 +193,15 @@ var loadContent = function(users, groups, content) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
     var loadNextContent = function() {
-        console.log('  Finished Loading Content ' + (currentContent + 1) + ' of ' + contentToLoad.length);
         currentContent++;
         if (currentContent < contentToLoad.length) {
             var nextContent = contentToLoad[currentContent];
             contentAPI.loadContent(nextContent, users, groups, SERVER_URL, loadNextContent);
+            if (currentContent % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading Content Item ' + currentContent + ' of ' + contentToLoad.length);
+            }
         } else {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
             checkRunSuites();
         }
     };
@@ -191,5 +216,5 @@ for (var b = 0; b < CONCURRENT_BATCHES; b++) {
     loadNextBatch();
 }
 
-telemetry.startTelemetry();
 console.time('Loading Batches');
+telemetry.startTelemetry();

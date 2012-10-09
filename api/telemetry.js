@@ -13,6 +13,32 @@ var interval = null;
  * that all requests in the next second are bundled together
  */
 var nextSecond = function() {
+    // First process the telemetry for the current second
+    var currentSecond = requestsPerSecond[requestsPerSecond.length - 1];
+    if (currentSecond) {
+        var avgLatency = new Stats();
+        for (var f in currentSecond.feed) {
+            var feedObject = {};
+            // Calculate total per feed
+            feedObject.total = currentSecond.feed[f].length;
+            // Calculate average latency per feed, as well as 10th and 95th percentile
+            var s = new Stats();
+            for (var j = 0; j < currentSecond.feed[f].length; j++) {
+                s.push(currentSecond.feed[f][j]);
+                avgLatency.push(currentSecond.feed[f][j]);
+            }
+            feedObject.avg = s.amean();
+            feedObject.avg10 = s.percentile(10);
+            feedObject.avg95 = s.percentile(95);
+            // Replace the full telemetry
+            currentSecond.feed[f] = feedObject;
+        }
+        currentSecond.avg = avgLatency.amean();
+        currentSecond.avg10 = avgLatency.percentile(10);
+        currentSecond.avg95 = avgLatency.percentile(95);
+    }
+    
+    // Prepare the next second
     requestsPerSecond.push({
         'total': 0,
         'feed': {}
@@ -99,11 +125,10 @@ var reportChart = function() {
     for (var f = 0; f < uniqueFeeds.length; f++) {
         var totalRequests = [];
         for (var i = 0; i < requestsPerSecond.length; i++) {
-            totalRequests.push(null);
-            for (var feed in requestsPerSecond[i].feed) {
-                if (feed === uniqueFeeds[f]) {
-                    totalRequests[totalRequests.length - 1] = requestsPerSecond[i].feed[feed].length;
-                }
+            if (requestsPerSecond[i].feed[uniqueFeeds[f]]) {
+                totalRequests.push(requestsPerSecond[i].feed[uniqueFeeds[f]].total);
+            } else {
+                totalRequests.push(null);
             }
         }
         var Serie = {
@@ -112,8 +137,6 @@ var reportChart = function() {
         }
         // This serie will have all totals per feed in one chart
         cumulativeSerie.push(Serie);
-        // This will be used for a mean, 10th percentile and 95th percentile
-        // per feed per chart
         allSeries.push([Serie]);
     }
     
@@ -121,20 +144,11 @@ var reportChart = function() {
     // Overall average latency //
     /////////////////////////////
     
-    var averageLatency = [];
-    var averageLatency10 = [];
-    var averageLatency95 = [];
+    var averageLatency = []; var averageLatency10 = []; var averageLatency95 = [];
     for (var i = 0; i < requestsPerSecond.length; i++) {
-        var s = new Stats();
-        var totalLatency = 0; var totalRequests = 0;
-        for (var f in requestsPerSecond[i].feed) {
-            for (var j = 0; j < requestsPerSecond[i].feed[f].length; j++) {
-                s.push(requestsPerSecond[i].feed[f][j]);
-            }
-        }
-        averageLatency.push(s.amean());
-        averageLatency10.push(s.percentile(10));
-        averageLatency95.push(s.percentile(95));
+        averageLatency.push(requestsPerSecond[i].avg);
+        averageLatency10.push(requestsPerSecond[i].avg10);
+        averageLatency95.push(requestsPerSecond[i].avg95);
     }
     allSeries.push([{
         name:'Overall average latency',
@@ -154,22 +168,17 @@ var reportChart = function() {
     allSeries.push([]);
     cumulativeSerie = allSeries[allSeries.length - 1];
     for (var f = 0; f < uniqueFeeds.length; f++) {
-        var averageLatency = [];
-        var averageLatency10 = [];
-        var averageLatency95 = [];
+        var averageLatency = []; var averageLatency10 = []; var averageLatency95 = [];
         for (var i = 0; i < requestsPerSecond.length; i++) {
-            var s = new Stats();
-            var totalLatency = 0; var totalRequests = 0;
-            for (var feed in requestsPerSecond[i].feed) {
-                if (feed === uniqueFeeds[f]){
-                    for (var j = 0; j < requestsPerSecond[i].feed[feed].length; j++) {
-                        s.push(requestsPerSecond[i].feed[feed][j]);
-                    }
-                }
+            if (requestsPerSecond[i].feed[uniqueFeeds[f]]) {
+                averageLatency.push(requestsPerSecond[i].feed[uniqueFeeds[f]].avg);
+                averageLatency10.push(requestsPerSecond[i].feed[uniqueFeeds[f]].avg10);
+                averageLatency95.push(requestsPerSecond[i].feed[uniqueFeeds[f]].avg95);
+            } else {
+                averageLatency.push(null);
+                averageLatency10.push(null);
+                averageLatency95.push(null);
             }
-            averageLatency.push(s.amean());
-            averageLatency10.push(s.percentile(10));
-            averageLatency95.push(s.percentile(95));
         }
         var LatencySerie = {
             name:'Average latency for ' + uniqueFeeds[f],
