@@ -8,11 +8,9 @@ The package generated from this script contains all data that is essential for p
 
 This directory contains the CSV input data that can be fed into load testing user sessions. JMeter and Tsung should both be able to make use of this data. It will have these files:
 
-**users.csv:** Contains the username and password of all users in the system. It also contains OAE-specific request information for group memberships. If the user session visits the "My Memberships" page, this data is essential to generate an accurate request that is reflected on that page. If in the future the request structure changes for that page, those 2 columns will no longer be needed.
+**users.csv** contains (at most) 10 rows for each user that have a username, password and a group that user is a member of.
+Columns: `username, password, group`
 
-**can_accept.csv:** Contains all combinations of users that will successfully be able to accept a contact information from one another. This will feed into user sessions that accept contact invitations.
-
-**can_invite.csv:** Contains all combinations of users who have no requested or accepted contact invitations. This feeds into user sessions that invite some user to become a contact.
 
 ### source/
 
@@ -82,7 +80,7 @@ Done.
 
 
 ~/Source/sakai/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/csv
-can_accept.csv	can_invite.csv	users.csv
+users.csv
 
 
 ~/Source/sakai/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/source/

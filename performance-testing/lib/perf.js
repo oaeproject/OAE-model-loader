@@ -2,79 +2,97 @@ var mkdirp = require('mkdirp');
 var fs = require('fs');
 
 exports.generateCsvData = function(numberOfBatches, modelBuilderBaseDir, outputDir, callback) {
-
+    // Create the output directory.
     mkdirp.sync(outputDir);
-    
-    var usersOutput = outputDir + '/users.csv';
 
-    // recursively process batches from batchNumber to numberOfBatches
-    var processBatch = function(batchNumber) {
-        
-        if (batchNumber >= numberOfBatches) {
-          console.log('Complete batch processing.');
-          callback();
-        }
-      
-        console.log('Processing batch #'+batchNumber);
+    // Loop over each batch, read it and collect the data we need.
+    for (var batchNumber = 0; batchNumber < numberOfBatches; batchNumber++) {
+        console.log('Processing batch #' + batchNumber);
       
         var usersBatchFile = modelBuilderBaseDir + '/scripts/users/' + batchNumber + '.txt';
-      
-        fs.readFile(usersBatchFile, 'utf8', function(err, data) {
-            assert(err);
-          
-            var users = {};
-            
-            data = data.split('\n');
-            
-            // build the usernames and passwords
-            data.forEach(function(item) {
-                item = JSON.parse(item);
-                users[item.userid] = item.password;
+        var groupsBatchFile = modelBuilderBaseDir + '/scripts/groups/' + batchNumber + '.txt';
+
+        // Read the data,
+        // It doesn't really matter that it happens synchronously as it's the only thing that this module does.
+        var userData = fs.readFileSync(usersBatchFile, 'utf8');
+        var groupData = fs.readFileSync(groupsBatchFile, 'utf8');
+
+        var users = {};
+        var userBatch = userData.split('\n');
+
+        // build the usernames and passwords
+        userBatch.forEach(function(item) {
+            item = JSON.parse(item);
+            users[item.userid] = {};
+            users[item.userid].password = item.password;
+            users[item.userid].groups = {'member': [], 'manager': []};
+        });
+
+        // Get the groups
+        groupData = groupData.split('\n');
+        groupData.forEach(function(group) {
+            group = JSON.parse(group);
+            group.roles.manager.users.forEach(function(member) {
+                users[member.substr(6)].groups.manager.push(group.id);
             });
-
-            // Writing username and password info
-            fs.open(usersOutput, 'a', function(err, fd) {
-                assert(err);
-
-                for (var userId in users) {
-                    buffer = new Buffer(userId+','+users[userId]+'\n');
-                    fs.writeSync(fd, buffer, 0, buffer.length, null);       
-                }
-                fs.closeSync(fd);
-
-                processBatch(batchNumber+1);
+            group.roles.member.users.forEach(function(member) {
+                users[member.substr(6)].groups.member.push(group.id);
             });
         });
-    }; // end processBatch
 
-    processBatch(0);
-    
-    // File-system hepers
-    function mkdirpSync(leaf, callback) {
-        var parts = leaf.split('/');
-        var path = '';
-        
-        // hand relative v.s. absolute path
-        if (leaf.slice(0, 1) === '/') {
-            path = '/';
-            parts.splice(0, 1);
-        }
-        
-        parts.forEach(function(part) {
-            path = part+'/';
-            try {
-                fs.mkdirSync(path);
-            } catch (e) { }
-        });
-    }
-    
-    // misc.
-    function assert(err) {
-        if (err) {
-            console.log(err);
-            console.log(err.stack);
-            process.exit(1);
+        // Collect data in easy-to-write format.
+        var data = [];
+        for (var userId in users) {
+            for (var i = 0; i < 10 && i < users[userId].groups.member.length; i++)  {
+                data.push([userId, users[userId].password, users[userId].groups.member[i]])
+            }
         }
     }
-  
-}; // end export.generateCsvData
+
+    // Write the CSV file.
+    var usersCSV = outputDir + '/users.csv';
+    var usersFormat = outputDir + '/users.format';
+    writeCSVFile(usersCSV, data);
+
+    // Write the format files.
+    writeFormatFile(usersFormat, ['username', 'password', 'group'], 'random');
+    
+    // Output some logging
+    console.log('Complete batch processing.');
+    console.log('Generated:');
+    console.log(usersCSV);
+    callback();
+};
+
+
+/**
+ * Write a CSV file.
+ *
+ * @param  {String}                  path   The path to write to
+ * @param  {Array<Array<String> >}   data   An array of arrays with string.
+ *                                          Each inner array will be formatted on one line as a string of comma-seperated values.
+ */
+var writeCSVFile = exports.writeCSVFile = function(path, data) {
+    var fd = fs.openSync(path, 'w');
+    var lines = [];
+    for (var i = 0; i < data.length; i++) {
+        lines.push(data[i].join(','));
+    }
+    var buffer = new Buffer(lines.join('\n'));
+    fs.writeSync(fd, buffer, 0, buffer.length, null);
+};
+
+/**
+ * Write a format value.
+ *
+ * @param {String}          path        The path to write to
+ * @param {Array<String>}   columns     An array of string values where each value represents a column name.
+ * @param {String}          order       The order that tsung should go trough this file. Defaults to random.
+ *                                      Should be either undefined, 'iter' or 'random'.
+ */
+var writeFormatFile = exports.writeFormatFile = function(path, columns, order) {
+    order = order || 'random';
+    var fd = fs.openSync(path, 'w');
+    var buffer = new Buffer(columns.join(',') + '\n' +  order);
+    fs.writeSync(fd, buffer, 0, buffer.length, null);
+};
