@@ -36,7 +36,6 @@ var perf = require('./lib/perf');
   copySource(util.format('%s/scripts', argv.source), util.format('%s/source/scripts', argv.output), 0, function() {
     console.log('Copying all source data to '+rawOutput+'/source/data');
     ncp(util.format('%s/data', argv.source), util.format('%s/source/data', argv.output), function(err) {
-      assert(err);
       console.log('Generating load test input data in '+rawOutput+'/csv');
       perf.generateCsvData(argv.batches, argv.source, util.format('%s/csv', argv.output), function() {
         console.log('Done.');
