@@ -63,7 +63,6 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, '$1');
 ////////////////////
 
 var currentBatch = argv.start - 1;
-var finishedBatches = 0;
 var batches = [];
 
 console.time("Finished running data loader");
@@ -83,10 +82,7 @@ var loadNextBatch = function() {
         });
         loadUsers(users, groups, content);
     } else {
-        finishedBatches++;
-        if (finishedBatches === BATCHES) {
-            finishedAllBatches();
-        }
+        finishedAllBatches();
     }
 };
 
