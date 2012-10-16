@@ -11,15 +11,15 @@ var argv = require('optimist')
     
     .alias('u', 'users')
     .describe('u', 'Number of users per batch')
-    .default('u', 500)
+    .default('u', 1000)
     
     .alias('g', 'groups')
     .describe('g', 'Number of groups per batch')
-    .default('g', 250)
+    .default('g', 2000)
 
     .alias('c', 'content')
     .describe('c', 'Number of content items per batch')
-    .default('c', 1000)
+    .default('c', 5000)
     .argv;
 
 
