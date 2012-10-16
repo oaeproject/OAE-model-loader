@@ -188,7 +188,20 @@ var loadGroupMemberships = function(users, groups, content) {
 var loadContent = function(users, groups, content) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
-    var loadNextContent = function() {
+    var loadNextContent = function(body, success, res) {
+
+        // update the content ids as the server regenerates them
+        if (currentContent !== -1 && success) {
+            try {
+                var json = JSON.parse(body);
+                contentToLoad[currentContent].contentid = json.contentId;
+            } catch (err) {
+                console.error('Error parsing create content result: %s', body);
+                console.error(err);
+                console.error(err.stack);
+            }
+        }
+
         currentContent++;
         if (currentContent < contentToLoad.length) {
             var nextContent = contentToLoad[currentContent];
@@ -197,6 +210,10 @@ var loadContent = function(users, groups, content) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Content Item ' + currentContent + ' of ' + contentToLoad.length);
             }
         } else {
+
+            // write the generated content ids back to file to store the generated ids
+            general.writeObjectToFile('./scripts/content/' + currentBatch + '.txt', content);
+
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
             checkRunSuites();
         }
