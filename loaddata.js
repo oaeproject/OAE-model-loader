@@ -80,10 +80,20 @@ SERVER_URL = SERVER_URL.replace(/^(.*?)\/+$/, '$1');
 var currentBatch = argv.start - 1;
 var batches = [];
 
+// holds the mappings of local ids to server-generated ids
+var idMappings = {
+    'users': {},
+    'content': {}
+};
+
 console.time("Finished running data loader");
 
 var loadNextBatch = function() {
     currentBatch++;
+
+    idMappings['users'][currentBatch] = {};
+    idMappings['content'][currentBatch] = {};
+
     if (currentBatch < BATCHES) {
         console.log('Loading Batch ' + currentBatch);
         // Load the data from the model
@@ -142,11 +152,21 @@ var loadUsers = function(users, groups, content) {
         currentUser++;
         if (currentUser < usersToLoad.length) {
             var nextUser = usersToLoad[currentUser];
-            userAPI.loadUser(nextUser, SERVER_URL, loadNextUser);
+            userAPI.loadUser(nextUser, SERVER_URL, function() {
+                idMappings['users'][currentBatch][nextUser.originalid] = {
+                    id: nextUser.originalid,
+                    generatedId: nextUser.generatedid
+                };
+
+                loadNextUser();
+            });
             if (currentUser % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading User ' + currentUser + ' of ' + usersToLoad.length);
             }
         } else {
+
+            general.writeObjectToFile('./scripts/generatedIds/users-' + currentBatch + '.txt', idMappings['users'][currentBatch]);
+
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
             loadGroups(users, groups, content);
         }
@@ -165,6 +185,14 @@ var loadGroups = function(users, groups, content) {
         currentGroup++;
         if (currentGroup < groupsToLoad.length) {
             var nextGroup = groupsToLoad[currentGroup];
+
+            // convert all group membership ids to the generated user ids
+            for (var role in nextGroup.roles) {
+                nextGroup.roles[role].users = _.map(nextGroup.roles[role].users, function(originalUserId) {
+                    return idMappings['users'][currentBatch][originalUserId].generatedId;
+                });
+            }
+
             groupAPI.loadGroup(nextGroup, users, SERVER_URL, loadNextGroup);
             if (currentGroup % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Group ' + currentGroup + ' of ' + groupsToLoad.length);
@@ -203,31 +231,32 @@ var loadGroupMemberships = function(users, groups, content) {
 var loadContent = function(users, groups, content) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
-    var loadNextContent = function(body, success, res) {
-
-        // update the content ids as the server regenerates them
-        if (currentContent !== -1 && success) {
-            try {
-                var json = JSON.parse(body);
-                contentToLoad[currentContent].contentid = json.contentId;
-            } catch (err) {
-                console.error('Error parsing create content result: %s', body);
-                console.error(err);
-                console.error(err.stack);
-            }
-        }
-
+    var loadNextContent = function() {
         currentContent++;
         if (currentContent < contentToLoad.length) {
             var nextContent = contentToLoad[currentContent];
-            contentAPI.loadContent(nextContent, users, groups, SERVER_URL, loadNextContent);
+
+            // convert all content membership ids to the generated user ids
+            for (var role in nextContent.roles) {
+                nextContent.roles[role].users = _.map(nextContent.roles[role].users, function(originalUserId) {
+                    return idMappings['users'][currentBatch][originalUserId].generatedId;
+                });
+            }
+
+            contentAPI.loadContent(nextContent, users, groups, SERVER_URL, function() {
+                idMappings['content'][currentBatch][nextContent.originalid] = {
+                    id: nextContent.originalid,
+                    generatedId: nextContent.generatedid
+                };
+
+                loadNextContent();
+            });
             if (currentContent % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Content Item ' + currentContent + ' of ' + contentToLoad.length);
             }
         } else {
 
-            // write the generated content ids back to file to store the generated ids
-            general.writeObjectToFile('./scripts/content/' + currentBatch + '.txt', content);
+            general.writeObjectToFile('./scripts/generatedIds/content-' + currentBatch + '.txt', idMappings['content'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
             checkRunSuites();
@@ -239,6 +268,8 @@ var loadContent = function(users, groups, content) {
 ///////////
 // START //
 ///////////
+
+general.createFolder('./scripts/generatedIds');
 
 console.time('Loading Batches');
 telemetry.startTelemetry();
