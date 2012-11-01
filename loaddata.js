@@ -153,10 +153,14 @@ var loadUsers = function(users, groups, content) {
         if (currentUser < usersToLoad.length) {
             var nextUser = usersToLoad[currentUser];
             userAPI.loadUser(nextUser, SERVER_URL, function() {
-                idMappings['users'][currentBatch][nextUser.originalid] = {
-                    id: nextUser.originalid,
-                    generatedId: nextUser.generatedid
-                };
+                if (!nextUser.originalid || !nextUser.generatedid) {
+                    console.log('    Warning: User "%s" was not assigned a generated id.', nextUser.id);
+                } else {
+                    idMappings['users'][currentBatch][nextUser.originalid] = {
+                        id: nextUser.originalid,
+                        generatedId: nextUser.generatedid
+                    };
+                }
 
                 loadNextUser();
             });
@@ -189,7 +193,12 @@ var loadGroups = function(users, groups, content) {
             // convert all group membership ids to the generated user ids
             for (var role in nextGroup.roles) {
                 nextGroup.roles[role].users = _.map(nextGroup.roles[role].users, function(originalUserId) {
-                    return idMappings['users'][currentBatch][originalUserId].generatedId;
+                    if (idMappings['users'][currentBatch][originalUserId]) {
+                        return idMappings['users'][currentBatch][originalUserId].generatedId;
+                    } else {
+                        console.log('    Warning: Could not map group membership for user "%s"', originalUserId);
+                        return originalUserId;
+                    }
                 });
             }
 
@@ -239,7 +248,12 @@ var loadContent = function(users, groups, content) {
             // convert all content membership ids to the generated user ids
             for (var role in nextContent.roles) {
                 nextContent.roles[role].users = _.map(nextContent.roles[role].users, function(originalUserId) {
-                    return idMappings['users'][currentBatch][originalUserId].generatedId;
+                    if (idMappings['users'][currentBatch][originalUserId]) {
+                        return idMappings['users'][currentBatch][originalUserId].generatedId;
+                    } else {
+                        console.log('    Warning: Could not map content membership for user "%s"', originalUserId);
+                        return originalUserId;
+                    }
                 });
             }
 
