@@ -22,6 +22,10 @@ Generators = require('gen');
 
 // File reader
 var fs = require('fs');
+var mime = require('mime');
+var util = require('util');
+
+
 exports.loadFileIntoArray = function(filename) {
     var content = fs.readFileSync(filename, 'utf8');
     var finallines = [];
@@ -232,6 +236,118 @@ var finishUrlReq = function(reqUrl, options, cb) {
                         'response': res.body
                     });
                     console.log(res.body);
+                }
+                cb(res.body, false, res);
+            } else {
+                cb(res.body, true, res);
+            }
+        });
+    });
+
+    // end the request
+    req.end();
+};
+
+exports.filePost = function(reqUrl, file, name, options, cb) {
+    // parse url to chunks
+    reqUrl = url.parse(reqUrl);
+
+    // Check if we need to log the user in first
+    if (options.auth) {
+        if (!cookies[options.auth.userid]) {
+            // Log in the user first
+            var requestStart = new Date().getTime();
+            exports.urlReq(reqUrl.protocol + '//' + reqUrl.host + '/api/auth/login', {
+                method: 'POST',
+                params: {'username': options.auth.userid, 'password': options.auth.password}
+            }, function(body, success, res) {
+                cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
+                var requestEnd = new Date().getTime();
+                telemetry('Login', requestEnd - requestStart);
+                finishFilePost(reqUrl, file, name, options, cb);
+            });
+        } else {
+            finishFilePost(reqUrl, file, name, options, cb);
+        }
+    } else {
+        finishFilePost(reqUrl, file, name, options, cb);
+    }
+};
+
+var finishFilePost = function(reqUrl, file, name, options, cb) {
+    if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
+
+    var lf = "\r\n";
+
+    var boundary = "----Boundary" + Math.round(Math.random() * 1000000000000);
+    var post_data = [];
+    for (var param in options.params) {
+        var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+        post_data.push(new Buffer(boundary + lf, 'ascii'));
+        post_data.push(new Buffer(header, 'ascii'));
+        post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
+    }
+
+    // Add the filebody.
+    var fileBody = fs.readFileSync(file);
+    var contentType = mime.lookup(file);
+    var fileBodyHeader = '';
+    fileBodyHeader += util.format('Content-Disposition: form-data; name="file"; filename="%s"' + lf, name);
+    fileBodyHeader += util.format('Content-Type: %s' + lf + lf, contentType);
+    post_data.push(new Buffer(boundary + lf, 'ascii'));
+    post_data.push(new Buffer(fileBodyHeader, 'ascii'));
+    post_data.push(new Buffer(fileBody + lf, 'utf8'));
+    post_data.push(new Buffer(boundary + '--' + lf, 'ascii'));
+
+
+    // Determine the length of this request so we can pass it in the Content-Length header.
+    var length = 0;
+    for(var i = 0; i < post_data.length; i++) {
+        length += post_data[i].length;
+    }
+
+    // parse url to chunks
+    reqUrl = url.parse(reqUrl);
+
+    // http.request settings
+    var settings = {
+        'host': reqUrl.hostname,
+        'port': reqUrl.port || 80,
+        'path': reqUrl.pathname,
+        'headers': options.headers || {},
+        'method': 'POST'
+    };
+
+    settings.headers['Host'] = reqUrl.host;
+    if (options.auth) {
+        settings.headers['Cookie'] = cookies[options.auth.userid];
+    }
+    settings.headers['Content-Type'] = 'multipart/form-data; boundary=' + boundary.substr(2);
+    settings.headers['Content-Length'] = length;
+
+    // MAKE THE REQUEST
+    var req = http.request(settings);
+    for (var k = 0; k < post_data.length; k++) {
+        req.write(post_data[k]);
+    }
+
+    // when the response comes back
+    req.on('response', function(res){
+        res.body = '';
+        res.setEncoding('utf-8');
+
+        // concat chunks
+        res.on('data', function(chunk){ res.body += chunk; });
+
+        // when the response has finished
+        res.on('end', function(){
+
+            // fire callback
+            exports.requests++;
+            if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
+                if (!options.ignoreFail){
+                    console.log(res.body);
+                    exports.errors++;
                 }
                 cb(res.body, false, res);
             } else {
