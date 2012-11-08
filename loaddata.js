@@ -240,9 +240,9 @@ var loadContent = function(users, groups, content) {
 // START //
 ///////////
 
+console.time('Loading Batches');
+telemetry.startTelemetry();
+
 for (var b = 0; b < CONCURRENT_BATCHES; b++) {
     loadNextBatch();
 }
-
-console.time('Loading Batches');
-telemetry.startTelemetry();
