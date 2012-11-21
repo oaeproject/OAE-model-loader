@@ -105,13 +105,13 @@ var loadNextBatch = function() {
             'groups': groups,
             'content': content
         });
-        loadUsers(users, groups, content);
+        loadUsers(users, groups, content, currentBatch);
     } else {
         finishedAllBatches();
     }
 };
 
-var finishBatch = function() {
+var finishBatch = function(currentBatch) {
     console.log('Finished Loading Batch ' + currentBatch);
     console.log('=================================');
     loadNextBatch();
@@ -132,12 +132,12 @@ var finishedAllBatches = function() {
     console.log('*****************************');
 };
 
-var checkRunSuites = function() {
+var checkRunSuites = function(currentBatch) {
     if (RUN_SUITES && currentBatch % RUN_SUITES === 0) {
         // run the test suite before continuing
         runSuites.runSuites(batches, currentBatch - 1, SERVER_URL, finishBatch);
     } else {
-        finishBatch();
+        finishBatch(currentBatch);
     }
 };
 
@@ -145,7 +145,7 @@ var checkRunSuites = function() {
 // USERS //
 ///////////
 
-var loadUsers = function(users, groups, content) {
+var loadUsers = function(users, groups, content, currentBatch) {
     var currentUser = -1;
     var usersToLoad = _.values(users);
     var loadNextUser = function() {
@@ -172,7 +172,7 @@ var loadUsers = function(users, groups, content) {
             general.writeObjectToFile('./scripts/generatedIds/users-' + currentBatch + '.txt', idMappings['users'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
-            loadGroups(users, groups, content);
+            loadGroups(users, groups, content, currentBatch);
         }
     };
     loadNextUser();
@@ -182,7 +182,7 @@ var loadUsers = function(users, groups, content) {
 // GROUPS //
 ////////////
 
-var loadGroups = function(users, groups, content) {
+var loadGroups = function(users, groups, content, currentBatch) {
     var currentGroup = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroup = function() {
@@ -208,13 +208,13 @@ var loadGroups = function(users, groups, content) {
             }    
         } else {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + ' Groups');
-            loadGroupMemberships(users, groups, content);
+            loadGroupMemberships(users, groups, content, currentBatch);
         }
     };
     loadNextGroup();
 };
 
-var loadGroupMemberships = function(users, groups, content) {
+var loadGroupMemberships = function(users, groups, content, currentBatch) {
     var currentGroupMembership = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroupMembership = function() {
@@ -227,7 +227,7 @@ var loadGroupMemberships = function(users, groups, content) {
             }
         } else {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + 'Group Memberships');
-            loadContent(users, groups, content);
+            loadContent(users, groups, content, currentBatch);
         }
     };
     loadNextGroupMembership();
@@ -237,7 +237,7 @@ var loadGroupMemberships = function(users, groups, content) {
 // CONTENT //
 /////////////
 
-var loadContent = function(users, groups, content) {
+var loadContent = function(users, groups, content, currentBatch) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
     var loadNextContent = function() {
@@ -273,7 +273,7 @@ var loadContent = function(users, groups, content) {
             general.writeObjectToFile('./scripts/generatedIds/content-' + currentBatch + '.txt', idMappings['content'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
-            checkRunSuites();
+            checkRunSuites(currentBatch);
         }
     };
     loadNextContent();
