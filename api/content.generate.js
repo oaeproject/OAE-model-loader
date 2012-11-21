@@ -14,6 +14,7 @@
  */
 
 var _ = require('underscore');
+var fs = require('fs');
 
 var general = require('./general.js');
 
@@ -115,6 +116,9 @@ exports.Content = function(batchid, users, groups) {
     } else if (that.contentType === 'file') {
         that.type = general.randomize(DISTRIBUTIONS[that.contentType].TYPES);
         that.size = general.randomize(DISTRIBUTIONS[that.contentType]['SIZE'][that.type]);
+        var file = getFile(that.type, that.size);
+        that.path = file.path;
+        that.name = file.name;
     }
 
     // Fill up the creator role
@@ -191,4 +195,12 @@ exports.Content = function(batchid, users, groups) {
     }
 
     return that;
+};
+
+
+var getFile = function(type, size) {
+    var dir = "./data/content/" + size + "/" + type;
+    var files = fs.readdirSync(dir);
+    var name = files[Math.floor(Math.random() * files.length)];
+    return {'path': dir + "/" + name, 'name': name};
 };

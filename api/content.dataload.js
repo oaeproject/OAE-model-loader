@@ -14,7 +14,6 @@
  */
 
 var _ = require('underscore');
-var fs = require('fs');
 
 var general = require('./general.js');
 
@@ -50,12 +49,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     }
 
     if (content.contentType === 'file') {
-        // Handle files differently as this needs a filebody.
-        var file = getFile(content.type || 'text', content.size || 'small');
-        var path = file.path;
-        var name = file.name;
-
-        general.filePost(SERVER_URL + '/api/content/create', path, name, {
+        general.filePost(SERVER_URL + '/api/content/create', contentObj.path, contentObj.name, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
                 'params': contentObj,
@@ -73,11 +67,4 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
             'telemetry': 'Create link content'
         }, callback);
     }
-};
-
-var getFile = function(type, size) {
-    var dir = "./data/content/" + size + "/" + type;
-    var files = fs.readdirSync(dir);
-    var name = files[Math.floor(Math.random() * files.length)];
-    return {'path': dir + "/" + name, 'name': name};
 };
