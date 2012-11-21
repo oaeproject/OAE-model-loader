@@ -20,7 +20,12 @@ var general = require('./general.js');
 //////////////
 
 exports.loadUser = function(user, SERVER_URL, callback) {
-    createUser(user, SERVER_URL, function() {
+    createUser(user, SERVER_URL, function(body, success, res) {
+        if (success) {
+            user.originalid = user.id;
+            user.id = user.generatedid = JSON.parse(body).id;
+        }
+
         fillUpBasicInfo(user, SERVER_URL, function() {
             fillUpAboutMe(user, SERVER_URL, function() {
                 fillUpPublications(user, SERVER_URL, function() {
