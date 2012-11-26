@@ -52,7 +52,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
         general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.name, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
-                'params': contentObj,
+                'params': contentObj
             }, callback);
 
     } else {
