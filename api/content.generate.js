@@ -14,6 +14,7 @@
  */
 
 var _ = require('underscore');
+var fs = require('fs');
 
 var general = require('./general.js');
 
@@ -59,6 +60,15 @@ var DISTRIBUTIONS = {
                 'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
+        },
+        "TYPES": [[0.25, "image"], [0.05, "video"], [0.20, "pdf"], [0.15, "doc"], [0.15, "other-office"], [0.20, "other"]],
+        "SIZE": {
+            "image": [[0.25, "small"], [0.50, "medium"], [0.25, "large"]],
+            "video": [[0.05, "small"], [0.20, "medium"], [0.75, "large"]],
+            "pdf": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
+            "doc": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
+            "other-office": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
+            "other": [[0.40, "small"], [0.20, "medium"], [0.40, "large"]]
         }
     },
     'sakaidoc': {
@@ -103,6 +113,12 @@ exports.Content = function(batchid, users, groups) {
     if (that.contentType === 'link') {
         var type = general.randomize(DISTRIBUTIONS[that.contentType].TYPE);
         that.link = general.generateUrl(type);
+    } else if (that.contentType === 'file') {
+        that.type = general.randomize(DISTRIBUTIONS[that.contentType].TYPES);
+        that.size = general.randomize(DISTRIBUTIONS[that.contentType]['SIZE'][that.type]);
+        var file = getFile(that.type, that.size);
+        that.path = file.path;
+        that.name = file.name;
     }
 
     // Fill up the creator role
@@ -179,4 +195,12 @@ exports.Content = function(batchid, users, groups) {
     }
 
     return that;
+};
+
+
+var getFile = function(type, size) {
+    var dir = "./data/content/" + size + "/" + type;
+    var files = fs.readdirSync(dir);
+    var name = files[Math.floor(Math.random() * files.length)];
+    return {'path': dir + "/" + name, 'name': name};
 };

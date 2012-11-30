@@ -36,10 +36,8 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
         'contentType': content.contentType,
         'name': content.name,
         'visibility': content.visibility
-    }
-    if (content.contentType === 'link') {
-        contentObj['link'] = content.link;
-    }
+    };
+
     if (content.hasDescription) {
         contentObj['description'] = content.description;
     }
@@ -49,10 +47,24 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     if (content.roles['manager'].users.length || content.roles['manager'].groups.length) {
         contentObj['managers'] = _.union(content.roles['manager'].users, content.roles['manager'].groups);
     }
-    general.urlReq(SERVER_URL + '/api/content/create', {
-        method: 'POST',
-        params: contentObj,
-        auth: users[content.creator],
-        telemetry: 'Create content'
-    }, callback);
+
+    if (content.contentType === 'file') {
+        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.name, {
+                'auth': users[content.creator],
+                'telemetry': 'Create file content',
+                'params': contentObj
+            }, callback);
+
+    } else {
+        if (content.contentType === 'link') {
+            contentObj['link'] = content.link;
+        }
+
+        general.urlReq(SERVER_URL + '/api/content/create', {
+            'method': 'POST',
+            'params': contentObj,
+            'auth': users[content.creator],
+            'telemetry': 'Create link content'
+        }, callback);
+    }
 };
