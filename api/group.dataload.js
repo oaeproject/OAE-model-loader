@@ -32,7 +32,7 @@ exports.loadGroupMembership = function(group, users, SERVER_URL, callback) {
 var createGroup = function(group, users, SERVER_URL, callback) {
     var groupObj = {
         'alias': group.groupid,
-        'name': group.name,
+        'displayName': group.name,
         'visibility': group.visibility,
         'joinable': group.joinable
     }

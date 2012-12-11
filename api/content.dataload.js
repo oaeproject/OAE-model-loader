@@ -25,7 +25,12 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     createContent(content, users, groups, SERVER_URL, function(body, success, res) {
         if (success) {
             content.originalid = content.id;
-            content.id = content.generatedid = JSON.parse(body).contentId;
+            try {
+                content.id = content.generatedid = JSON.parse(body).contentId;
+            } catch (err) {
+                console.log(body);
+                console.log(err);
+            }
         }
         callback(body, success, res);
     });
@@ -34,7 +39,7 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
 var createContent = function(content, users, groups, SERVER_URL, callback) {
     var contentObj = {
         'contentType': content.contentType,
-        'name': content.name,
+        'displayName': content.name,
         'visibility': content.visibility
     };
 
@@ -49,7 +54,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     }
 
     if (content.contentType === 'file') {
-        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.name, {
+        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.displayName, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
                 'params': contentObj
