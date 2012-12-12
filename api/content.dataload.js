@@ -24,8 +24,14 @@ var general = require('./general.js');
 exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     createContent(content, users, groups, SERVER_URL, function(body, success, res) {
         if (success) {
-            content.originalid = content.id;
-            content.id = content.generatedid = JSON.parse(body).contentId;
+            try {
+                content.originalid = content.id;
+                content.id = content.generatedid = JSON.parse(body).contentId;
+            } catch (err) {
+                console.log('Error parsing response body:');
+                console.log(body);
+                console.log(err);
+            }
         }
         callback(body, success, res);
     });
