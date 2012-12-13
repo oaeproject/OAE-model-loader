@@ -61,8 +61,6 @@ var CONTENT_PER_BATCH = argv.content;
 // KICK OFF BATCH //
 ////////////////////
 
-var batches = [];
-
 var run = function() {
     for (var i = 0; i < TOTAL_BATCHES; i++) {
         var batch = generateBatch(i);
@@ -74,7 +72,6 @@ var run = function() {
         // Write content to file
         general.writeObjectToFile('./' + SCRIPT_FOLDER + '/content/' + i + '.txt', batch.content);
 
-        batches.push(batch);
     }
 };
 
