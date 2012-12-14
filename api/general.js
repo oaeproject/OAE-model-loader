@@ -23,6 +23,7 @@ Generators = require('gen');
 // File reader
 var fs = require('fs');
 var mime = require('mime');
+var Path = require('path');
 var util = require('util');
 
 
@@ -82,6 +83,19 @@ exports.createFolder = function(path) {
 exports.getFileListForFolder = function(foldername) {
     var files = fs.readdirSync(foldername);
     return files;
+};
+
+// List files in a folder who match one of the specified mimetypes
+exports.getFilesInFolder = function(foldername, mimetypes) {
+    var files = fs.readdirSync(foldername);
+    var matchedFiles = [];
+    for (var i = 0; i < files.length; i++) {
+        var type = mime.lookup(foldername + '/' + files[i]);
+        if (mimetypes.indexOf(type) !== -1) {
+            matchedFiles.push(files[i]);
+        }
+    }
+    return matchedFiles;
 };
 
 exports.removeFilesInFolder = function(foldername) {
@@ -274,7 +288,7 @@ exports.filePost = function(reqUrl, file, name, options, cb) {
     }
 };
 
-var finishFilePost = function(reqUrl, file, name, options, cb) {
+var finishFilePost = function(reqUrl, path, name, options, cb) {
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
 
     var lf = "\r\n";
@@ -289,14 +303,17 @@ var finishFilePost = function(reqUrl, file, name, options, cb) {
     }
 
     // Add the filebody.
-    var fileBody = fs.readFileSync(file);
-    var contentType = mime.lookup(file);
+    var fileBody = fs.readFileSync(path);
+    var fileSize = fs.statSync(path).size;
+    var contentType = mime.lookup(path);
     var fileBodyHeader = '';
     fileBodyHeader += util.format('Content-Disposition: form-data; name="file"; filename="%s"' + lf, name);
-    fileBodyHeader += util.format('Content-Type: %s' + lf + lf, contentType);
+    fileBodyHeader += util.format('Content-Type: %s' + lf, contentType);
+    fileBodyHeader += util.format('Content-Length: %s' + lf + lf, fileSize);
     post_data.push(new Buffer(boundary + lf, 'ascii'));
     post_data.push(new Buffer(fileBodyHeader, 'ascii'));
-    post_data.push(new Buffer(fileBody + lf, 'utf8'));
+    post_data.push(fileBody);
+    post_data.push(new Buffer(lf, 'ascii'));
     post_data.push(new Buffer(boundary + '--' + lf, 'ascii'));
 
 
@@ -375,6 +392,8 @@ var lastNames = exports.loadFileIntoArray('./data/all.last.txt');
 var cities = exports.loadFileIntoArray('./data/cities.txt');
 var randomUrls = exports.loadFileIntoArray('./data/urls/random.txt');
 var youtubeUrls = exports.loadFileIntoArray('./data/urls/youtube.txt');
+var userPictures = exports.getFilesInFolder('./data/pictures/users', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
+var groupPictures = exports.getFilesInFolder('./data/pictures/groups', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
 
 ////////////////
 // LOAD WORDS //
@@ -481,3 +500,10 @@ exports.generateUrl = function(type) {
     }
 };
 
+exports.generateUserPicture = function(){
+    return userPictures[Math.floor(Math.random() * userPictures.length)];
+};
+
+exports.generateGroupPicture = function(){
+    return groupPictures[Math.floor(Math.random() * groupPictures.length)];
+};

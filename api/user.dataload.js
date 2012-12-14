@@ -13,6 +13,8 @@
  * permissions and limitations under the License.
  */
 
+var Canvas = require('canvas');
+var fs = require('fs');
 var general = require('./general.js');
 
 //////////////
@@ -29,7 +31,9 @@ exports.loadUser = function(user, SERVER_URL, callback) {
         fillUpBasicInfo(user, SERVER_URL, function() {
             fillUpAboutMe(user, SERVER_URL, function() {
                 fillUpPublications(user, SERVER_URL, function() {
-                    callback();
+                    uploadProfilePicture(user, SERVER_URL, function() {
+                        callback();
+                    });
                 });
             });
         });
@@ -122,6 +126,40 @@ var fillUpPublications = function(user, SERVER_URL, callback) {
             auth: user,
             telemetry: 'Add publications'
         }, callback);
+    } else {
+        callback();
+    }
+};
+
+var uploadProfilePicture = function(user, SERVER_URL, callback) {
+    if (user.picture.hasPicture) {
+        // Upload the pic.
+        var filename = user.picture.picture;
+        var path = './data/pictures/users/' + filename;
+        general.filePost(SERVER_URL + '/api/user/' + user.id + '/picture', path, filename, {
+                'auth': user,
+                'telemetry': 'Upload user profile picture',
+                'params': {}
+            }, function(body, success) {
+                // Crop the pic.
+                var pic = fs.readFileSync(path);
+                var img = new Canvas.Image();
+                img.src = pic;
+                var dimension = img.width > img.height ? img.height : img.width;
+                general.urlReq(SERVER_URL + '/api/crop', {
+                    'method': 'POST',
+                    'params': {
+                        'principalId': user.id,
+                        'x': 0,
+                        'y': 0,
+                        'width': dimension
+                    },
+                    'auth': user,
+                    'telemetry': 'Crop user profile picture'
+                }, function(body, success) {
+                    callback();
+                });
+            });
     } else {
         callback();
     }

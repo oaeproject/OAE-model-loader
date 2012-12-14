@@ -14,6 +14,8 @@
  */
 
 var _ = require('underscore');
+var Canvas = require('canvas');
+var fs = require('fs');
 
 var general = require('./general.js');
 
@@ -22,7 +24,9 @@ var general = require('./general.js');
 //////////////
 
 exports.loadGroup = function(group, users, SERVER_URL, callback) {
-    createGroup(group, users, SERVER_URL, callback);
+    createGroup(group, users, SERVER_URL, function() {
+        uploadProfilePicture(group, users, SERVER_URL, callback);
+    });
 };
 
 exports.loadGroupMembership = function(group, users, SERVER_URL, callback) {
@@ -68,6 +72,40 @@ var addGroupMembers = function(group, users, SERVER_URL, callback) {
             auth: users[group.creator],
             telemetry: 'Add group members'
         }, callback);
+    } else {
+        callback();
+    }
+};
+
+var uploadProfilePicture = function(group, users, SERVER_URL, callback) {
+    if (group.picture.hasPicture) {
+        // Upload the pic.
+        var filename = group.picture.picture;
+        var path = './data/pictures/groups/' + filename;
+        general.filePost(SERVER_URL + '/api/group/' + group.id + '/picture', path, filename, {
+                'auth': users[group.creator],
+                'telemetry': 'Upload group profile picture',
+                'params': {}
+            }, function(body, success) {
+                // Crop the pic.
+                var pic = fs.readFileSync(path);
+                var img = new Canvas.Image();
+                img.src = pic;
+                var dimension = img.width > img.height ? img.height : img.width;
+                general.urlReq(SERVER_URL + '/api/crop', {
+                    'method': 'POST',
+                    'params': {
+                        'principalId': group.id,
+                        'x': 0,
+                        'y': 0,
+                        'width': dimension
+                    },
+                    'auth': users[group.creator],
+                    'telemetry': 'Crop group profile picture'
+                }, function(body, success) {
+                    callback();
+                });
+            });
     } else {
         callback();
     }
