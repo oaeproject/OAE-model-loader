@@ -27,13 +27,27 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
             try {
                 content.originalid = content.id;
                 content.id = content.generatedid = JSON.parse(body).contentId;
+                // Only comment on files and links for now.
+                // TODO: Remove this once the UI can display sakaidocs
+                if (content.contentType !== 'sakaidoc') {
+                    var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
+                    var createdComments = [];
+                    createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
+                        callback(body, success, res);
+                    });
+                } else {
+                    callback();
+                }
             } catch (err) {
-                console.log('Error parsing response body:');
+                console.log('Error parsing create content response body:');
                 console.log(body);
                 console.log(err);
+                callback(body, success, res);
             }
+        } else {
+            console.log(content.roles);
+            callback(body, success, res);
         }
-        callback(body, success, res);
     });
 };
 
@@ -73,4 +87,54 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
             'telemetry': 'Create link content'
         }, callback);
     }
+};
+
+var createComments = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
+    if (content.hasComments && content.comments.length > 0) {
+        createComment(content, users, groups, SERVER_URL, contentUsers, createdComments, function(err) {
+            createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, callback);
+        });
+    } else {
+        callback();
+    }
+};
+
+var createComment = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
+    var comment = content.comments.shift();
+    var params = {
+        'contentId': content.id,
+        'body': comment.message
+    };
+
+    if (comment.replyTo !== 'root') {
+        params.replyTo = createdComments[comment.replyTo].id;
+    }
+
+    var user = null;
+    // 1 out 3 comments are made by the creator.
+    if (contentUsers.length > 0 && Math.floor(Math.random() * 2) === 1) {
+        var userId = contentUsers[Math.floor(Math.random() * contentUsers.length)];
+        user = _.find(users, function(user) { return user.id === userId});
+    }
+    // If there is no user found, the creator will just comment.
+    if (!user) {
+        user = users[content.creator]
+    }
+
+    general.urlReq(SERVER_URL + '/api/content/' + content.id + '/comments', {
+        'method': 'POST',
+        'params': params,
+        'auth': user,
+        'telemetry': 'Create link content'
+    }, function(body, success, res) {
+        try {
+            comment.id = JSON.parse(body).commentId;
+        } catch (err) {
+            console.log('Error parsing create comment response body:');
+            console.log(body);
+            console.log(err);
+        }
+        createdComments.push(comment);
+        callback();
+    });
 };

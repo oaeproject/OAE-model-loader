@@ -296,10 +296,19 @@ var finishFilePost = function(reqUrl, path, name, options, cb) {
     var boundary = "----Boundary" + Math.round(Math.random() * 1000000000000);
     var post_data = [];
     for (var param in options.params) {
-        var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
-        post_data.push(new Buffer(boundary + lf, 'ascii'));
-        post_data.push(new Buffer(header, 'ascii'));
-        post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
+        if (Array.isArray(options.params[param])) {
+            for (var i = 0; i < options.params[param].length; i++) {
+                var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+                post_data.push(new Buffer(boundary + lf, 'ascii'));
+                post_data.push(new Buffer(header, 'ascii'));
+                post_data.push(new Buffer(options.params[param][i] + lf, 'utf8'));
+            }
+        } else {
+            var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+            post_data.push(new Buffer(boundary + lf, 'ascii'));
+            post_data.push(new Buffer(header, 'ascii'));
+            post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
+        }
     }
 
     // Add the filebody.
@@ -364,7 +373,10 @@ var finishFilePost = function(reqUrl, path, name, options, cb) {
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
                 if (!options.ignoreFail){
                     console.log(res.body);
-                    exports.errors++;
+                    exports.errors.push({
+                        'settings': settings,
+                        'response': res.body
+                    });
                 }
                 cb(res.body, false, res);
             } else {

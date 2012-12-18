@@ -3,8 +3,8 @@
   "author": "Sakai Foundation",
   "version": "0.1.0",
   "dependencies": {
-    "canvas": "latest",
     "express": "latest",
+    "gm": "latest",
     "mime": "latest",
     "mkdirp": "latest",
     "moment": "latest",

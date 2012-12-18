@@ -13,8 +13,9 @@
  * permissions and limitations under the License.
  */
 
-var Canvas = require('canvas');
 var fs = require('fs');
+var gm = require('gm');
+
 var general = require('./general.js');
 
 //////////////
@@ -141,25 +142,28 @@ var uploadProfilePicture = function(user, SERVER_URL, callback) {
                 'telemetry': 'Upload user profile picture',
                 'params': {}
             }, function(body, success) {
-                // Crop the pic.
-                var pic = fs.readFileSync(path);
-                var img = new Canvas.Image();
-                img.src = pic;
-                var dimension = img.width > img.height ? img.height : img.width;
-                general.urlReq(SERVER_URL + '/api/crop', {
-                    'method': 'POST',
-                    'params': {
-                        'principalId': user.id,
-                        'x': 0,
-                        'y': 0,
-                        'width': dimension
-                    },
-                    'auth': user,
-                    'telemetry': 'Crop user profile picture'
-                }, function(body, success) {
-                    callback();
+                // get some width/height measurements
+                gm(path).size(function (err, size) {
+                    if (err) {
+                        callback();
+                    }
+                    var dimension = size.width > size.height ? size.height : size.width;
+                    general.urlReq(SERVER_URL + '/api/crop', {
+                        'method': 'POST',
+                        'params': {
+                            'principalId': user.id,
+                            'x': 0,
+                            'y': 0,
+                            'width': dimension
+                        },
+                        'auth': user,
+                        'telemetry': 'Crop user profile picture'
+                    }, function(body, success) {
+                        callback();
+                    });
                 });
             });
+
     } else {
         callback();
     }

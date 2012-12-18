@@ -14,8 +14,8 @@
  */
 
 var _ = require('underscore');
-var Canvas = require('canvas');
 var fs = require('fs');
+var gm = require('gm');
 
 var general = require('./general.js');
 
@@ -87,23 +87,24 @@ var uploadProfilePicture = function(group, users, SERVER_URL, callback) {
                 'telemetry': 'Upload group profile picture',
                 'params': {}
             }, function(body, success) {
-                // Crop the pic.
-                var pic = fs.readFileSync(path);
-                var img = new Canvas.Image();
-                img.src = pic;
-                var dimension = img.width > img.height ? img.height : img.width;
-                general.urlReq(SERVER_URL + '/api/crop', {
-                    'method': 'POST',
-                    'params': {
-                        'principalId': group.id,
-                        'x': 0,
-                        'y': 0,
-                        'width': dimension
-                    },
-                    'auth': users[group.creator],
-                    'telemetry': 'Crop group profile picture'
-                }, function(body, success) {
-                    callback();
+                gm(path).size(function (err, size) {
+                    if (err) {
+                        callback();
+                    }
+                    var dimension = size.width > size.height ? size.height : size.width;
+                    general.urlReq(SERVER_URL + '/api/crop', {
+                        'method': 'POST',
+                        'params': {
+                            'principalId': group.id,
+                            'x': 0,
+                            'y': 0,
+                            'width': dimension
+                        },
+                        'auth': users[group.creator],
+                        'telemetry': 'Crop group profile picture'
+                    }, function(body, success) {
+                        callback();
+                    });
                 });
             });
     } else {
