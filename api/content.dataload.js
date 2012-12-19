@@ -92,10 +92,10 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
  * Creates the comments for a piece of content.
  *
  * @param {Object}      content         The content object to create the comments for
- * @param {User[]}      users           An array of User model objects.
- * @param {Group[]}     groups          An array of Group model objects
+ * @param {User[]}      users           An array of all the User model objects in this batch.
+ * @param {Group[]}     groups          An array of all the Group model objects in this batch.
  * @param {String}      SERVER_URL      The server where the comments should be created.
- * @param {User[]}      contentUsers    An array of users that are associated with this piece of content.
+ * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
  * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
  * @param {Function}    callback        Standard callback method
  */
@@ -113,10 +113,10 @@ var createComments = function(content, users, groups, SERVER_URL, contentUsers, 
  * Creates one comment on a piece of content.
  *
  * @param {Object}      content         The content object to create the comment for
- * @param {User[]}      users           An array of User model objects.
- * @param {Group[]}     groups          An array of Group model objects
+ * @param {User[]}      users           An array of all the User model objects in this batch.
+ * @param {Group[]}     groups          An array of all the Group model objects in this batch.
  * @param {String}      SERVER_URL      The server where the comments should be created.
- * @param {User[]}      contentUsers    An array of users that are associated with this piece of content.
+ * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
  * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
  * @param {Function}    callback        Standard callback method
  */
