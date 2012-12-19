@@ -13,9 +13,6 @@
  * permissions and limitations under the License.
  */
 
-var fs = require('fs');
-var gm = require('gm');
-
 var general = require('./general.js');
 
 //////////////
@@ -32,9 +29,7 @@ exports.loadUser = function(user, SERVER_URL, callback) {
         fillUpBasicInfo(user, SERVER_URL, function() {
             fillUpAboutMe(user, SERVER_URL, function() {
                 fillUpPublications(user, SERVER_URL, function() {
-                    uploadProfilePicture(user, SERVER_URL, function() {
-                        callback();
-                    });
+                    uploadProfilePicture(user, SERVER_URL, callback);
                 });
             });
         });
@@ -134,36 +129,8 @@ var fillUpPublications = function(user, SERVER_URL, callback) {
 
 var uploadProfilePicture = function(user, SERVER_URL, callback) {
     if (user.picture.hasPicture) {
-        // Upload the pic.
         var filename = user.picture.picture;
-        var path = './data/pictures/users/' + filename;
-        general.filePost(SERVER_URL + '/api/user/' + user.id + '/picture', path, filename, {
-                'auth': user,
-                'telemetry': 'Upload user profile picture',
-                'params': {}
-            }, function(body, success) {
-                // get some width/height measurements
-                gm(path).size(function (err, size) {
-                    if (err) {
-                        callback();
-                    }
-                    var dimension = size.width > size.height ? size.height : size.width;
-                    general.urlReq(SERVER_URL + '/api/crop', {
-                        'method': 'POST',
-                        'params': {
-                            'principalId': user.id,
-                            'x': 0,
-                            'y': 0,
-                            'width': dimension
-                        },
-                        'auth': user,
-                        'telemetry': 'Crop user profile picture'
-                    }, function(body, success) {
-                        callback();
-                    });
-                });
-            });
-
+        general.uploadProfilePicture('user', user.id, user, filename, SERVER_URL, callback);
     } else {
         callback();
     }

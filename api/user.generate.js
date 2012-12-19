@@ -148,7 +148,7 @@ exports.User = function(batchid, TENANT_ALIAS) {
     that.contentWeighting = general.randomize(DISTRIBUTIONS[that.userType].CONTENT_WEIGHTING);
 
     that.picture = {
-        hasPicture: true,
+        hasPicture: general.randomize(DISTRIBUTIONS[that.userType].HAS_PICTURE),
         picture: general.generateUserPicture()
     };
 

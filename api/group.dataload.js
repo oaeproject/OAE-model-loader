@@ -14,8 +14,6 @@
  */
 
 var _ = require('underscore');
-var fs = require('fs');
-var gm = require('gm');
 
 var general = require('./general.js');
 
@@ -79,34 +77,8 @@ var addGroupMembers = function(group, users, SERVER_URL, callback) {
 
 var uploadProfilePicture = function(group, users, SERVER_URL, callback) {
     if (group.picture.hasPicture) {
-        // Upload the pic.
         var filename = group.picture.picture;
-        var path = './data/pictures/groups/' + filename;
-        general.filePost(SERVER_URL + '/api/group/' + group.id + '/picture', path, filename, {
-                'auth': users[group.creator],
-                'telemetry': 'Upload group profile picture',
-                'params': {}
-            }, function(body, success) {
-                gm(path).size(function (err, size) {
-                    if (err) {
-                        callback();
-                    }
-                    var dimension = size.width > size.height ? size.height : size.width;
-                    general.urlReq(SERVER_URL + '/api/crop', {
-                        'method': 'POST',
-                        'params': {
-                            'principalId': group.id,
-                            'x': 0,
-                            'y': 0,
-                            'width': dimension
-                        },
-                        'auth': users[group.creator],
-                        'telemetry': 'Crop group profile picture'
-                    }, function(body, success) {
-                        callback();
-                    });
-                });
-            });
+        general.uploadProfilePicture('group', group.id, users[group.creator], filename, SERVER_URL, callback);
     } else {
         callback();
     }

@@ -22,6 +22,7 @@ Generators = require('gen');
 
 // File reader
 var fs = require('fs');
+var gm = require('gm');
 var mime = require('mime');
 var Path = require('path');
 var util = require('util');
@@ -518,4 +519,46 @@ exports.generateUserPicture = function(){
 
 exports.generateGroupPicture = function(){
     return groupPictures[Math.floor(Math.random() * groupPictures.length)];
+};
+
+/**
+ * Uploads a profile picture for either a user or a group.
+ *
+ * @param {String}      type            'user' or 'group'
+ * @param {String}      principalId     The ID of the user or group.
+ * @param {User}        authUser        The user that can be used to perform the requests.
+ * @param {String}      filename        The name of the file
+ * @param {String}      SERVER_URL      The server to post to
+ * @param {Function}    callback        Standard callback method
+ */
+exports.uploadProfilePicture = function(type, principalId, authUser, filename, SERVER_URL, callback) {
+    // Upload the pic.
+    var path = './data/pictures/' + type + 's/' + filename;
+    exports.filePost(SERVER_URL + '/api/' + type+ '/' + principalId + '/picture', path, filename, {
+            'auth': authUser,
+            'telemetry': 'Upload group profile picture',
+            'params': {}
+        }, function(body, success) {
+            gm(path).size(function (err, size) {
+                if (err) {
+                    console.error('Error trying to get the size of an image. Did you install GraphicsMagick?');
+                    console.error(err);
+                    callback(err);
+                }
+                var dimension = size.width > size.height ? size.height : size.width;
+                exports.urlReq(SERVER_URL + '/api/crop', {
+                    'method': 'POST',
+                    'params': {
+                        'principalId': principalId,
+                        'x': 0,
+                        'y': 0,
+                        'width': dimension
+                    },
+                    'auth': authUser,
+                    'telemetry': 'Crop ' + type + ' profile picture'
+                }, function(body, success) {
+                    callback();
+                });
+            });
+        });
 };

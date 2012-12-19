@@ -134,7 +134,7 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
 
 
     that.picture = {
-        hasPicture: true,
+        hasPicture: general.randomize(DISTRIBUTIONS[that.template].HAS_PICTURE),
         picture: general.generateGroupPicture()
     };
 
