@@ -45,7 +45,7 @@ var DISTRIBUTIONS = {
             }
         },
         'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]],
-        'HAS_PICTURE': [[0.3, true], [0.7, false]]
+        'HAS_PICTURE': [[0.7, true], [0.3, false]]
     }
 };
 
