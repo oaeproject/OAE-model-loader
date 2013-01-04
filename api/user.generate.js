@@ -40,7 +40,8 @@ var DISTRIBUTIONS = {
         'PUBLICATIONS_PRIVACY': [[0.8, 'public'], [0.19, 'loggedin'], [0.01, 'private']],
         'PUBLICATIONS': [1, 3, 0, 20],
         'GROUPS_WEIGHTING': [[0.3, 1], [0.5, 3], [0.2, 9]],
-        'CONTENT_WEIGHTING': [[0.25, 1], [0.4, 3], [0.35, 9]]
+        'CONTENT_WEIGHTING': [[0.25, 1], [0.4, 3], [0.35, 9]],
+        'HAS_PICTURE': [[0.8, true], [0.2, false]]
     },
     'lecturer': {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
@@ -62,7 +63,8 @@ var DISTRIBUTIONS = {
         'PUBLICATIONS_PRIVACY': [[0.6, 'public'], [0.35, 'loggedin'], [0.05, 'private']],
         'PUBLICATIONS': [3, 3, 0, 50],
         'GROUPS_WEIGHTING': [[0.4, 1], [0.4, 3], [0.2, 9]],
-        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]]
+        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]],
+        'HAS_PICTURE': [[0.5, true], [0.5, false]]
     },
     'researcher': {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
@@ -84,7 +86,8 @@ var DISTRIBUTIONS = {
         'PUBLICATIONS_PRIVACY': [[0.9, 'public'], [0.08, 'loggedin'], [0.02, 'private']],
         'PUBLICATIONS': [10, 6, 0, 100],
         'GROUPS_WEIGHTING': [[0.2, 1], [0.5, 3], [0.3, 9]],
-        'CONTENT_WEIGHTING': [[0.15, 1], [0.5, 3], [0.35, 9]]
+        'CONTENT_WEIGHTING': [[0.15, 1], [0.5, 3], [0.35, 9]],
+        'HAS_PICTURE': [[0.7, true], [0.3, false]]
     }
 };
 
@@ -143,6 +146,11 @@ exports.User = function(batchid, TENANT_ALIAS) {
 
     that.groupWeighting = general.randomize(DISTRIBUTIONS[that.userType].GROUPS_WEIGHTING);
     that.contentWeighting = general.randomize(DISTRIBUTIONS[that.userType].CONTENT_WEIGHTING);
+
+    that.picture = {
+        hasPicture: general.randomize(DISTRIBUTIONS[that.userType].HAS_PICTURE),
+        picture: general.generateUserPicture()
+    };
 
     return that;
 };

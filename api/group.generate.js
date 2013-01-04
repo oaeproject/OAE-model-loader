@@ -44,7 +44,8 @@ var DISTRIBUTIONS = {
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]]
+        'CONTENT_WEIGHTING': [[0.2, 1], [0.6, 3], [0.2, 9]],
+        'HAS_PICTURE': [[0.7, true], [0.3, false]]
     }
 };
 
@@ -130,6 +131,12 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.template].DESCRIPTION));
 
     that.contentWeighting = general.randomize(DISTRIBUTIONS[that.template].CONTENT_WEIGHTING);
+
+
+    that.picture = {
+        hasPicture: general.randomize(DISTRIBUTIONS[that.template].HAS_PICTURE),
+        picture: general.generateGroupPicture()
+    };
 
     return that;
 };

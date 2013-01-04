@@ -22,7 +22,9 @@ Generators = require('gen');
 
 // File reader
 var fs = require('fs');
+var gm = require('gm');
 var mime = require('mime');
+var Path = require('path');
 var util = require('util');
 
 
@@ -82,6 +84,19 @@ exports.createFolder = function(path) {
 exports.getFileListForFolder = function(foldername) {
     var files = fs.readdirSync(foldername);
     return files;
+};
+
+// List files in a folder who match one of the specified mimetypes
+exports.getFilesInFolder = function(foldername, mimetypes) {
+    var files = fs.readdirSync(foldername);
+    var matchedFiles = [];
+    for (var i = 0; i < files.length; i++) {
+        var type = mime.lookup(foldername + '/' + files[i]);
+        if (mimetypes.indexOf(type) !== -1) {
+            matchedFiles.push(files[i]);
+        }
+    }
+    return matchedFiles;
 };
 
 exports.removeFilesInFolder = function(foldername) {
@@ -274,7 +289,7 @@ exports.filePost = function(reqUrl, file, name, options, cb) {
     }
 };
 
-var finishFilePost = function(reqUrl, file, name, options, cb) {
+var finishFilePost = function(reqUrl, path, name, options, cb) {
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
 
     var lf = "\r\n";
@@ -282,21 +297,33 @@ var finishFilePost = function(reqUrl, file, name, options, cb) {
     var boundary = "----Boundary" + Math.round(Math.random() * 1000000000000);
     var post_data = [];
     for (var param in options.params) {
-        var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
-        post_data.push(new Buffer(boundary + lf, 'ascii'));
-        post_data.push(new Buffer(header, 'ascii'));
-        post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
+        if (Array.isArray(options.params[param])) {
+            for (var i = 0; i < options.params[param].length; i++) {
+                var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+                post_data.push(new Buffer(boundary + lf, 'ascii'));
+                post_data.push(new Buffer(header, 'ascii'));
+                post_data.push(new Buffer(options.params[param][i] + lf, 'utf8'));
+            }
+        } else {
+            var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+            post_data.push(new Buffer(boundary + lf, 'ascii'));
+            post_data.push(new Buffer(header, 'ascii'));
+            post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
+        }
     }
 
     // Add the filebody.
-    var fileBody = fs.readFileSync(file);
-    var contentType = mime.lookup(file);
+    var fileBody = fs.readFileSync(path);
+    var fileSize = fs.statSync(path).size;
+    var contentType = mime.lookup(path);
     var fileBodyHeader = '';
     fileBodyHeader += util.format('Content-Disposition: form-data; name="file"; filename="%s"' + lf, name);
-    fileBodyHeader += util.format('Content-Type: %s' + lf + lf, contentType);
+    fileBodyHeader += util.format('Content-Type: %s' + lf, contentType);
+    fileBodyHeader += util.format('Content-Length: %s' + lf + lf, fileSize);
     post_data.push(new Buffer(boundary + lf, 'ascii'));
     post_data.push(new Buffer(fileBodyHeader, 'ascii'));
-    post_data.push(new Buffer(fileBody + lf, 'utf8'));
+    post_data.push(fileBody);
+    post_data.push(new Buffer(lf, 'ascii'));
     post_data.push(new Buffer(boundary + '--' + lf, 'ascii'));
 
 
@@ -347,7 +374,10 @@ var finishFilePost = function(reqUrl, file, name, options, cb) {
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
                 if (!options.ignoreFail){
                     console.log(res.body);
-                    exports.errors++;
+                    exports.errors.push({
+                        'settings': settings,
+                        'response': res.body
+                    });
                 }
                 cb(res.body, false, res);
             } else {
@@ -375,6 +405,8 @@ var lastNames = exports.loadFileIntoArray('./data/all.last.txt');
 var cities = exports.loadFileIntoArray('./data/cities.txt');
 var randomUrls = exports.loadFileIntoArray('./data/urls/random.txt');
 var youtubeUrls = exports.loadFileIntoArray('./data/urls/youtube.txt');
+var userPictures = exports.getFilesInFolder('./data/pictures/users', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
+var groupPictures = exports.getFilesInFolder('./data/pictures/groups', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
 
 ////////////////
 // LOAD WORDS //
@@ -481,3 +513,52 @@ exports.generateUrl = function(type) {
     }
 };
 
+exports.generateUserPicture = function(){
+    return userPictures[Math.floor(Math.random() * userPictures.length)];
+};
+
+exports.generateGroupPicture = function(){
+    return groupPictures[Math.floor(Math.random() * groupPictures.length)];
+};
+
+/**
+ * Uploads a profile picture for either a user or a group.
+ *
+ * @param {String}      type            'user' or 'group'
+ * @param {String}      principalId     The ID of the user or group.
+ * @param {User}        authUser        The user that can be used to perform the requests.
+ * @param {String}      filename        The name of the file
+ * @param {String}      SERVER_URL      The server to post to
+ * @param {Function}    callback        Standard callback method
+ */
+exports.uploadProfilePicture = function(type, principalId, authUser, filename, SERVER_URL, callback) {
+    // Upload the pic.
+    var path = './data/pictures/' + type + 's/' + filename;
+    exports.filePost(SERVER_URL + '/api/' + type+ '/' + principalId + '/picture', path, filename, {
+            'auth': authUser,
+            'telemetry': 'Upload group profile picture',
+            'params': {}
+        }, function(body, success) {
+            gm(path).size(function (err, size) {
+                if (err) {
+                    console.error('Error trying to get the size of an image. Did you install GraphicsMagick?');
+                    console.error(err);
+                    callback(err);
+                }
+                var dimension = size.width > size.height ? size.height : size.width;
+                exports.urlReq(SERVER_URL + '/api/crop', {
+                    'method': 'POST',
+                    'params': {
+                        'principalId': principalId,
+                        'x': 0,
+                        'y': 0,
+                        'width': dimension
+                    },
+                    'auth': authUser,
+                    'telemetry': 'Crop ' + type + ' profile picture'
+                }, function(body, success) {
+                    callback();
+                });
+            });
+        });
+};

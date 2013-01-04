@@ -29,7 +29,7 @@ exports.loadUser = function(user, SERVER_URL, callback) {
         fillUpBasicInfo(user, SERVER_URL, function() {
             fillUpAboutMe(user, SERVER_URL, function() {
                 fillUpPublications(user, SERVER_URL, function() {
-                    callback();
+                    uploadProfilePicture(user, SERVER_URL, callback);
                 });
             });
         });
@@ -122,6 +122,15 @@ var fillUpPublications = function(user, SERVER_URL, callback) {
             auth: user,
             telemetry: 'Add publications'
         }, callback);
+    } else {
+        callback();
+    }
+};
+
+var uploadProfilePicture = function(user, SERVER_URL, callback) {
+    if (user.picture.hasPicture) {
+        var filename = user.picture.picture;
+        general.uploadProfilePicture('user', user.id, user, filename, SERVER_URL, callback);
     } else {
         callback();
     }

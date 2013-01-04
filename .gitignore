@@ -1,5 +1,6 @@
-data/files
+data/content
 data/pictures
+data/source
 .DS_Store
 node_modules/*
 !node_modules/gen.js

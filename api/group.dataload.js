@@ -22,7 +22,9 @@ var general = require('./general.js');
 //////////////
 
 exports.loadGroup = function(group, users, SERVER_URL, callback) {
-    createGroup(group, users, SERVER_URL, callback);
+    createGroup(group, users, SERVER_URL, function() {
+        uploadProfilePicture(group, users, SERVER_URL, callback);
+    });
 };
 
 exports.loadGroupMembership = function(group, users, SERVER_URL, callback) {
@@ -68,6 +70,15 @@ var addGroupMembers = function(group, users, SERVER_URL, callback) {
             auth: users[group.creator],
             telemetry: 'Add group members'
         }, callback);
+    } else {
+        callback();
+    }
+};
+
+var uploadProfilePicture = function(group, users, SERVER_URL, callback) {
+    if (group.picture.hasPicture) {
+        var filename = group.picture.picture;
+        general.uploadProfilePicture('group', group.id, users[group.creator], filename, SERVER_URL, callback);
     } else {
         callback();
     }

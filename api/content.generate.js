@@ -41,7 +41,10 @@ var DISTRIBUTIONS = {
                 'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
-        }
+        },
+        'HAS_COMMENTS': [[0.25, true], [0.75, false]],
+        'NR_OF_COMMENTS': [2, 1, 1, 20],
+        'COMMENT_LENGTH': [8, 1, 1, 200]
     },
     'file': {
         'NAME': [2, 1, 1, 15],
@@ -69,7 +72,10 @@ var DISTRIBUTIONS = {
             "doc": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
             "other-office": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
             "other": [[0.40, "small"], [0.20, "medium"], [0.40, "large"]]
-        }
+        },
+        'HAS_COMMENTS': [[0.3, true], [0.7, false]],
+        'NR_OF_COMMENTS': [3, 1, 1, 25],
+        'COMMENT_LENGTH': [8, 1, 1, 200]
     },
     'sakaidoc': {
         'NAME': [2, 1, 1, 15],
@@ -88,7 +94,10 @@ var DISTRIBUTIONS = {
                 'TOTAL_GROUPS': [0, 5, 0, 15],
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
-        }
+        },
+        'HAS_COMMENTS': [[0.5, true], [0.5, false]],
+        'NR_OF_COMMENTS': [4, 2, 1, 50],
+        'COMMENT_LENGTH': [8, 1, 1, 200]
     }
 };
 
@@ -194,6 +203,10 @@ exports.Content = function(batchid, users, groups) {
         }
     }
 
+    that.hasComments = general.randomize(DISTRIBUTIONS[that.contentType].HAS_COMMENTS);
+    var nrOfComments = general.ASM(DISTRIBUTIONS[that.contentType].NR_OF_COMMENTS);
+    that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.contentType].COMMENT_LENGTH);
+
     return that;
 };
 
@@ -203,4 +216,29 @@ var getFile = function(type, size) {
     var files = fs.readdirSync(dir);
     var name = files[Math.floor(Math.random() * files.length)];
     return {'path': dir + "/" + name, 'name': name};
+};
+
+var generateComments = function(nrOfComments, commentLength) {
+    var allComments = [];
+
+    while (nrOfComments > 0) {
+        var comment = generateComment(commentLength);
+
+        // Find a comment to attach it to.
+        // If the index === the length (ie: a non-existing comment), we stick it in the root.
+        comment.replyTo = Math.floor(Math.random() * (allComments.length + 1));
+        if (comment.replyTo === allComments.length) {
+            comment.replyTo = 'root';
+        }
+
+        allComments.push(comment);
+        nrOfComments--;
+    }
+    return allComments;
+};
+
+var generateComment = function(commentLength) {
+    return {
+        'message': general.generateSentence(general.ASM(commentLength))
+    };
 };

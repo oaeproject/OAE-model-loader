@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "dependencies": {
     "express": "latest",
+    "gm": "latest",
     "mime": "latest",
     "mkdirp": "latest",
     "moment": "latest",
