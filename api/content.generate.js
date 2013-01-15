@@ -42,7 +42,7 @@ var DISTRIBUTIONS = {
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        'HAS_COMMENTS': [[0.25, true], [0.75, false]],
+        'HAS_COMMENTS': [[0.6, true], [0.4, false]],
         'NR_OF_COMMENTS': [2, 1, 1, 20],
         'COMMENT_LENGTH': [8, 1, 1, 200]
     },
@@ -73,7 +73,7 @@ var DISTRIBUTIONS = {
             "other-office": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
             "other": [[0.40, "small"], [0.20, "medium"], [0.40, "large"]]
         },
-        'HAS_COMMENTS': [[0.3, true], [0.7, false]],
+        'HAS_COMMENTS': [[0.7, true], [0.3, false]],
         'NR_OF_COMMENTS': [3, 1, 1, 25],
         'COMMENT_LENGTH': [8, 1, 1, 200]
     },
