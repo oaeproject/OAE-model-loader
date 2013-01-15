@@ -17,32 +17,32 @@ var _ = require('underscore');
 
 var general = require('./general.js');
 
-//////////////
-// USER API //
-//////////////
-
 exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     createContent(content, users, groups, SERVER_URL, function(body, success, res) {
         if (success) {
+            // Get the generated content id and add it to the content item
+            content.originalid = content.id;
             try {
                 content.originalid = content.id;
                 content.id = content.generatedid = JSON.parse(body).contentId;
-                // Only comment on files and links for now.
-                // TODO: Remove this once the UI can display sakaidocs
-                if (content.contentType !== 'sakaidoc') {
-                    var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
-                    var createdComments = [];
-                    createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
-                        callback(body, success, res);
-                    });
-                } else {
-                    callback();
-                }
             } catch (err) {
                 console.log('Error parsing create content response body:');
                 console.log(body);
                 console.log(err);
-                callback(body, success, res);
+                return callback(body, success, res);
+            }
+
+            // Create the content comments.
+            // We only comment on files and links for now.
+            // TODO: Remove this once the UI can display sakaidocs
+            if (content.contentType !== 'sakaidoc') {
+                var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
+                var createdComments = [];
+                createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
+                    callback(body, success, res);
+                });
+            } else {
+                callback();
             }
         } else {
             callback(body, success, res);
@@ -50,10 +50,19 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     });
 };
 
+/**
+ * Create a new piece of content
+ * 
+ * @param  {Content}     content         The content object to create
+ * @param  {User[]}      users           An array of all the User model objects in this batch.
+ * @param  {Group[]}     groups          An array of all the Group model objects in this batch.
+ * @param  {String}      SERVER_URL      The server where the comments should be created.
+ * @param  {Function}    callback        Standard callback function
+ */
 var createContent = function(content, users, groups, SERVER_URL, callback) {
     var contentObj = {
         'contentType': content.contentType,
-        'name': content.name,
+        'displayName': content.name,
         'visibility': content.visibility
     };
 
@@ -68,7 +77,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     }
 
     if (content.contentType === 'file') {
-        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.name, {
+        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.displayName, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
                 'params': contentObj
@@ -91,13 +100,13 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
 /**
  * Creates the comments for a piece of content.
  *
- * @param {Object}      content         The content object to create the comments for
+ * @param {Content}     content         The content object to create the comments for
  * @param {User[]}      users           An array of all the User model objects in this batch.
  * @param {Group[]}     groups          An array of all the Group model objects in this batch.
  * @param {String}      SERVER_URL      The server where the comments should be created.
  * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
  * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
- * @param {Function}    callback        Standard callback method
+ * @param {Function}    callback        Standard callback function
  */
 var createComments = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
     if (content.hasComments && content.comments.length > 0) {
@@ -112,13 +121,13 @@ var createComments = function(content, users, groups, SERVER_URL, contentUsers, 
 /**
  * Creates one comment on a piece of content.
  *
- * @param {Object}      content         The content object to create the comment for
+ * @param {Content}     content         The content object to create the comment for
  * @param {User[]}      users           An array of all the User model objects in this batch.
  * @param {Group[]}     groups          An array of all the Group model objects in this batch.
  * @param {String}      SERVER_URL      The server where the comments should be created.
  * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
  * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
- * @param {Function}    callback        Standard callback method
+ * @param {Function}    callback        Standard callback function
  */
 var createComment = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
     var comment = content.comments.shift();

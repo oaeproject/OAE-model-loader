@@ -17,10 +17,6 @@ var _ = require('underscore');
 
 var general = require('./general.js');
 
-//////////////
-// USER API //
-//////////////
-
 exports.loadGroup = function(group, users, SERVER_URL, callback) {
     createGroup(group, users, SERVER_URL, function() {
         uploadProfilePicture(group, users, SERVER_URL, callback);
@@ -34,7 +30,7 @@ exports.loadGroupMembership = function(group, users, SERVER_URL, callback) {
 var createGroup = function(group, users, SERVER_URL, callback) {
     var groupObj = {
         'alias': group.groupid,
-        'name': group.name,
+        'displayName': group.name,
         'visibility': group.visibility,
         'joinable': group.joinable
     }

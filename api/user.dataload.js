@@ -15,10 +15,6 @@
 
 var general = require('./general.js');
 
-//////////////
-// USER API //
-//////////////
-
 exports.loadUser = function(user, SERVER_URL, callback) {
     createUser(user, SERVER_URL, function(body, success, res) {
         if (success) {
