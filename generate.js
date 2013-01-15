@@ -14,7 +14,7 @@
  */
 
 var argv = require('optimist')
-    .usage('Usage: $0 -b <number of batches to generate> [-u <number of users>] [-g <number of groupss>]')
+    .usage('Usage: $0 -b <number of batches to generate> -t <tenant alias> [-u <number of users>] [-g <number of groups>] [-c <number of content items]')
     
     .demand('b')
     .alias('b', 'batches')
