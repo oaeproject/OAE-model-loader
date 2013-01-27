@@ -212,9 +212,16 @@ exports.Content = function(batchid, users, groups) {
 
 
 var getFile = function(type, size) {
-    var dir = "./data/content/" + size + "/" + type;
+    //var dir = "./data/content/" + size + "/" + type;
+    var dir = "./data/content/paris2013";
     var files = fs.readdirSync(dir);
-    var name = files[Math.floor(Math.random() * files.length)];
+
+    // Remove any files that start with a '.'
+    files = _.reject(files, function(file) { return file.indexOf('.') === 0; });
+
+    // Don't use the filename, but generate a random title
+    //var name = files[Math.floor(Math.random() * files.length)];
+    var name = general.generateSentence(general.ASM([3, 1, 1, 5]));
     return {'path': dir + "/" + name, 'name': name};
 };
 
