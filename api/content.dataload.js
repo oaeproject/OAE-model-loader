@@ -77,7 +77,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     }
 
     if (content.contentType === 'file') {
-        general.filePost(SERVER_URL + '/api/content/create', content.path, contentObj.displayName, {
+        general.filePost(SERVER_URL + '/api/content/create', content.path, content.filename, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
                 'params': contentObj

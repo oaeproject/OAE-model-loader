@@ -127,7 +127,7 @@ exports.Content = function(batchid, users, groups) {
         that.size = general.randomize(DISTRIBUTIONS[that.contentType]['SIZE'][that.type]);
         var file = getFile(that.type, that.size);
         that.path = file.path;
-        that.name = file.name;
+        that.filename = file.name;
     }
 
     // Fill up the creator role
@@ -220,9 +220,9 @@ var getFile = function(type, size) {
     files = _.reject(files, function(file) { return file.indexOf('.') === 0; });
 
     // Don't use the filename, but generate a random title
-    //var name = files[Math.floor(Math.random() * files.length)];
-    var name = general.generateSentence(general.ASM([3, 1, 1, 5]));
-    return {'path': dir + "/" + name, 'name': name};
+    var filename = files[Math.floor(Math.random() * files.length)];
+    var title = general.generateKeywords(general.ASM([3, 1, 1, 5]));
+    return {'path': dir + "/" + filename, 'name': title};
 };
 
 var generateComments = function(nrOfComments, commentLength) {
