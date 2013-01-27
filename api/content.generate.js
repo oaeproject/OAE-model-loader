@@ -221,7 +221,7 @@ var getFile = function(type, size) {
 
     // Don't use the filename, but generate a random title
     var filename = files[Math.floor(Math.random() * files.length)];
-    var title = general.generateKeywords(general.ASM([3, 1, 1, 5]));
+    var title = general.generateKeywords(general.ASM([3, 1, 1, 5])).join(' ');
     return {'path': dir + "/" + filename, 'name': title};
 };
 
