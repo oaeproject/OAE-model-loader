@@ -24,7 +24,7 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
             content.originalid = content.id;
             try {
                 content.originalid = content.id;
-                content.id = content.generatedid = JSON.parse(body).contentId;
+                content.id = content.generatedid = JSON.parse(body).id;
             } catch (err) {
                 console.log('Error parsing create content response body:');
                 console.log(body);
@@ -144,11 +144,11 @@ var createComment = function(content, users, groups, SERVER_URL, contentUsers, c
     // 1 out 3 comments are made by the creator.
     if (contentUsers.length > 0 && Math.floor(Math.random() * 2) === 1) {
         var userId = contentUsers[Math.floor(Math.random() * contentUsers.length)];
-        user = _.find(users, function(user) { return user.id === userId});
+        user = _.find(users, function(user) { return user.id === userId; });
     }
     // If there is no user found, the creator will just comment.
     if (!user) {
-        user = users[content.creator]
+        user = users[content.creator];
     }
 
     general.urlReq(SERVER_URL + '/api/content/' + content.id + '/comments', {
