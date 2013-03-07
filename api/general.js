@@ -204,6 +204,7 @@ var finishUrlReq = function(reqUrl, options, cb) {
     };
 
     settings.headers['Referer'] = reqUrl.protocol + '//' + reqUrl.host + '/test';
+
     // Check if there already is a cookie for this user
     settings.headers['Host'] = reqUrl.host;
     if (options.auth) {
@@ -345,6 +346,7 @@ var finishFilePost = function(reqUrl, path, name, options, cb) {
         'method': 'POST'
     };
 
+    settings.headers['Referer'] = reqUrl.protocol + '//' + reqUrl.host + '/test';
     settings.headers['Host'] = reqUrl.host;
     if (options.auth) {
         settings.headers['Cookie'] = cookies[options.auth.userid];
