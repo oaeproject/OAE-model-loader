@@ -77,7 +77,7 @@ var DISTRIBUTIONS = {
         'NR_OF_COMMENTS': [3, 1, 1, 25],
         'COMMENT_LENGTH': [8, 1, 1, 200]
     },
-    'sakaidoc': {
+    'collabdoc': {
         'NAME': [2, 1, 1, 15],
         'HAS_DESCRIPTION': [[0.6, true], [0.4, false]],
         'DESCRIPTION': [2, 2, 1, 25],
@@ -108,30 +108,30 @@ var DISTRIBUTIONS = {
 exports.Content = function(batchid, users, groups) {
     var that = {};
 
-    that.contentType = general.randomize([[0.45, 'link'], [0.4, 'file'], [0.15, 'sakaidoc']]);
+    that.resourceSubType = general.randomize([[0.45, 'link'], [0.4, 'file'], [0.15, 'collabdoc']]);
 
-    that.name = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.contentType].NAME)).join(' ');
+    that.name = general.generateKeywords(general.ASM(DISTRIBUTIONS[that.resourceSubType].NAME)).join(' ');
     that.name = that.name[0].toUpperCase() + that.name.substring(1);
     that.id = general.generateId(batchid, [that.name.toLowerCase().split(' ')]).replace(/[^a-zA-Z 0-9]+/g,'-');
 
-    that.hasDescription = general.randomize(DISTRIBUTIONS[that.contentType].HAS_DESCRIPTION);
-    that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.contentType].DESCRIPTION));
+    that.hasDescription = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_DESCRIPTION);
+    that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.resourceSubType].DESCRIPTION));
     
-    that.visibility = general.randomize(DISTRIBUTIONS[that.contentType].VISIBILITY);
+    that.visibility = general.randomize(DISTRIBUTIONS[that.resourceSubType].VISIBILITY);
 
-    if (that.contentType === 'link') {
-        var type = general.randomize(DISTRIBUTIONS[that.contentType].TYPE);
+    if (that.resourceSubType === 'link') {
+        var type = general.randomize(DISTRIBUTIONS[that.resourceSubType].TYPE);
         that.link = general.generateUrl(type);
-    } else if (that.contentType === 'file') {
-        that.type = general.randomize(DISTRIBUTIONS[that.contentType].TYPES);
-        that.size = general.randomize(DISTRIBUTIONS[that.contentType]['SIZE'][that.type]);
+    } else if (that.resourceSubType === 'file') {
+        that.type = general.randomize(DISTRIBUTIONS[that.resourceSubType].TYPES);
+        that.size = general.randomize(DISTRIBUTIONS[that.resourceSubType]['SIZE'][that.type]);
         var file = getFile(that.type, that.size);
         that.path = file.path;
         that.filename = file.name;
     }
 
     // Fill up the creator role
-    var creatorRole = general.randomize(DISTRIBUTIONS[that.contentType].CREATOR);
+    var creatorRole = general.randomize(DISTRIBUTIONS[that.resourceSubType].CREATOR);
     var allmembers = [];
     var distribution = [];
     for (var u in users) {
@@ -164,16 +164,16 @@ exports.Content = function(batchid, users, groups) {
 
     // Fill up the managers and viewers
     that.roles = {};
-    for (var i in DISTRIBUTIONS[that.contentType].ROLES) {
+    for (var i in DISTRIBUTIONS[that.resourceSubType].ROLES) {
         that.roles[i] = {
-            totalUsers: general.ASM(DISTRIBUTIONS[that.contentType].ROLES[i].TOTAL_USERS),
-            totalGroups: general.ASM(DISTRIBUTIONS[that.contentType].ROLES[i].TOTAL_GROUPS),
+            totalUsers: general.ASM(DISTRIBUTIONS[that.resourceSubType].ROLES[i].TOTAL_USERS),
+            totalGroups: general.ASM(DISTRIBUTIONS[that.resourceSubType].ROLES[i].TOTAL_GROUPS),
             users: [],
             groups: []
         };
         // Fill up the users
         for (var m = 0; m < that.roles[i].totalUsers; m++) {
-            var type = general.randomize(DISTRIBUTIONS[that.contentType].ROLES[i].DISTRIBUTION);
+            var type = general.randomize(DISTRIBUTIONS[that.resourceSubType].ROLES[i].DISTRIBUTION);
             // Generate probability distribution
             var dist = userDistributions[type];
             if (dist.length === 0) {
@@ -203,9 +203,9 @@ exports.Content = function(batchid, users, groups) {
         }
     }
 
-    that.hasComments = general.randomize(DISTRIBUTIONS[that.contentType].HAS_COMMENTS);
-    var nrOfComments = general.ASM(DISTRIBUTIONS[that.contentType].NR_OF_COMMENTS);
-    that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.contentType].COMMENT_LENGTH);
+    that.hasComments = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_COMMENTS);
+    var nrOfComments = general.ASM(DISTRIBUTIONS[that.resourceSubType].NR_OF_COMMENTS);
+    that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.resourceSubType].COMMENT_LENGTH);
 
     return that;
 };

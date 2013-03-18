@@ -34,8 +34,8 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
 
             // Create the content comments.
             // We only comment on files and links for now.
-            // TODO: Remove this once the UI can display sakaidocs
-            if (content.contentType !== 'sakaidoc') {
+            // TODO: Remove this once the UI can display collaborative documents
+            if (content.resourceSubType !== 'collabdoc') {
                 var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
                 var createdComments = [];
                 createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
@@ -61,7 +61,7 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
  */
 var createContent = function(content, users, groups, SERVER_URL, callback) {
     var contentObj = {
-        'contentType': content.contentType,
+        'resourceSubType': content.resourceSubType,
         'displayName': content.name,
         'visibility': content.visibility
     };
@@ -76,7 +76,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
         contentObj['managers'] = _.union(content.roles['manager'].users, content.roles['manager'].groups);
     }
 
-    if (content.contentType === 'file') {
+    if (content.resourceSubType === 'file') {
         general.filePost(SERVER_URL + '/api/content/create', content.path, content.filename, {
                 'auth': users[content.creator],
                 'telemetry': 'Create file content',
@@ -84,7 +84,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
             }, callback);
 
     } else {
-        if (content.contentType === 'link') {
+        if (content.resourceSubType === 'link') {
             contentObj['link'] = content.link;
         }
 
