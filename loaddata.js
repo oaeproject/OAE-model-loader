@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -15,30 +15,30 @@
 
 var argv = require('optimist')
     .usage('Usage: $0 -b 9 [-s 0] [-h "http://localhost:8080"] [-p admin] [-c 1] [-i 0]')
-    
+
     .demand('b')
     .alias('b', 'end-batch')
     .describe('b', 'The last batch to load (exclusive, so "-s 0 -b 1" will only load the 0th batch)')
-    
+
     .alias('s', 'start')
     .describe('s', 'The batch to start at (0-based, so the first batch is "0")')
     .default('s', 0)
-    
+
     .alias('h', 'server-url')
     .describe('h', 'Server URL')
     .default('h', 'http://localhost:8080')
-    
+
     .alias('p', 'admin-pw')
     .describe('p', 'Admin Password')
     .default('p', 'admin')
-    
+
     .alias('c', 'concurrent-batches')
     .describe('c', 'Number of concurrent batches')
     .default('c', 1)
-    
+
     .alias('i', 'test-batch-interval')
     .describe('i', 'Batch interval for test suites (0 for no test suites)')
-    .default('i', 0)    
+    .default('i', 0)
     .argv;
 
 var _ = require('underscore');
@@ -49,6 +49,7 @@ var general = require('./api/general.js');
 var userAPI = require('./api/user.dataload.js');
 var groupAPI = require('./api/group.dataload.js');
 var contentAPI = require('./api/content.dataload.js');
+var discussionsAPI = require('./api/discussion.dataload.js');
 var runSuites = require('./run_suites.js');
 
 //////////////////////////////////////
@@ -83,7 +84,8 @@ var batches = [];
 // holds the mappings of local ids to server-generated ids
 var idMappings = {
     'users': {},
-    'content': {}
+    'content': {},
+    'discussions': {}
 };
 
 console.time("Finished running data loader");
@@ -93,6 +95,7 @@ var loadNextBatch = function() {
 
     idMappings['users'][currentBatch] = {};
     idMappings['content'][currentBatch] = {};
+    idMappings['discussions'][currentBatch] = {};
 
     if (currentBatch < BATCHES) {
         console.log('Loading Batch ' + currentBatch);
@@ -100,12 +103,14 @@ var loadNextBatch = function() {
         var users = general.loadJSONFileIntoObject('./scripts/users/' + currentBatch + '.txt');
         var groups = general.loadJSONFileIntoObject('./scripts/groups/' + currentBatch + '.txt');
         var content = general.loadJSONFileIntoObject('./scripts/content/' + currentBatch + '.txt');
+        var discussions = general.loadJSONFileIntoObject('./scripts/discussions/' + currentBatch + '.txt');
         batches.push({
             'users': users,
             'groups': groups,
-            'content': content
+            'content': content,
+            'discussions': discussions
         });
-        loadUsers(users, groups, content, currentBatch);
+        loadUsers(users, groups, content, discussions, currentBatch);
     } else {
         finishedAllBatches();
     }
@@ -145,7 +150,7 @@ var checkRunSuites = function(currentBatch) {
 // USERS //
 ///////////
 
-var loadUsers = function(users, groups, content, currentBatch) {
+var loadUsers = function(users, groups, content, discussions, currentBatch) {
     var currentUser = -1;
     var usersToLoad = _.values(users);
     var loadNextUser = function() {
@@ -172,7 +177,7 @@ var loadUsers = function(users, groups, content, currentBatch) {
             general.writeObjectToFile('./scripts/generatedIds/users-' + currentBatch + '.txt', idMappings['users'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
-            loadGroups(users, groups, content, currentBatch);
+            loadGroups(users, groups, content, discussions, currentBatch);
         }
     };
     loadNextUser();
@@ -182,7 +187,7 @@ var loadUsers = function(users, groups, content, currentBatch) {
 // GROUPS //
 ////////////
 
-var loadGroups = function(users, groups, content, currentBatch) {
+var loadGroups = function(users, groups, content, discussions, currentBatch) {
     var currentGroup = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroup = function() {
@@ -205,16 +210,16 @@ var loadGroups = function(users, groups, content, currentBatch) {
             groupAPI.loadGroup(nextGroup, users, SERVER_URL, loadNextGroup);
             if (currentGroup % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Group ' + currentGroup + ' of ' + groupsToLoad.length);
-            }    
+            }
         } else {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + ' Groups');
-            loadGroupMemberships(users, groups, content, currentBatch);
+            loadGroupMemberships(users, groups, content, discussions, currentBatch);
         }
     };
     loadNextGroup();
 };
 
-var loadGroupMemberships = function(users, groups, content, currentBatch) {
+var loadGroupMemberships = function(users, groups, content, discussions, currentBatch) {
     var currentGroupMembership = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroupMembership = function() {
@@ -227,7 +232,7 @@ var loadGroupMemberships = function(users, groups, content, currentBatch) {
             }
         } else {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + 'Group Memberships');
-            loadContent(users, groups, content, currentBatch);
+            loadContent(users, groups, content, discussions, currentBatch);
         }
     };
     loadNextGroupMembership();
@@ -237,7 +242,7 @@ var loadGroupMemberships = function(users, groups, content, currentBatch) {
 // CONTENT //
 /////////////
 
-var loadContent = function(users, groups, content, currentBatch) {
+var loadContent = function(users, groups, content, discussions, currentBatch) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
     var loadNextContent = function() {
@@ -273,10 +278,56 @@ var loadContent = function(users, groups, content, currentBatch) {
             general.writeObjectToFile('./scripts/generatedIds/content-' + currentBatch + '.txt', idMappings['content'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
-            checkRunSuites(currentBatch);
+            loadDiscussions(users, groups, discussions, currentBatch);
         }
     };
     loadNextContent();
+};
+
+/////////////////
+// DISCUSSIONS //
+/////////////////
+
+var loadDiscussions = function(users, groups, discussions, currentBatch) {
+    var currentDiscussion = -1;
+    var discussionsToLoad = _.values(discussions);
+    var loadNextDiscussion = function() {
+        currentDiscussion++;
+        if (currentDiscussion < discussionsToLoad.length) {
+            var nextDiscussion = discussionsToLoad[currentDiscussion];
+
+            // convert all discussions membership ids to the generated user ids
+            for (var role in nextDiscussion.roles) {
+                nextDiscussion.roles[role].users = _.map(nextDiscussion.roles[role].users, function(originalUserId) {
+                    if (idMappings['users'][currentBatch][originalUserId]) {
+                        return idMappings['users'][currentBatch][originalUserId].generatedId;
+                    } else {
+                        console.log('    Warning: Could not map discussions membership for user "%s"', originalUserId);
+                        return originalUserId;
+                    }
+                });
+            }
+
+            discussionsAPI.loadDiscussion(nextDiscussion, users, groups, SERVER_URL, function() {
+                idMappings['discussions'][currentBatch][nextDiscussion.originalid] = {
+                    id: nextDiscussion.originalid,
+                    generatedId: nextDiscussion.generatedid
+                };
+
+                loadNextDiscussion();
+            });
+            if (currentDiscussion % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading Discussion ' + currentDiscussion + ' of ' + discussionsToLoad.length);
+            }
+        } else {
+
+            general.writeObjectToFile('./scripts/generatedIds/discussions-' + currentBatch + '.txt', idMappings['discussions'][currentBatch]);
+
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + discussionsToLoad.length + ' Discussions');
+            checkRunSuites(currentBatch);
+        }
+    };
+    loadNextDiscussion();
 };
 
 ///////////

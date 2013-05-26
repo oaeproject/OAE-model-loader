@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -116,7 +116,7 @@ exports.Content = function(batchid, users, groups) {
 
     that.hasDescription = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_DESCRIPTION);
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.resourceSubType].DESCRIPTION));
-    
+
     that.visibility = general.randomize(DISTRIBUTIONS[that.resourceSubType].VISIBILITY);
 
     if (that.resourceSubType === 'link') {
@@ -158,7 +158,7 @@ exports.Content = function(batchid, users, groups) {
             userDistributions[user.userType].push([user.contentWeighting, user.id]);
         }
     }
-    
+
     // For now, only add non-private groups as group members
     var nonPrivateGroups = _.keys(groups);
 
@@ -204,16 +204,19 @@ exports.Content = function(batchid, users, groups) {
     }
 
     that.hasComments = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_COMMENTS);
-    var nrOfComments = general.ASM(DISTRIBUTIONS[that.resourceSubType].NR_OF_COMMENTS);
-    that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.resourceSubType].COMMENT_LENGTH);
+    if (that.hasComments) {
+        var nrOfComments = general.ASM(DISTRIBUTIONS[that.resourceSubType].NR_OF_COMMENTS);
+        that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.resourceSubType].COMMENT_LENGTH);
+    } else {
+        that.comments = [];
+    }
 
     return that;
 };
 
 
 var getFile = function(type, size) {
-    //var dir = "./data/content/" + size + "/" + type;
-    var dir = "./data/content/paris2013";
+    var dir = "./data/content/" + size + "/" + type;
     var files = fs.readdirSync(dir);
 
     // Remove any files that start with a '.'

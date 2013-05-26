@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -34,16 +34,11 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
 
             // Create the content comments.
             // We only comment on files and links for now.
-            // TODO: Remove this once the UI can display collaborative documents
-            if (content.resourceSubType !== 'collabdoc') {
-                var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
-                var createdComments = [];
-                createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
-                    callback(body, success, res);
-                });
-            } else {
-                callback();
-            }
+            var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
+            var createdComments = [];
+            createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
+                callback(body, success, res);
+            });
         } else {
             callback(body, success, res);
         }
@@ -52,7 +47,7 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
 
 /**
  * Create a new piece of content
- * 
+ *
  * @param  {Content}     content         The content object to create
  * @param  {User[]}      users           An array of all the User model objects in this batch.
  * @param  {Group[]}     groups          An array of all the Group model objects in this batch.
@@ -151,7 +146,7 @@ var createComment = function(content, users, groups, SERVER_URL, contentUsers, c
         user = users[content.creator];
     }
 
-    general.urlReq(SERVER_URL + '/api/content/' + content.id + '/comments', {
+    general.urlReq(SERVER_URL + '/api/content/' + content.id + '/messages', {
         'method': 'POST',
         'params': params,
         'auth': user,

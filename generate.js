@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -15,19 +15,19 @@
 
 var argv = require('optimist')
     .usage('Usage: $0 -b <number of batches to generate> -t <tenant alias> [-u <number of users>] [-g <number of groups>] [-c <number of content items]')
-    
+
     .demand('b')
     .alias('b', 'batches')
     .describe('b', 'Number of batches to generate')
-    
+
     .demand('t')
     .alias('t', 'tenant')
     .describe('t', 'Tenant alias')
-    
+
     .alias('u', 'users')
     .describe('u', 'Number of users per batch')
     .default('u', 1000)
-    
+
     .alias('g', 'groups')
     .describe('g', 'Number of groups per batch')
     .default('g', 2000)
@@ -35,6 +35,10 @@ var argv = require('optimist')
     .alias('c', 'content')
     .describe('c', 'Number of content items per batch')
     .default('c', 5000)
+
+    .alias('d', 'discussions')
+    .describe('d', 'Number of discussion items per batch')
+    .default('d', 5000)
     .argv;
 
 
@@ -44,6 +48,7 @@ var general = require('./api/general.js');
 var user = require('./api/user.generate.js');
 var group = require('./api/group.generate.js');
 var content = require('./api/content.generate.js');
+var discussion = require('./api/discussion.generate.js');
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
@@ -56,6 +61,7 @@ var TENANT_ALIAS = argv.tenant;
 var USERS_PER_BATCH = argv.users;
 var GROUPS_PER_BATCH = argv.groups;
 var CONTENT_PER_BATCH = argv.content;
+var DISCUSSIONS_PER_BATCH = argv.discussions;
 
 ////////////////////
 // KICK OFF BATCH //
@@ -71,7 +77,8 @@ var run = function() {
         general.writeObjectToFile('./' + SCRIPT_FOLDER + '/groups/' + i + '.txt', batch.groups);
         // Write content to file
         general.writeObjectToFile('./' + SCRIPT_FOLDER + '/content/' + i + '.txt', batch.content);
-
+        // Write discussions to file
+        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/discussions/' + i + '.txt', batch.discussions);
     }
 };
 
@@ -81,7 +88,8 @@ var generateBatch = function(id) {
     var batch = {
         users: {},
         groups: {},
-        content: {}
+        content: {},
+        discussions: {}
     };
     // Generate users
     for (var u = 0; u < USERS_PER_BATCH; u++) {
@@ -99,6 +107,11 @@ var generateBatch = function(id) {
         var newContent = new content.Content(id, batch.users, batch.groups);
         batch.content[newContent.id] = newContent;
     }
+    // Generate discussions
+    for (var c = 0; c < DISCUSSIONS_PER_BATCH; c++) {
+        var newDiscussion = new discussion.Discussion(id, batch.users, batch.groups);
+        batch.discussions[newDiscussion.id] = newDiscussion;
+    }
     console.timeEnd('Finished Generating Batch ' + id);
     console.log('=================================');
     return batch;
@@ -109,6 +122,7 @@ var checkDirectories = function() {
     general.createFolder('scripts/users');
     general.createFolder('scripts/groups');
     general.createFolder('scripts/content');
+    general.createFolder('scripts/discussions');
     general.createFolder('results');
 };
 
