@@ -16,6 +16,7 @@
 var _ = require('underscore');
 
 var general = require('./general.js');
+var messageLoader = require('./message.dataload');
 
 exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     createContent(content, users, groups, SERVER_URL, function(body, success, res) {
@@ -32,11 +33,10 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
                 return callback(body, success, res);
             }
 
-            // Create the content comments.
-            // We only comment on files and links for now.
+            // Create the content messages.
             var contentUsers = _.union(content.roles['manager'].users, content.roles['viewer'].users);
-            var createdComments = [];
-            createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, function() {
+            var createdMessages = [];
+            createMessages(content, users, groups, SERVER_URL, contentUsers, createdMessages, function() {
                 callback(body, success, res);
             });
         } else {
@@ -51,7 +51,7 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
  * @param  {Content}     content         The content object to create
  * @param  {User[]}      users           An array of all the User model objects in this batch.
  * @param  {Group[]}     groups          An array of all the Group model objects in this batch.
- * @param  {String}      SERVER_URL      The server where the comments should be created.
+ * @param  {String}      SERVER_URL      The server where the content should be created.
  * @param  {Function}    callback        Standard callback function
  */
 var createContent = function(content, users, groups, SERVER_URL, callback) {
@@ -93,73 +93,20 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
 };
 
 /**
- * Creates the comments for a piece of content.
+ * Creates the messages for a piece of content.
  *
- * @param {Content}     content         The content object to create the comments for
+ * @param {Content}     content         The content object to create the messages for
  * @param {User[]}      users           An array of all the User model objects in this batch.
  * @param {Group[]}     groups          An array of all the Group model objects in this batch.
- * @param {String}      SERVER_URL      The server where the comments should be created.
- * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
- * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
+ * @param {String}      SERVER_URL      The server where the messages should be created.
+ * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each message we'll select at random if the content creator or one of the content members/manager should create the message.
+ * @param {Object[]}    createdMessages An array of message items that are already created for this piece of content. The id's will be used to generate replies on messages (ie: threading)
  * @param {Function}    callback        Standard callback function
  */
-var createComments = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
-    if (content.hasComments && content.comments.length > 0) {
-        createComment(content, users, groups, SERVER_URL, contentUsers, createdComments, function(err) {
-            createComments(content, users, groups, SERVER_URL, contentUsers, createdComments, callback);
-        });
+var createMessages = function(content, users, groups, SERVER_URL, contentUsers, createdMessages, callback) {
+    if (content.hasMessages && content.messages.length > 0) {
+        messageLoader.createMessages(content.id, 'content', content.messages, users, SERVER_URL, contentUsers, users[content.creator], createdMessages, callback);
     } else {
         callback();
     }
-};
-
-/**
- * Creates one comment on a piece of content.
- *
- * @param {Content}     content         The content object to create the comment for
- * @param {User[]}      users           An array of all the User model objects in this batch.
- * @param {Group[]}     groups          An array of all the Group model objects in this batch.
- * @param {String}      SERVER_URL      The server where the comments should be created.
- * @param {User[]}      contentUsers    An array of users that are members or managers of this piece of content. For each comment we'll select at random if the content creator or one of the content members/manager should create the comment.
- * @param {Object[]}    createdComments An array of comment items that are already created for this piece of content. The id's will be used to generate replies on comments (ie: threading)
- * @param {Function}    callback        Standard callback function
- */
-var createComment = function(content, users, groups, SERVER_URL, contentUsers, createdComments, callback) {
-    var comment = content.comments.shift();
-    var params = {
-        'contentId': content.id,
-        'body': comment.message
-    };
-
-    if (comment.replyTo !== 'root') {
-        params.replyTo = createdComments[comment.replyTo].id;
-    }
-
-    var user = null;
-    // 1 out 3 comments are made by the creator.
-    if (contentUsers.length > 0 && Math.floor(Math.random() * 2) === 1) {
-        var userId = contentUsers[Math.floor(Math.random() * contentUsers.length)];
-        user = _.find(users, function(user) { return user.id === userId; });
-    }
-    // If there is no user found, the creator will just comment.
-    if (!user) {
-        user = users[content.creator];
-    }
-
-    general.urlReq(SERVER_URL + '/api/content/' + content.id + '/messages', {
-        'method': 'POST',
-        'params': params,
-        'auth': user,
-        'telemetry': 'Create link content'
-    }, function(body, success, res) {
-        try {
-            comment.id = JSON.parse(body).commentId;
-        } catch (err) {
-            console.log('Error parsing create comment response body:');
-            console.log(body);
-            console.log(err);
-        }
-        createdComments.push(comment);
-        callback();
-    });
 };

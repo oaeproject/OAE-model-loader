@@ -17,6 +17,7 @@ var _ = require('underscore');
 var fs = require('fs');
 
 var general = require('./general.js');
+var messageGenerator = require('./message.generate.js');
 
 ////////////////////////
 // CONTENT PARAMETERS //
@@ -42,9 +43,9 @@ var DISTRIBUTIONS = {
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        'HAS_COMMENTS': [[0.6, true], [0.4, false]],
-        'NR_OF_COMMENTS': [2, 1, 1, 20],
-        'COMMENT_LENGTH': [8, 1, 1, 200]
+        'HAS_MESSAGES': [[0.6, true], [0.4, false]],
+        'NR_OF_MESSAGES': [2, 1, 1, 20],
+        'MESSAGE_LENGTH': [8, 1, 1, 200]
     },
     'file': {
         'NAME': [2, 1, 1, 15],
@@ -73,9 +74,9 @@ var DISTRIBUTIONS = {
             "other-office": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
             "other": [[0.40, "small"], [0.20, "medium"], [0.40, "large"]]
         },
-        'HAS_COMMENTS': [[0.7, true], [0.3, false]],
-        'NR_OF_COMMENTS': [3, 1, 1, 25],
-        'COMMENT_LENGTH': [8, 1, 1, 200]
+        'HAS_MESSAGES': [[0.7, true], [0.3, false]],
+        'NR_OF_MESSAGES': [3, 1, 1, 25],
+        'MESSAGE_LENGTH': [8, 1, 1, 200]
     },
     'collabdoc': {
         'NAME': [2, 1, 1, 15],
@@ -95,9 +96,9 @@ var DISTRIBUTIONS = {
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        'HAS_COMMENTS': [[0.5, true], [0.5, false]],
-        'NR_OF_COMMENTS': [4, 2, 1, 50],
-        'COMMENT_LENGTH': [8, 1, 1, 200]
+        'HAS_MESSAGES': [[0.5, true], [0.5, false]],
+        'NR_OF_MESSAGES': [4, 2, 1, 50],
+        'MESSAGE_LENGTH': [8, 1, 1, 200]
     }
 };
 
@@ -203,12 +204,12 @@ exports.Content = function(batchid, users, groups) {
         }
     }
 
-    that.hasComments = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_COMMENTS);
-    if (that.hasComments) {
-        var nrOfComments = general.ASM(DISTRIBUTIONS[that.resourceSubType].NR_OF_COMMENTS);
-        that.comments = generateComments(nrOfComments, DISTRIBUTIONS[that.resourceSubType].COMMENT_LENGTH);
+
+    that.hasMessages = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_MESSAGES);
+    if (that.hasMessages) {
+        that.messages = messageGenerator.generateMessages(DISTRIBUTIONS[that.resourceSubType].NR_OF_MESSAGES, DISTRIBUTIONS[that.resourceSubType].MESSAGE_LENGTH);
     } else {
-        that.comments = [];
+        that.messages = [];
     }
 
     return that;
