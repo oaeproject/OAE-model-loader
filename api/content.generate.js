@@ -19,6 +19,16 @@ var fs = require('fs');
 var general = require('./general.js');
 var messageGenerator = require('./message.generate.js');
 
+
+// Read the content directory here once,
+// so we don't need to read it for every piece of content.
+var DIR = './data/content/';
+var FILES = fs.readdirSync(DIR);
+
+// Remove any files that start with a '.'
+FILES = _.reject(FILES, function(file) { return file.indexOf('.') === 0; });
+
+
 ////////////////////////
 // CONTENT PARAMETERS //
 ////////////////////////
@@ -65,15 +75,6 @@ var DISTRIBUTIONS = {
                 'DISTRIBUTION': [[0.4, 'student'], [0.2, 'lecturer'], [0.4, 'researcher']]
             }
         },
-        "TYPES": [[0.25, "image"], [0.05, "video"], [0.20, "pdf"], [0.15, "doc"], [0.15, "other-office"], [0.20, "other"]],
-        "SIZE": {
-            "image": [[0.25, "small"], [0.50, "medium"], [0.25, "large"]],
-            "video": [[0.05, "small"], [0.20, "medium"], [0.75, "large"]],
-            "pdf": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
-            "doc": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
-            "other-office": [[0.20, "small"], [0.60, "medium"], [0.20, "large"]],
-            "other": [[0.40, "small"], [0.20, "medium"], [0.40, "large"]]
-        },
         'HAS_MESSAGES': [[0.7, true], [0.3, false]],
         'NR_OF_MESSAGES': [3, 1, 1, 25],
         'MESSAGE_LENGTH': [8, 1, 1, 200]
@@ -102,9 +103,9 @@ var DISTRIBUTIONS = {
     }
 };
 
-/////////////////////////
-// PooledContent Model //
-/////////////////////////
+///////////////////
+// Content Model //
+///////////////////
 
 exports.Content = function(batchid, users, groups) {
     var that = {};
@@ -116,7 +117,9 @@ exports.Content = function(batchid, users, groups) {
     that.id = general.generateId(batchid, [that.name.toLowerCase().split(' ')]).replace(/[^a-zA-Z 0-9]+/g,'-');
 
     that.hasDescription = general.randomize(DISTRIBUTIONS[that.resourceSubType].HAS_DESCRIPTION);
-    that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.resourceSubType].DESCRIPTION));
+    if (that.hasDescription) {
+        that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.resourceSubType].DESCRIPTION));
+    }
 
     that.visibility = general.randomize(DISTRIBUTIONS[that.resourceSubType].VISIBILITY);
 
@@ -124,9 +127,7 @@ exports.Content = function(batchid, users, groups) {
         var type = general.randomize(DISTRIBUTIONS[that.resourceSubType].TYPE);
         that.link = general.generateUrl(type);
     } else if (that.resourceSubType === 'file') {
-        that.type = general.randomize(DISTRIBUTIONS[that.resourceSubType].TYPES);
-        that.size = general.randomize(DISTRIBUTIONS[that.resourceSubType]['SIZE'][that.type]);
-        var file = getFile(that.type, that.size);
+        var file = getFile();
         that.path = file.path;
         that.filename = file.name;
     }
@@ -215,18 +216,11 @@ exports.Content = function(batchid, users, groups) {
     return that;
 };
 
-
-var getFile = function(type, size) {
-    var dir = "./data/content/" + size + "/" + type;
-    var files = fs.readdirSync(dir);
-
-    // Remove any files that start with a '.'
-    files = _.reject(files, function(file) { return file.indexOf('.') === 0; });
-
+var getFile = function() {
     // Don't use the filename, but generate a random title
-    var filename = files[Math.floor(Math.random() * files.length)];
+    var filename = FILES[Math.floor(Math.random() * FILES.length)];
     var title = general.generateKeywords(general.ASM([3, 1, 1, 5])).join(' ');
-    return {'path': dir + "/" + filename, 'name': title};
+    return {'path': DIR + "/" + filename, 'name': title};
 };
 
 var generateComments = function(nrOfComments, commentLength) {
