@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -40,6 +40,9 @@ var createUser = function(user, SERVER_URL, callback) {
         'firstName': user.firstName,
         'lastName': user.lastName,
         'displayName': user.displayName
+    };
+    if (user.basicInfo.hasEmail) {
+        userObj.email = user.basicInfo.email;
     }
     general.urlReq(SERVER_URL + '/api/user/create', {
         method: 'POST',
@@ -111,7 +114,7 @@ var fillUpPublications = function(user, SERVER_URL, callback) {
             'data': JSON.stringify({'publications': user.publications.publications}),
             'visibility': user.publications.publicationsPrivacy
         }
-        
+
         general.urlReq(SERVER_URL + '/api/user/' + user.id + '/profile', {
             method: 'POST',
             params: section,
