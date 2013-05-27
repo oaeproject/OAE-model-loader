@@ -84,6 +84,7 @@ var batches = [];
 // holds the mappings of local ids to server-generated ids
 var idMappings = {
     'users': {},
+    'groups': {},
     'content': {},
     'discussions': {}
 };
@@ -94,6 +95,7 @@ var loadNextBatch = function() {
     currentBatch++;
 
     idMappings['users'][currentBatch] = {};
+    idMappings['groups'][currentBatch] = {};
     idMappings['content'][currentBatch] = {};
     idMappings['discussions'][currentBatch] = {};
 
@@ -207,11 +209,23 @@ var loadGroups = function(users, groups, content, discussions, currentBatch) {
                 });
             }
 
-            groupAPI.loadGroup(nextGroup, users, SERVER_URL, loadNextGroup);
+            groupAPI.loadGroup(nextGroup, users, SERVER_URL, function() {
+                if (!nextGroup.originalid || !nextGroup.generatedid) {
+                    console.log('    Warning: User "%s" was not assigned a generated id.', nextGroup.id);
+                } else {
+                    idMappings['groups'][currentBatch][nextGroup.originalid] = {
+                        id: nextGroup.originalid,
+                        generatedId: nextGroup.generatedid
+                    };
+                }
+
+                loadNextGroup();
+            });
             if (currentGroup % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Group ' + currentGroup + ' of ' + groupsToLoad.length);
             }
         } else {
+            general.writeObjectToFile('./scripts/generatedIds/groups-' + currentBatch + '.txt', idMappings['groups'][currentBatch]);
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + ' Groups');
             loadGroupMemberships(users, groups, content, discussions, currentBatch);
         }
@@ -258,6 +272,14 @@ var loadContent = function(users, groups, content, discussions, currentBatch) {
                     } else {
                         console.log('    Warning: Could not map content membership for user "%s"', originalUserId);
                         return originalUserId;
+                    }
+                });
+                nextContent.roles[role].groups = _.map(nextContent.roles[role].groups, function(originalGroupId) {
+                    if (idMappings['groups'][currentBatch][originalGroupId]) {
+                        return idMappings['groups'][currentBatch][originalGroupId].generatedId;
+                    } else {
+                        console.log('    Warning: Could not map content membership for user "%s"', originalGroupId);
+                        return originalGroupId;
                     }
                 });
             }

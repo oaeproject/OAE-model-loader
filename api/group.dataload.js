@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -18,7 +18,11 @@ var _ = require('underscore');
 var general = require('./general.js');
 
 exports.loadGroup = function(group, users, SERVER_URL, callback) {
-    createGroup(group, users, SERVER_URL, function() {
+    createGroup(group, users, SERVER_URL, function(body, success, res) {
+        if (success) {
+            group.originalid = group.id;
+            group.id = group.generatedid = JSON.parse(body).id;
+        }
         uploadProfilePicture(group, users, SERVER_URL, callback);
     });
 };
@@ -29,11 +33,10 @@ exports.loadGroupMembership = function(group, users, SERVER_URL, callback) {
 
 var createGroup = function(group, users, SERVER_URL, callback) {
     var groupObj = {
-        'alias': group.groupid,
         'displayName': group.name,
         'visibility': group.visibility,
         'joinable': group.joinable
-    }
+    };
     if (group.hasDescription) {
         groupObj['description'] = group.description;
     }
