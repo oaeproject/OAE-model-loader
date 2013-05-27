@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -64,7 +64,7 @@ exports.writeObjectToFile = function(filename, object) {
     } catch (err) {}
     var finalArray = [];
     for (var i in object) {
-        finalArray.push(JSON.stringify(object[i])); 
+        finalArray.push(JSON.stringify(object[i]));
     }
     fs.writeFileSync(filename, finalArray.join('\n'), 'utf8');
 };
@@ -119,10 +119,10 @@ exports.randomize = function(_mapfunc) {
             mapfunc[i][0] = mapfunc[i -1][0] + mapfunc[i][0];
         }
     }
-    
+
     // Select the randoms
     var random = Math.random() * mapfunc[mapFuncLength - 1][0];
-        
+
     // Return the selected one
     for (var j = 0; j < mapFuncLength; j++) {
         if (random <= mapfunc[j][0]) {
@@ -166,7 +166,7 @@ exports.requests = 0;
 exports.errors = [];
 exports.urlReq = function(reqUrl, options, cb) {
     if(typeof options === 'function') { cb = options; options = {}; }// incase no options passed in
-    
+
     // parse url to chunks
     reqUrl = url.parse(reqUrl);
 
@@ -238,7 +238,7 @@ var finishUrlReq = function(reqUrl, options, cb) {
 
         // when the response has finished
         res.on('end', function() {
-            
+
             // fire callback
             exports.requests++;
             if (options.telemetry) {
@@ -470,8 +470,7 @@ exports.generateId = function(batchid, seed) {
 };
 
 exports.generateEmail = function(seed) {
-    var domains = ['googlemail.com', 'hotmail.com', 'gmail.com', 'cam.ac.uk', 'yahoo.com'];
-    return seed.join('_').toLowerCase() + '@' + domains[Math.floor(Math.random() * domains.length)];
+    return seed.join('_').toLowerCase() + '@example.com';
 };
 
 exports.generatePassword = function() {
