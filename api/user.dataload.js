@@ -41,9 +41,6 @@ var createUser = function(user, SERVER_URL, callback) {
         'lastName': user.lastName,
         'displayName': user.displayName
     };
-    if (user.basicInfo.hasEmail) {
-        userObj.email = user.basicInfo.email;
-    }
     general.urlReq(SERVER_URL + '/api/user/create', {
         method: 'POST',
         params: userObj,
