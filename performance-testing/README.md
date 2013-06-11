@@ -27,7 +27,7 @@ While data-sets can be re-loaded, since it takes so long, it is not expected thi
 Here is how `package.js` can be used to package re-usable testing data:
 
 ```console
-OAE-model-loader$ node generate.js -b 10
+OAE-model-loader$ node generate.js -b 10 -t <tenantAlias>
 Generating Batch 0
 Finished Generating Batch 0
 =================================
@@ -79,10 +79,10 @@ Complete batch processing.
 Done.
 
 
-~/Source/sakai/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/csv
+~/Source/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/csv
 users.csv
 
 
-~/Source/sakai/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/source/
+~/Source/oae/OAE-model-loader$ ls ~/.oae/mb-data/2012-Aug-05-9-3403/source/
 data	scripts
 ```
