@@ -168,45 +168,45 @@ exports.urlReq = function(reqUrl, options, cb) {
     if(typeof options === 'function') { cb = options; options = {}; }// incase no options passed in
 
     // parse url to chunks
-    reqUrl = url.parse(reqUrl);
+    var reqUrlObj = url.parse(reqUrl);
 
     // Check if we need to log the user in first
     if (options.auth) {
         if (!cookies[options.auth.userid]) {
             // Log in the user first
             var requestStart = new Date().getTime();
-            exports.urlReq(reqUrl.protocol + '//' + reqUrl.host + '/api/auth/login', {
+            exports.urlReq(reqUrlObj.protocol + '//' + reqUrlObj.host + '/api/auth/login', {
                 method: 'POST',
                 params: {'username': options.auth.userid, 'password': options.auth.password}
             }, function(body, success, res) {
                 cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
                 var requestEnd = new Date().getTime();
                 telemetry('Login', requestEnd - requestStart);
-                finishUrlReq(reqUrl, options, cb);
+                finishUrlReq(reqUrlObj, options, cb);
             });
         } else {
-            finishUrlReq(reqUrl, options, cb);
+            finishUrlReq(reqUrlObj, options, cb);
         }
     } else {
-        finishUrlReq(reqUrl, options, cb);
+        finishUrlReq(reqUrlObj, options, cb);
     }
-}
+};
 
-var finishUrlReq = function(reqUrl, options, cb) {
+var finishUrlReq = function(reqUrlObj, options, cb) {
     var requestStart = new Date().getTime();
     // http.request settings
     var settings = {
-        host: reqUrl.hostname,
-        port: reqUrl.port || 80,
-        path: reqUrl.pathname,
+        host: reqUrlObj.hostname,
+        port: reqUrlObj.port || 80,
+        path: reqUrlObj.pathname,
         headers: options.headers || {},
         method: options.method || 'GET'
     };
 
-    settings.headers['Referer'] = reqUrl.protocol + '//' + reqUrl.host + '/test';
+    settings.headers['Referer'] = reqUrlObj.protocol + '//' + reqUrlObj.host + '/test';
 
     // Check if there already is a cookie for this user
-    settings.headers['Host'] = reqUrl.host;
+    settings.headers['Host'] = reqUrlObj.host;
     if (options.auth) {
         settings.headers['Cookie'] = cookies[options.auth.userid];
     }
@@ -266,47 +266,48 @@ var finishUrlReq = function(reqUrl, options, cb) {
 
 exports.filePost = function(reqUrl, file, name, options, cb) {
     // parse url to chunks
-    reqUrl = url.parse(reqUrl);
+    var reqUrlObj = url.parse(reqUrl);
 
     // Check if we need to log the user in first
     if (options.auth) {
         if (!cookies[options.auth.userid]) {
             // Log in the user first
             var requestStart = new Date().getTime();
-            exports.urlReq(reqUrl.protocol + '//' + reqUrl.host + '/api/auth/login', {
+            exports.urlReq(reqUrlObj.protocol + '//' + reqUrlObj.host + '/api/auth/login', {
                 method: 'POST',
                 params: {'username': options.auth.userid, 'password': options.auth.password}
             }, function(body, success, res) {
                 cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
                 var requestEnd = new Date().getTime();
                 telemetry('Login', requestEnd - requestStart);
-                finishFilePost(reqUrl, file, name, options, cb);
+                finishFilePost(reqUrlObj, file, name, options, cb);
             });
         } else {
-            finishFilePost(reqUrl, file, name, options, cb);
+            finishFilePost(reqUrlObj, file, name, options, cb);
         }
     } else {
-        finishFilePost(reqUrl, file, name, options, cb);
+        finishFilePost(reqUrlObj, file, name, options, cb);
     }
 };
 
-var finishFilePost = function(reqUrl, path, name, options, cb) {
+var finishFilePost = function(reqUrlObj, path, name, options, cb) {
     if(typeof options === "function"){ cb = options; options = {}; }// incase no options passed in
 
     var lf = "\r\n";
 
     var boundary = "----Boundary" + Math.round(Math.random() * 1000000000000);
     var post_data = [];
+    var header = null;
     for (var param in options.params) {
         if (Array.isArray(options.params[param])) {
             for (var i = 0; i < options.params[param].length; i++) {
-                var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+                header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
                 post_data.push(new Buffer(boundary + lf, 'ascii'));
                 post_data.push(new Buffer(header, 'ascii'));
                 post_data.push(new Buffer(options.params[param][i] + lf, 'utf8'));
             }
         } else {
-            var header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
+            header = util.format('Content-Disposition: form-data; name="%s"' + lf + lf, param);
             post_data.push(new Buffer(boundary + lf, 'ascii'));
             post_data.push(new Buffer(header, 'ascii'));
             post_data.push(new Buffer(options.params[param] + lf, 'utf8'));
@@ -330,24 +331,21 @@ var finishFilePost = function(reqUrl, path, name, options, cb) {
 
     // Determine the length of this request so we can pass it in the Content-Length header.
     var length = 0;
-    for(var i = 0; i < post_data.length; i++) {
-        length += post_data[i].length;
+    for(var j = 0; j < post_data.length; j++) {
+        length += post_data[j].length;
     }
-
-    // parse url to chunks
-    reqUrl = url.parse(reqUrl);
 
     // http.request settings
     var settings = {
-        'host': reqUrl.hostname,
-        'port': reqUrl.port || 80,
-        'path': reqUrl.pathname,
+        'host': reqUrlObj.hostname,
+        'port': reqUrlObj.port || 80,
+        'path': reqUrlObj.pathname,
         'headers': options.headers || {},
         'method': 'POST'
     };
 
-    settings.headers['Referer'] = reqUrl.protocol + '//' + reqUrl.host + '/test';
-    settings.headers['Host'] = reqUrl.host;
+    settings.headers['Referer'] = reqUrlObj.protocol + '//' + reqUrlObj.host + '/test';
+    settings.headers['Host'] = reqUrlObj.host;
     if (options.auth) {
         settings.headers['Cookie'] = cookies[options.auth.userid];
     }
