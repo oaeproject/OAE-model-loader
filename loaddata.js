@@ -106,6 +106,7 @@ var loadNextBatch = function() {
         var groups = general.loadJSONFileIntoObject('./scripts/groups/' + currentBatch + '.txt');
         var content = general.loadJSONFileIntoObject('./scripts/content/' + currentBatch + '.txt');
         var discussions = general.loadJSONFileIntoObject('./scripts/discussions/' + currentBatch + '.txt');
+
         batches.push({
             'users': users,
             'groups': groups,
@@ -240,6 +241,16 @@ var loadGroupMemberships = function(users, groups, content, discussions, current
         currentGroupMembership++;
         if (currentGroupMembership < groupsToLoad.length) {
             var nextGroup = groupsToLoad[currentGroupMembership];
+
+            // Map the original group ids to the generated group ids
+            nextGroup.roles.member.groups = _.map(nextGroup.roles.member.groups, function(originalGroupId) {
+                return idMappings['groups'][currentBatch][originalGroupId].generatedId;
+            });
+
+            nextGroup.roles.manager.groups = _.map(nextGroup.roles.manager.groups, function(originalGroupId) {
+                return idMappings['groups'][currentBatch][originalGroupId].generatedId;
+            });
+
             groupAPI.loadGroupMembership(nextGroup, users, SERVER_URL, loadNextGroupMembership);
             if (currentGroupMembership % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Group Memberships ' + currentGroupMembership + ' of ' + groupsToLoad.length);
@@ -328,6 +339,15 @@ var loadDiscussions = function(users, groups, discussions, currentBatch) {
                         return originalUserId;
                     }
                 });
+
+                nextDiscussion.roles[role].groups = _.map(nextDiscussion.roles[role].groups, function(originalUserId) {
+                    if (idMappings['groups'][currentBatch][originalUserId]) {
+                        return idMappings['groups'][currentBatch][originalUserId].generatedId;
+                    } else {
+                        console.log('    Warning: Could not map discussions membership for group "%s"', originalUserId);
+                        return originalUserId;
+                    }
+                });
             }
 
             discussionsAPI.loadDiscussion(nextDiscussion, users, groups, SERVER_URL, function() {
@@ -338,6 +358,7 @@ var loadDiscussions = function(users, groups, discussions, currentBatch) {
 
                 loadNextDiscussion();
             });
+
             if (currentDiscussion % 10 === 0) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading Discussion ' + currentDiscussion + ' of ' + discussionsToLoad.length);
             }

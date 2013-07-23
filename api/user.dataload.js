@@ -23,11 +23,7 @@ exports.loadUser = function(user, SERVER_URL, callback) {
         }
 
         fillUpBasicInfo(user, SERVER_URL, function() {
-            fillUpAboutMe(user, SERVER_URL, function() {
-                fillUpPublications(user, SERVER_URL, function() {
-                    uploadProfilePicture(user, SERVER_URL, callback);
-                });
-            });
+            uploadProfilePicture(user, SERVER_URL, callback);
         });
     });
 };
@@ -65,58 +61,6 @@ var fillUpBasicInfo = function(user, SERVER_URL, callback) {
             params: basicInfo,
             auth: user,
             telemetry: 'Add basic info'
-        }, callback);
-    } else {
-        callback();
-    }
-};
-
-var fillUpAboutMe = function(user, SERVER_URL, callback) {
-    if (user.aboutMe.hasAboutMeSection) {
-        var aboutMe = {};
-        if (user.aboutMe.hasAboutMe) {
-            aboutMe['aboutme'] = user.aboutMe.aboutMe;
-        }
-        if (user.aboutMe.hasAcademicInterests) {
-            aboutMe['academicinterests'] = user.aboutMe.academicInterests.join(', ');
-        }
-        if (user.aboutMe.hasPersonalInterests) {
-            aboutMe['personalinterests'] = user.aboutMe.personalInterests.join(', ');
-        }
-        if (user.aboutMe.hasHobbies) {
-            aboutMe['hobbies'] = user.aboutMe.hobbies.join(', ');
-        }
-
-        var section = {
-            'section': 'aboutme',
-            'data': JSON.stringify(aboutMe),
-            'visibility': user.aboutMe.aboutMePrivacy
-        }
-
-        general.urlReq(SERVER_URL + '/api/user/' + user.id + '/profile', {
-            method: 'POST',
-            params: section,
-            auth: user,
-            telemetry: 'Add about me'
-        }, callback);
-    } else {
-        callback();
-    }
-};
-
-var fillUpPublications = function(user, SERVER_URL, callback) {
-    if (user.publications.publications.length) {
-        var section = {
-            'section': 'publications',
-            'data': JSON.stringify({'publications': user.publications.publications}),
-            'visibility': user.publications.publicationsPrivacy
-        }
-
-        general.urlReq(SERVER_URL + '/api/user/' + user.id + '/profile', {
-            method: 'POST',
-            params: section,
-            auth: user,
-            telemetry: 'Add publications'
         }, callback);
     } else {
         callback();
