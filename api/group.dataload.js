@@ -56,12 +56,15 @@ var createGroup = function(group, users, SERVER_URL, callback) {
 
 var addGroupMembers = function(group, users, SERVER_URL, callback) {
     var groupMembers = {};
+
     for (var m = 0; m < group.roles['member'].groups.length; m++) {
         groupMembers[group.roles['member'].groups[m]] = 'member';
-    };
+    }
+
     for (var m = 0; m < group.roles['manager'].groups.length; m++) {
         groupMembers[group.roles['manager'].groups[m]] = 'manager';
-    };
+    }
+
     if (_.keys(groupMembers).length > 0) {
         general.urlReq(SERVER_URL + '/api/group/' + group.id + '/members', {
             method: 'POST',
