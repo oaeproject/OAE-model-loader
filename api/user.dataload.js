@@ -19,7 +19,13 @@ exports.loadUser = function(user, SERVER_URL, callback) {
     createUser(user, SERVER_URL, function(body, success, res) {
         if (success) {
             user.originalid = user.id;
-            user.id = user.generatedid = JSON.parse(body).id;
+            try {
+                user.id = user.generatedid = JSON.parse(body).id;
+            } catch (ex) {
+                console.error('Error parsing JSON response:');
+                console.error(body);
+                throw ex;
+            }
         }
 
         fillUpBasicInfo(user, SERVER_URL, function() {
