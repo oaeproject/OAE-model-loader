@@ -20,8 +20,16 @@ var general = require('./general.js');
 exports.loadGroup = function(group, users, SERVER_URL, callback) {
     createGroup(group, users, SERVER_URL, function(body, success, res) {
         if (success) {
-            group.originalid = group.id;
-            group.id = group.generatedid = JSON.parse(body).id;
+            try {
+                group.originalid = group.id;
+                group.id = group.generatedid = JSON.parse(body).id;
+            } catch (ex) {
+                console.error('Error parsing create group HTTP response:');
+                console.error(body);
+
+                // Rethrowing since missing users will cascade wildfire through the rest of the data-load process
+                throw ex;
+            }
         }
         uploadProfilePicture(group, users, SERVER_URL, callback);
     });

@@ -25,10 +25,9 @@ exports.loadDiscussion = function(discussion, users, groups, SERVER_URL, callbac
                 // Get the generated content id and add it to the content item
                 discussion.originalid = discussion.id;
                 discussion.id = discussion.generatedid = JSON.parse(body).id;
-            } catch (err) {
-                console.log('Error parsing create discussion response body:');
+            } catch (ex) {
+                console.log('Error parsing create discussion HTTP response:');
                 console.log(body);
-                console.log(err);
                 return callback(body, success, res);
             }
 

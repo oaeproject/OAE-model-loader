@@ -26,10 +26,9 @@ exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
             try {
                 content.originalid = content.id;
                 content.id = content.generatedid = JSON.parse(body).id;
-            } catch (err) {
-                console.log('Error parsing create content response body:');
+            } catch (ex) {
+                console.log('Error parsing create content HTTP response:');
                 console.log(body);
-                console.log(err);
                 return callback(body, success, res);
             }
 

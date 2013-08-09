@@ -18,12 +18,14 @@ var general = require('./general.js');
 exports.loadUser = function(user, SERVER_URL, callback) {
     createUser(user, SERVER_URL, function(body, success, res) {
         if (success) {
-            user.originalid = user.id;
             try {
+                user.originalid = user.id;
                 user.id = user.generatedid = JSON.parse(body).id;
             } catch (ex) {
-                console.error('Error parsing JSON response:');
+                console.error('Error parsing create user HTTP response:');
                 console.error(body);
+
+                // Rethrowing since missing groups will cascade wildfire through the rest of the data-load process
                 throw ex;
             }
         }
