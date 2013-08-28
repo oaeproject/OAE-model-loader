@@ -13,6 +13,7 @@
  * permissions and limitations under the License.
  */
 
+var _ = require('underscore');
 var general = require('./general.js');
 
 exports.loadUser = function(user, SERVER_URL, callback) {
@@ -34,6 +35,11 @@ exports.loadUser = function(user, SERVER_URL, callback) {
             uploadProfilePicture(user, SERVER_URL, callback);
         });
     });
+};
+
+exports.loadFollowing = function(user, users, SERVER_URL, callback) {
+    var following = (user.following) ? user.following.slice() : [];
+    followAll(user, users, following, SERVER_URL, callback);
 };
 
 var createUser = function(user, SERVER_URL, callback) {
@@ -82,4 +88,34 @@ var uploadProfilePicture = function(user, SERVER_URL, callback) {
     } else {
         callback();
     }
+};
+
+var followAll = function(user, users, following, SERVER_URL, callback) {
+    if (following.length === 0) {
+        return callback();
+    }
+
+    var usersArray = _.values(users);
+    var originalFollowedId = following.shift();
+    var serverFollowedId = findServerIdFromOriginalId(originalFollowedId, usersArray);
+    if (!serverFollowedId) {
+        console.log('    Warning: User %s will not follow %s since server-side id was not found', user.originalid, originalFollowedId);
+        return followAll(user, users, following, SERVER_URL, callback);
+    }
+
+    general.urlReq(SERVER_URL + '/api/following/' + serverFollowedId + '/follow', {
+        method: 'POST',
+        auth: user
+    }, function(body, isSuccessCode, res) {
+        if (!isSuccessCode) {
+            console.log('    Warning: User %s failed to follow %s. Reason: %s', user.originalid, originalFollowedId, body);
+        }
+
+        return followAll(user, users, following, SERVER_URL, callback);
+    });
+};
+
+var findServerIdFromOriginalId = function(originalId, users) {
+    var user = _.find(users, function(user) { return user.originalid === originalId; });
+    return (user) ? user.id : null;
 };
