@@ -10,7 +10,10 @@
 Create the following folders & add image files to 
 
 * `./data/pictures/users`
-* `./data/pictures/worlds`
+* `./data/pictures/groups`
+* `./data/content`
+
+or alternatively download some [pre-packaged content](https://s3.amazonaws.com/oae-performance-files/model-loader-data.tar.gz), untar it and place the contents in the `data` directory
 
 ## Run
 
@@ -18,7 +21,7 @@ Create the following folders & add image files to
 * node loaddata.js -b <last batch to load (exclusive)> -h <OAE url>
 * node main.js
 
-The recommended batch size is:
+Although you're free to choose the batch size, we've found that the following works pretty well:
 
 * 1000 users
 * 2000 groups
