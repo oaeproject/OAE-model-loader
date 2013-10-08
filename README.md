@@ -21,8 +21,8 @@ or alternatively download some [pre-packaged content](https://s3.amazonaws.com/o
 
 ## Run
 
-* node generate.js -b <number of batches> -t <tenant alias> -u <number of users to generate> -g <number of groups to generate> -c <number of content items to generate> -d <number of discussions to generate>
-* node loaddata.js -b <last batch to load (exclusive)> -h <OAE url>
+* node generate.js -b `number of batches` -t `tenant alias` -u `number of users to generate` -g `number of groups to generate` -c `number of content items to generate` -d `number of discussions to generate`
+* node loaddata.js -b `last batch to load (exclusive)` -h `http://tenant.url`
 * node main.js
 
 Although you're free to choose the batch size, we've found that the following works pretty well:
