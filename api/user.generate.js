@@ -215,7 +215,7 @@ exports.setFollowing = function(users) {
             var tries = 0;
             while (followedUserId === user.id || _.contains(user.following, followedUserId)) {
                 followedIndex = general.ASM(followersDistribution);
-                followedUserId = _.contains(user.following, followedUserId);
+                followedUserId = nonPrivateUsers[followedIndex].id;
             }
 
             // Indicate that the user will follow this user
