@@ -19,9 +19,9 @@ var fs = require('fs');
 var general = require('./general.js');
 var messageGenerator = require('./message.generate.js');
 
-////////////////////////
-// CONTENT PARAMETERS //
-////////////////////////
+///////////////////////////
+// DISCUSSION PARAMETERS //
+///////////////////////////
 
 var DISTRIBUTIONS = {
     'NAME': [2, 1, 1, 15],

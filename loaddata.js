@@ -176,14 +176,27 @@ var loadUsers = function(users, groups, content, discussions, currentBatch) {
                 console.log('  ' + new Date().toUTCString() + ': Finished Loading User ' + currentUser + ' of ' + usersToLoad.length);
             }
         } else {
-
             general.writeObjectToFile('./scripts/generatedIds/users-' + currentBatch + '.txt', idMappings['users'][currentBatch]);
-
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
-            loadGroups(users, groups, content, discussions, currentBatch);
+            return loadFollowing(users, groups, content, discussions, currentBatch);
         }
     };
     loadNextUser();
+};
+
+var loadFollowing = function(users, groups, content, discussions, currentBatch) {
+    var currentUser = -1;
+    var usersFollowingToLoad = _.values(users);
+    var loadNextUserFollowing = function() {
+        currentUser++;
+        if (currentUser >= usersFollowingToLoad.length) {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading Followers for ' + usersFollowingToLoad.length + ' Users');
+            return loadGroups(users, groups, content, discussions, currentBatch);
+        }
+
+        userAPI.loadFollowing(usersFollowingToLoad[currentUser], users, SERVER_URL, loadNextUserFollowing);
+    };
+    loadNextUserFollowing();
 };
 
 ////////////

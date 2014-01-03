@@ -44,11 +44,11 @@ var argv = require('optimist')
 
 var fs = require('fs');
 
-var general = require('./api/general.js');
-var user = require('./api/user.generate.js');
-var group = require('./api/group.generate.js');
-var content = require('./api/content.generate.js');
-var discussion = require('./api/discussion.generate.js');
+var general = require('./api/general');
+var user = require('./api/user.generate');
+var group = require('./api/group.generate');
+var content = require('./api/content.generate');
+var discussion = require('./api/discussion.generate');
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
@@ -91,27 +91,37 @@ var generateBatch = function(id) {
         content: {},
         discussions: {}
     };
-    // Generate users
+
+    console.log('Generating users');
     for (var u = 0; u < USERS_PER_BATCH; u++) {
         var newUser = new user.User(id, TENANT_ALIAS);
         batch.users[newUser.id] = newUser;
     }
-    // Generate groups
+
+    console.log('Adding following');
+    user.setFollowing(batch.users);
+
+    console.log('Generating groups');
     for (var g = 0; g < GROUPS_PER_BATCH; g++) {
         var newGroup = new group.Group(id, batch.users, TENANT_ALIAS);
         batch.groups[newGroup.id] = newGroup;
     }
+
+    console.log('Adding members');
     batch.groups = group.setGroupMemberships(id, batch.groups, batch.users);
-    // Generate content
+
+    console.log('Generating content');
     for (var c = 0; c < CONTENT_PER_BATCH; c++) {
         var newContent = new content.Content(id, batch.users, batch.groups);
         batch.content[newContent.id] = newContent;
     }
-    // Generate discussions
-    for (var c = 0; c < DISCUSSIONS_PER_BATCH; c++) {
+
+    console.log('Generating discussions');
+    for (var d = 0; d < DISCUSSIONS_PER_BATCH; d++) {
         var newDiscussion = new discussion.Discussion(id, batch.users, batch.groups);
         batch.discussions[newDiscussion.id] = newDiscussion;
     }
+
     console.timeEnd('Finished Generating Batch ' + id);
     console.log('=================================');
     return batch;
