@@ -86,15 +86,16 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
     }
     allmembers.push(that.creator);
 
-    // Generate the user distributions
+    // Generate the user distributions. As we cannot add private users to a group, we filter them out
     var userDistributions = {};
-    for (var t in users) {
-        var user = users[t];
+    _.chain(users).filter(function(user) {
+        return (user.visibility !== 'private');
+    }).each(function(user) {
         if (user.id !== that.creator) {
             userDistributions[user.userType] = userDistributions[user.userType] || [];
             userDistributions[user.userType].push([user.contentWeighting, user.id]);
         }
-    }
+    });
 
     // Fill up the other roles
     that.roles = {};

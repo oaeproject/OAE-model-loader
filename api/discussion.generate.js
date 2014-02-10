@@ -78,18 +78,21 @@ exports.Discussion = function(batchid, users, groups) {
     }
     allmembers.push(that.creator);
 
-    // Generate the user distributions
+    // Generate the user distributions. As we cannot share a discussion with private users, we filter them out
     var userDistributions = {};
-    for (var t in users) {
-        var user = users[t];
+    _.chain(users).filter(function(user) {
+        return (user.visibility !== 'private');
+    }).each(function(user) {
         if (user.id !== that.creator) {
             userDistributions[user.userType] = userDistributions[user.userType] || [];
             userDistributions[user.userType].push([user.contentWeighting, user.id]);
         }
-    }
+    });
 
-    // For now, only add non-private groups as group members
-    var nonPrivateGroups = _.keys(groups);
+    // For now, only add groups that are either non-private or that the creator is a direct member of
+    var shareableGroups = _.chain(groups).filter(function(group) {
+        return ((group.visibility !== 'private') || (_.contains(group.roles['member'].users, that.creator)) || (_.contains(group.roles['manager'].users, that.creator)));
+    }).pluck('id').value();
 
     // Fill up the managers and members
     that.roles = {};
@@ -123,9 +126,9 @@ exports.Discussion = function(batchid, users, groups) {
         }
         // Fill up the groups
         for (var m = 0; m < that.roles[i].totalGroups; m++) {
-            var randomGroup = nonPrivateGroups[Math.floor(Math.random() * nonPrivateGroups.length)];
+            var randomGroup = shareableGroups[Math.floor(Math.random() * shareableGroups.length)];
             if (randomGroup) {
-                nonPrivateGroups = _.without(nonPrivateGroups, randomGroup);
+                shareableGroups = _.without(shareableGroups, randomGroup);
                 that.roles[i].groups.push(randomGroup);
                 allmembers.push(randomGroup);
             }
