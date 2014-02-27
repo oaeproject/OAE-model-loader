@@ -21,24 +21,14 @@
     }
   ],
   "dependencies": {
-    "express": "latest",
+    "gen": "git://github.com/nicolaasmatthijs/gen",
     "gm": "latest",
     "mime": "latest",
     "mkdirp": "latest",
     "moment": "latest",
     "ncp": "latest",
-    "underscore": "latest",
-    "fast-stats": "latest"
-  },
-  "devDependencies": {
     "optimist": "latest",
-    "fast-stats": "latest",
-    "ncp": "latest",
-    "mkdirp": "latest",
-    "mime": "latest",
-    "underscore": "latest",
-    "moment": "latest",
-    "express": "latest"
+    "underscore": "latest"
   },
   "engines": {
     "node": ">=0.8"

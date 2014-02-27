@@ -69,8 +69,7 @@ var createDiscussion = function(discussion, users, groups, SERVER_URL, callback)
     general.urlReq(SERVER_URL + '/api/discussion/create', {
         'method': 'POST',
         'params': discussionObj,
-        'auth': users[discussion.creator],
-        'telemetry': 'Create discussion'
+        'auth': users[discussion.creator]
     }, callback);
 };
 

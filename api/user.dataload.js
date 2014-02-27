@@ -53,8 +53,7 @@ var createUser = function(user, SERVER_URL, callback) {
     };
     general.urlReq(SERVER_URL + '/api/user/create', {
         method: 'POST',
-        params: userObj,
-        telemetry: 'Create user'
+        params: userObj
     }, callback);
 };
 
@@ -73,8 +72,7 @@ var fillUpBasicInfo = function(user, SERVER_URL, callback) {
          general.urlReq(SERVER_URL + '/api/user/' + user.id, {
             method: 'POST',
             params: basicInfo,
-            auth: user,
-            telemetry: 'Add basic info'
+            auth: user
         }, callback);
     } else {
         callback();

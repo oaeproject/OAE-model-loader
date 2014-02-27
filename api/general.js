@@ -158,7 +158,6 @@ exports.ASM = function(vars) {
 var http = require('http');
 var querystring = require('querystring');
 var url = require('url');
-var telemetry = require('./telemetry.js').Telemetry;
 
 var cookies = {};
 
@@ -181,7 +180,6 @@ exports.urlReq = function(reqUrl, options, cb) {
             }, function(body, success, res) {
                 cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
                 var requestEnd = new Date().getTime();
-                telemetry('Login', requestEnd - requestStart);
                 finishUrlReq(reqUrlObj, options, cb);
             });
         } else {
@@ -241,10 +239,6 @@ var finishUrlReq = function(reqUrlObj, options, cb) {
 
             // fire callback
             exports.requests++;
-            if (options.telemetry) {
-                var requestEnd = new Date().getTime();
-                telemetry(options.telemetry, requestEnd - requestStart);
-            }
             if (res.statusCode === 500 || res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
                 if (!options.ignoreFail) {
                     exports.errors.push({
@@ -279,7 +273,6 @@ exports.filePost = function(reqUrl, file, name, options, cb) {
             }, function(body, success, res) {
                 cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
                 var requestEnd = new Date().getTime();
-                telemetry('Login', requestEnd - requestStart);
                 finishFilePost(reqUrlObj, file, name, options, cb);
             });
         } else {
@@ -535,7 +528,6 @@ exports.uploadProfilePicture = function(type, principalId, authUser, filename, S
     var path = './data/pictures/' + type + 's/' + filename;
     exports.filePost(SERVER_URL + '/api/' + type+ '/' + principalId + '/picture', path, filename, {
             'auth': authUser,
-            'telemetry': 'Upload group profile picture',
             'params': {}
         }, function(body, success) {
             gm(path).size(function (err, size) {
@@ -553,8 +545,7 @@ exports.uploadProfilePicture = function(type, principalId, authUser, filename, S
                         'y': 0,
                         'width': dimension
                     },
-                    'auth': authUser,
-                    'telemetry': 'Crop ' + type + ' profile picture'
+                    'auth': authUser
                 }, function(body, success) {
                     callback();
                 });

@@ -133,7 +133,6 @@ var checkDirectories = function() {
     general.createFolder('scripts/groups');
     general.createFolder('scripts/content');
     general.createFolder('scripts/discussions');
-    general.createFolder('results');
 };
 
 var init = function() {
