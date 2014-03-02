@@ -73,7 +73,6 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
     if (content.resourceSubType === 'file') {
         general.filePost(SERVER_URL + '/api/content/create', content.path, content.filename, {
                 'auth': users[content.creator],
-                'telemetry': 'Create file content',
                 'params': contentObj
             }, callback);
 
@@ -85,8 +84,7 @@ var createContent = function(content, users, groups, SERVER_URL, callback) {
         general.urlReq(SERVER_URL + '/api/content/create', {
             'method': 'POST',
             'params': contentObj,
-            'auth': users[content.creator],
-            'telemetry': 'Create link content'
+            'auth': users[content.creator]
         }, callback);
     }
 };

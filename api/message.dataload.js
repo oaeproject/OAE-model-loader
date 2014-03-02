@@ -65,8 +65,7 @@ var createMessage = module.exports.createMessage = function(messageBoxId, type, 
     general.urlReq(url, {
         'method': 'POST',
         'params': params,
-        'auth': user,
-        'telemetry': 'Create message'
+        'auth': user
     }, function(body, success, res) {
         try {
             var createdMessage = JSON.parse(body);

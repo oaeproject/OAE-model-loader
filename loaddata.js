@@ -14,7 +14,7 @@
  */
 
 var argv = require('optimist')
-    .usage('Usage: $0 -b 9 [-s 0] [-h "http://localhost:8080"] [-p admin] [-c 1] [-i 0]')
+    .usage('Usage: $0 -b 9 [-s 0] [-h "http://localhost:8080"] [-p admin] [-c 1]')
 
     .demand('b')
     .alias('b', 'end-batch')
@@ -35,22 +35,15 @@ var argv = require('optimist')
     .alias('c', 'concurrent-batches')
     .describe('c', 'Number of concurrent batches')
     .default('c', 1)
-
-    .alias('i', 'test-batch-interval')
-    .describe('i', 'Batch interval for test suites (0 for no test suites)')
-    .default('i', 0)
     .argv;
 
 var _ = require('underscore');
-
-var telemetry = require('./api/telemetry.js');
 
 var general = require('./api/general.js');
 var userAPI = require('./api/user.dataload.js');
 var groupAPI = require('./api/group.dataload.js');
 var contentAPI = require('./api/content.dataload.js');
 var discussionsAPI = require('./api/discussion.dataload.js');
-var runSuites = require('./run_suites.js');
 
 //////////////////////////////////////
 // OVERALL CONFIGURATION PARAMETERS //
@@ -61,11 +54,7 @@ var SCRIPT_FOLDER = 'scripts';
 var BATCHES = argv['end-batch'];
 var SERVER_URL = argv['server-url'];
 var ADMIN_PASSWORD = argv['admin-pw'];
-var CONCURRENT_BATCHES = argv['concurrent-batches']
-var RUN_SUITES = argv['test-batch-interval'];
-if (RUN_SUITES) {
-    runSuites.clearResults();
-}
+var CONCURRENT_BATCHES = argv['concurrent-batches'];
 
 //////////////////////
 // CLEAN PARAMETERS //
@@ -126,7 +115,6 @@ var finishBatch = function(currentBatch) {
 };
 
 var finishedAllBatches = function() {
-    telemetry.stopTelemetry();
     console.timeEnd('Loading Batches');
     console.log('*****************************');
     if (general.errors.length) {
@@ -138,15 +126,6 @@ var finishedAllBatches = function() {
     console.log('Finished generating ' + BATCHES + ' batches');
     console.timeEnd("Finished running data loader");
     console.log('*****************************');
-};
-
-var checkRunSuites = function(currentBatch) {
-    if (RUN_SUITES && currentBatch % RUN_SUITES === 0) {
-        // run the test suite before continuing
-        runSuites.runSuites(batches, currentBatch - 1, SERVER_URL, finishBatch);
-    } else {
-        finishBatch(currentBatch);
-    }
 };
 
 ///////////
@@ -380,7 +359,7 @@ var loadDiscussions = function(users, groups, discussions, currentBatch) {
             general.writeObjectToFile('./scripts/generatedIds/discussions-' + currentBatch + '.txt', idMappings['discussions'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + discussionsToLoad.length + ' Discussions');
-            checkRunSuites(currentBatch);
+            finishBatch(currentBatch);
         }
     };
     loadNextDiscussion();
@@ -393,7 +372,6 @@ var loadDiscussions = function(users, groups, discussions, currentBatch) {
 general.createFolder('./scripts/generatedIds');
 
 console.time('Loading Batches');
-telemetry.startTelemetry();
 
 for (var b = 0; b < CONCURRENT_BATCHES; b++) {
     loadNextBatch();
