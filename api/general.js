@@ -20,7 +20,7 @@
 // Generator object
 Generators = require('gen');
 
-// File reader
+var _ = require('underscore');
 var fs = require('fs');
 var gm = require('gm');
 var mime = require('mime');
@@ -178,7 +178,10 @@ exports.urlReq = function(reqUrl, options, cb) {
                 method: 'POST',
                 params: {'username': options.auth.userid, 'password': options.auth.password}
             }, function(body, success, res) {
-                cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
+                var _cookies = _.map(res.headers['set-cookie'], function(cookie) {
+                    return cookie.split(';')[0];
+                });
+                cookies[options.auth.userid] = _cookies.join('; ');
                 var requestEnd = new Date().getTime();
                 finishUrlReq(reqUrlObj, options, cb);
             });
@@ -271,7 +274,10 @@ exports.filePost = function(reqUrl, file, name, options, cb) {
                 method: 'POST',
                 params: {'username': options.auth.userid, 'password': options.auth.password}
             }, function(body, success, res) {
-                cookies[options.auth.userid] = res.headers['set-cookie'][0].split(';')[0];
+                var _cookies = _.map(res.headers['set-cookie'], function(cookie) {
+                    return cookie.split(';')[0];
+                });
+                cookies[options.auth.userid] = _cookies.join('; ');
                 var requestEnd = new Date().getTime();
                 finishFilePost(reqUrlObj, file, name, options, cb);
             });
