@@ -103,6 +103,11 @@ exports.Discussion = function(batchid, users, groups) {
             users: [],
             groups: []
         };
+
+        // Take a copy of the potential shareable groups so we can pluck them out as we add groups
+        // as members of the discussion
+        var currentShareableGroups = shareableGroups.slice();
+
         // Fill up the users
         for (var m = 0; m < that.roles[i].totalUsers; m++) {
             var type = general.randomize(DISTRIBUTIONS.ROLES[i].DISTRIBUTION);
@@ -117,8 +122,8 @@ exports.Discussion = function(batchid, users, groups) {
                 allmembers.push(userToAdd);
                 // Remove from the distributions
                 for (var d = 0; d < userDistributions[type].length; d++) {
-                    if (userDistributions[type][d] === userToAdd) {
-                        userDistributions.splice(d, 1);
+                    if (userDistributions[type][d][1] === userToAdd) {
+                        userDistributions[type].splice(d, 1);
                         break;
                     }
                 }
@@ -126,9 +131,9 @@ exports.Discussion = function(batchid, users, groups) {
         }
         // Fill up the groups
         for (var m = 0; m < that.roles[i].totalGroups; m++) {
-            var randomGroup = shareableGroups[Math.floor(Math.random() * shareableGroups.length)];
+            var randomGroup = currentShareableGroups[Math.floor(Math.random() * currentShareableGroups.length)];
             if (randomGroup) {
-                shareableGroups = _.without(shareableGroups, randomGroup);
+                currentShareableGroups = _.without(currentShareableGroups, randomGroup);
                 that.roles[i].groups.push(randomGroup);
                 allmembers.push(randomGroup);
             }

@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -119,8 +119,8 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
                 allmembers.push(userToAdd);
                 // Remove from the distributions
                 for (var d = 0; d < userDistributions[type].length; d++) {
-                    if (userDistributions[type][d] === userToAdd) {
-                        userDistributions.splice(d, 1);
+                    if (userDistributions[type][d][1] === userToAdd) {
+                        userDistributions[type].splice(d, 1);
                         break;
                     }
                 }
@@ -130,10 +130,7 @@ exports.Group = function(batchid, users, TENANT_ALIAS) {
 
     that.hasDescription = general.randomize(DISTRIBUTIONS[that.template].HAS_DESCRIPTION);
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS[that.template].DESCRIPTION));
-
     that.contentWeighting = general.randomize(DISTRIBUTIONS[that.template].CONTENT_WEIGHTING);
-
-
     that.picture = {
         hasPicture: general.randomize(DISTRIBUTIONS[that.template].HAS_PICTURE),
         picture: general.generateGroupPicture()

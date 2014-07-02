@@ -77,7 +77,7 @@ exports.folderExists = function(path) {
 exports.createFolder = function(path) {
     if (!exports.folderExists(path)) {
         fs.mkdirSync(path);
-    };
+    }
 };
 
 // List files in a folder

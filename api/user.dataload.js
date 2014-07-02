@@ -47,10 +47,10 @@ var createUser = function(user, SERVER_URL, callback) {
         'username': user.userid,
         'password': user.password,
         'visibility': user.userAccountPrivacy,
-        'firstName': user.firstName,
-        'lastName': user.lastName,
-        'displayName': user.displayName
+        'displayName': user.displayName,
+        'email': user.email
     };
+
     general.urlReq(SERVER_URL + '/api/user/create', {
         method: 'POST',
         params: userObj
