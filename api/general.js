@@ -161,6 +161,14 @@ var url = require('url');
 
 var cookies = {};
 
+var _getHttp = function(reqUrlObj) {
+    if (reqUrlObj.protocol === 'https:') {
+        return require('https');
+    } else {
+        return require('http');
+    }
+}
+
 exports.requests = 0;
 exports.errors = [];
 exports.urlReq = function(reqUrl, options, cb) {
@@ -198,10 +206,10 @@ var finishUrlReq = function(reqUrlObj, options, cb) {
     // http.request settings
     var settings = {
         host: reqUrlObj.hostname,
-        port: reqUrlObj.port || 80,
         path: reqUrlObj.pathname,
         headers: options.headers || {},
-        method: options.method || 'GET'
+        method: options.method || 'GET',
+        rejectUnauthorized: false
     };
 
     settings.headers['Referer'] = reqUrlObj.protocol + '//' + reqUrlObj.host + '/test';
@@ -224,7 +232,7 @@ var finishUrlReq = function(reqUrlObj, options, cb) {
     }
 
     // MAKE THE REQUEST
-    var req = http.request(settings);
+    var req = _getHttp(reqUrlObj).request(settings);
 
     // if there are params: write them to the request
     if(options.params && settings.method === 'POST') { req.write(options.params); }
@@ -337,10 +345,10 @@ var finishFilePost = function(reqUrlObj, path, name, options, cb) {
     // http.request settings
     var settings = {
         'host': reqUrlObj.hostname,
-        'port': reqUrlObj.port || 80,
         'path': reqUrlObj.pathname,
         'headers': options.headers || {},
-        'method': 'POST'
+        'method': 'POST',
+        'rejectUnauthorized': false
     };
 
     settings.headers['Referer'] = reqUrlObj.protocol + '//' + reqUrlObj.host + '/test';
@@ -352,7 +360,7 @@ var finishFilePost = function(reqUrlObj, path, name, options, cb) {
     settings.headers['Content-Length'] = length;
 
     // MAKE THE REQUEST
-    var req = http.request(settings);
+    var req = _getHttp(reqUrlObj).request(settings);
     for (var k = 0; k < post_data.length; k++) {
         req.write(post_data[k]);
     }
