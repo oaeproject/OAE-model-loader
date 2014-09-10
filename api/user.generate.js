@@ -188,7 +188,7 @@ exports.User = function(batchid, TENANT_ALIAS) {
 
     that.picture = {
         hasPicture: general.randomize(DISTRIBUTIONS[that.userType].HAS_PICTURE),
-        picture: general.generateUserPicture()
+        picture: general.generateUserPicture(that.sex)
     };
 
     return that;

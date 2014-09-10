@@ -415,6 +415,9 @@ var youtubeUrls = exports.loadFileIntoArray('./data/urls/youtube.txt');
 var userPictures = exports.getFilesInFolder('./data/pictures/users', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
 var groupPictures = exports.getFilesInFolder('./data/pictures/groups', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp']);
 
+var maleUserPictures = _.filter(userPictures, function(pic) { return (pic.indexOf('men') === 0); });
+var femaleUserPictures = _.filter(userPictures, function(pic) { return (pic.indexOf('women') === 0); });
+
 ////////////////
 // LOAD WORDS //
 ////////////////
@@ -519,8 +522,15 @@ exports.generateUrl = function(type) {
     }
 };
 
-exports.generateUserPicture = function(){
-    return userPictures[Math.floor(Math.random() * userPictures.length)];
+exports.generateUserPicture = function(sex) {
+    var pictures = null;
+    if (sex === 'M') {
+        pictures = maleUserPictures;
+    } else if (sex === 'F') {
+        pictures = femaleUserPictures;
+    }
+
+    return pictures[Math.floor(Math.random() * pictures.length)];
 };
 
 exports.generateGroupPicture = function(){
@@ -546,9 +556,9 @@ exports.uploadProfilePicture = function(type, principalId, authUser, filename, S
         }, function(body, success) {
             gm(path).size(function (err, size) {
                 if (err) {
-                    console.error('Error trying to get the size of an image. Did you install GraphicsMagick?');
+                    console.error('Error trying to get the size of %s. Did you install GraphicsMagick?', path);
                     console.error(err);
-                    callback(err);
+                    return callback(err);
                 }
                 var dimension = size.width > size.height ? size.height : size.width;
                 exports.urlReq(SERVER_URL + '/api/crop', {
