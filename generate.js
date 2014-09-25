@@ -36,9 +36,9 @@ var argv = require('optimist')
     .describe('c', 'Number of content items per batch')
     .default('c', 5000)
 
-    .alias('x', 'collections')
-    .describe('x', 'Number of collections per batch')
-    .default('x', 2500)
+    .alias('f', 'folders')
+    .describe('f', 'Number of folders per batch')
+    .default('f', 2500)
 
     .alias('d', 'discussions')
     .describe('d', 'Number of discussion items per batch')
@@ -50,7 +50,7 @@ var fs = require('fs');
 var general = require('./api/general');
 var user = require('./api/user.generate');
 var group = require('./api/group.generate');
-var collection = require('./api/collection.generate');
+var folder = require('./api/folder.generate');
 var content = require('./api/content.generate');
 var discussion = require('./api/discussion.generate');
 
@@ -64,7 +64,7 @@ var TOTAL_BATCHES = argv.batches;
 var TENANT_ALIAS = argv.tenant;
 var USERS_PER_BATCH = argv.users;
 var GROUPS_PER_BATCH = argv.groups;
-var COLLECTIONS_PER_BATCH = argv.collections;
+var folderS_PER_BATCH = argv.folders;
 var CONTENT_PER_BATCH = argv.content;
 var DISCUSSIONS_PER_BATCH = argv.discussions;
 
@@ -84,8 +84,8 @@ var run = function() {
         general.writeObjectToFile('./' + SCRIPT_FOLDER + '/content/' + i + '.txt', batch.content);
         // Write discussions to file
         general.writeObjectToFile('./' + SCRIPT_FOLDER + '/discussions/' + i + '.txt', batch.discussions);
-        // Write collections to file
-        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/collections/' + i + '.txt', batch.collections);
+        // Write folders to file
+        general.writeObjectToFile('./' + SCRIPT_FOLDER + '/folders/' + i + '.txt', batch.folders);
     }
 };
 
@@ -95,7 +95,7 @@ var generateBatch = function(id) {
     var batch = {
         users: {},
         groups: {},
-        collections: {},
+        folders: {},
         content: {},
         discussions: {}
     };
@@ -130,10 +130,10 @@ var generateBatch = function(id) {
         batch.discussions[newDiscussion.id] = newDiscussion;
     }
 
-    console.log('Generating collections');
-    for (var x = 0; x < COLLECTIONS_PER_BATCH; x++) {
-        var newCollection = new collection.Collection(id, batch.users, batch.groups, batch.content);
-        batch.collections[newCollection.id] = newCollection;
+    console.log('Generating folders');
+    for (var x = 0; x < folderS_PER_BATCH; x++) {
+        var newfolder = new folder.folder(id, batch.users, batch.groups, batch.content);
+        batch.folders[newfolder.id] = newfolder;
     }
 
     console.timeEnd('Finished Generating Batch ' + id);
@@ -146,7 +146,7 @@ var checkDirectories = function() {
     general.createFolder('scripts/users');
     general.createFolder('scripts/groups');
     general.createFolder('scripts/content');
-    general.createFolder('scripts/collections');
+    general.createFolder('scripts/folders');
     general.createFolder('scripts/discussions');
 };
 

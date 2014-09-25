@@ -21,10 +21,11 @@ var messageLoader = require('./message.dataload');
 exports.loadContent = function(content, users, groups, SERVER_URL, callback) {
     createContent(content, users, groups, SERVER_URL, function(body, success, res) {
         if (success) {
-            // Get the generated content id and add it to the content item
-            content.originalid = content.id;
             try {
+                // Retain the original id
                 content.originalid = content.id;
+
+                // Get the generated content id and add it to the content item
                 content.id = content.generatedid = JSON.parse(body).id;
             } catch (ex) {
                 console.log('Error parsing create content HTTP response:');

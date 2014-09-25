@@ -40,20 +40,20 @@ var DISTRIBUTIONS = {
         }
     },
     'CONTENT': {
-        'NUMBER_OF_ITEMS': [12, 8, 4, 150],     // Determines how many content items per collection
-        'DISTRIBUTION': [50, 25, 0, 99]         // Determines the distribution of collection->content associations across all content items. Applies a normal distribution with 50% of content items accounting for 68% of collection->content associations
+        'NUMBER_OF_ITEMS': [12, 8, 4, 150],     // Determines how many content items per folder
+        'DISTRIBUTION': [50, 25, 0, 99]         // Determines the distribution of folder->content associations across all content items. Applies a normal distribution with 50% of content items accounting for 68% of folder->content associations
     }
 };
 
 /*!
- * Generates an ASM distribution that distributes how many collections a given content item will be
+ * Generates an ASM distribution that distributes how many folders a given content item will be
  * associated to. This is an arbitrary **secondary distribution**, in that that its result specifies
- * a distribution, however the concrete number of collection associations is determined primarily by
- * the average number of content items that belong to a collection (it is the inverse of this
+ * a distribution, however the concrete number of folder associations is determined primarily by
+ * the average number of content items that belong to a folder (it is the inverse of this
  * distribution).
  *
- *  * 50% of the available content items consume 68% (1 stddev) of collection the associations
- *  * 5% of the available content items consume 8% (.1 stddev) of collection associations
+ *  * 50% of the available content items consume 68% (1 stddev) of folder the associations
+ *  * 5% of the available content items consume 8% (.1 stddev) of folder associations
  */
 var _selectDistributedContentId = function(contentIds) {
     // Get a distribution of (avg: 50%; stddev: 25%; min: 0%; max: 100%) that is normalized to pick
@@ -67,7 +67,7 @@ var _selectDistributedContentId = function(contentIds) {
     return contentIds[general.ASM([avg, stddev, floor, cieling])];
 };
 
-exports.Collection = function(batchid, users, groups, contentItems) {
+exports.folder = function(batchid, users, groups, contentItems) {
     var that = {};
 
     that.name = general.generateKeywords(general.ASM(DISTRIBUTIONS.NAME)).join(' ');
@@ -77,7 +77,7 @@ exports.Collection = function(batchid, users, groups, contentItems) {
     that.description = general.generateSentence(general.ASM(DISTRIBUTIONS.DESCRIPTION));
     that.visibility = general.randomize(DISTRIBUTIONS.VISIBILITY);
 
-    // Determine what role (student, lecturer, researcher) the creator of this collection should be
+    // Determine what role (student, lecturer, researcher) the creator of this folder should be
     var creatorRole = general.randomize(DISTRIBUTIONS.CREATOR);
     var distribution = _.chain(users)
         .filter(function(user, userId) {
@@ -98,8 +98,8 @@ exports.Collection = function(batchid, users, groups, contentItems) {
 
     var allMembers = [that.creator];
 
-    // Generate the user distributions with which collections will be shared. As we cannot share a
-    // collection with private users, we filter them out
+    // Generate the user distributions with which folders will be shared. As we cannot share a
+    // folder with private users, we filter them out
     var userDistributions = {};
     _.chain(users)
         .filter(function(user) {
@@ -126,8 +126,8 @@ exports.Collection = function(batchid, users, groups, contentItems) {
         .pluck('id')
         .value();
 
-    // For now, only allow content items into the collection that are either non-private, or of
-    // which the collection creator is a manager
+    // For now, only allow content items into the folder that are either non-private, or of
+    // which the folder creator is a manager
     var addableContentIds = _.chain(contentItems)
         .filter(function(contentItem) {
             return (
@@ -149,7 +149,7 @@ exports.Collection = function(batchid, users, groups, contentItems) {
         };
 
         // Take a copy of the potential shareable groups so we can pluck them out as we add groups
-        // as members of the collection
+        // as members of the folder
         var currentShareableGroupIds = shareableGroupIds.slice();
 
         // Populate the user memberships by their weighted membership distribution
@@ -158,15 +158,15 @@ exports.Collection = function(batchid, users, groups, contentItems) {
             // get a random user from the distribution specific to that type
             var type = general.randomize(roleDistributions.DISTRIBUTION);
 
-            // Ensure we don't exceed the limit of users we have available for the collection
+            // Ensure we don't exceed the limit of users we have available for the folder
             if (_.isEmpty(userDistributions[type])) {
-                console.warn('    Warning: Not sufficient users available to fill collection membership (%s wanted %s users)', that.id, that.roles[role].totalUsers);
+                console.warn('    Warning: Not sufficient users available to fill folder membership (%s wanted %s users)', that.id, that.roles[role].totalUsers);
                 break;
             }
 
             var userId = general.randomize(userDistributions[type]);
 
-            // Add the user to the list of users for the current role for the collection, as well as
+            // Add the user to the list of users for the current role for the folder, as well as
             // the full list of members
             that.roles[role].users.push(userId);
             allMembers.push(userId);
@@ -191,16 +191,20 @@ exports.Collection = function(batchid, users, groups, contentItems) {
         }
     });
 
-    // Populate the content items into the collection
+    // Populate the content items into the folder
     that.contentIds = [];
     var numberOfContentItems = general.ASM(DISTRIBUTIONS.CONTENT.NUMBER_OF_ITEMS);
     var contentItemIds = _.keys(contentItems);
     for (var i = 0; i < numberOfContentItems; i++) {
         var contentId = _selectDistributedContentId(addableContentIds);
+        if (!contentId) {
+            console.warn('    warning: Not sufficient content available to fill folder (%s wanted %s content items)', that.id, numberOfContentItems);
+            break;
+        }
         that.contentIds.push(contentId);
 
         // Remove this content item from the list of content ids we can choose from for this
-        // collection
+        // folder
         addableContentIds = _.without(addableContentIds, contentId);
     }
 

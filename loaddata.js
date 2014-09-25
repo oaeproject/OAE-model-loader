@@ -42,7 +42,7 @@ var _ = require('underscore');
 var general = require('./api/general.js');
 var userAPI = require('./api/user.dataload.js');
 var groupAPI = require('./api/group.dataload.js');
-var collectionAPI = require('./api/collection.dataload.js');
+var folderAPI = require('./api/folder.dataload.js');
 var contentAPI = require('./api/content.dataload.js');
 var discussionsAPI = require('./api/discussion.dataload.js');
 
@@ -75,7 +75,7 @@ var batches = [];
 var idMappings = {
     'users': {},
     'groups': {},
-    'collections': {},
+    'folders': {},
     'content': {},
     'discussions': {}
 };
@@ -87,7 +87,7 @@ var loadNextBatch = function() {
 
     idMappings['users'][currentBatch] = {};
     idMappings['groups'][currentBatch] = {};
-    idMappings['collections'][currentBatch] = {};
+    idMappings['folders'][currentBatch] = {};
     idMappings['content'][currentBatch] = {};
     idMappings['discussions'][currentBatch] = {};
 
@@ -96,18 +96,18 @@ var loadNextBatch = function() {
         // Load the data from the model
         var users = general.loadJSONFileIntoObject('./scripts/users/' + currentBatch + '.txt');
         var groups = general.loadJSONFileIntoObject('./scripts/groups/' + currentBatch + '.txt');
-        var collections = general.loadJSONFileIntoObject('./scripts/collections/' + currentBatch + '.txt');
+        var folders = general.loadJSONFileIntoObject('./scripts/folders/' + currentBatch + '.txt');
         var content = general.loadJSONFileIntoObject('./scripts/content/' + currentBatch + '.txt');
         var discussions = general.loadJSONFileIntoObject('./scripts/discussions/' + currentBatch + '.txt');
 
         batches.push({
             'users': users,
             'groups': groups,
-            'collections': collections,
+            'folders': folders,
             'content': content,
             'discussions': discussions
         });
-        loadUsers(users, groups, content, discussions, collections, currentBatch);
+        loadUsers(users, groups, content, discussions, folders, currentBatch);
     } else {
         finishedAllBatches();
     }
@@ -137,7 +137,7 @@ var finishedAllBatches = function() {
 // USERS //
 ///////////
 
-var loadUsers = function(users, groups, content, discussions, collections, currentBatch) {
+var loadUsers = function(users, groups, content, discussions, folders, currentBatch) {
     var currentUser = -1;
     var usersToLoad = _.values(users);
     var loadNextUser = function() {
@@ -162,20 +162,20 @@ var loadUsers = function(users, groups, content, discussions, collections, curre
         } else {
             general.writeObjectToFile('./scripts/generatedIds/users-' + currentBatch + '.txt', idMappings['users'][currentBatch]);
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + usersToLoad.length + ' Users');
-            return loadFollowing(users, groups, content, discussions, collections, currentBatch);
+            return loadFollowing(users, groups, content, discussions, folders, currentBatch);
         }
     };
     loadNextUser();
 };
 
-var loadFollowing = function(users, groups, content, discussions, collections, currentBatch) {
+var loadFollowing = function(users, groups, content, discussions, folders, currentBatch) {
     var currentUser = -1;
     var usersFollowingToLoad = _.values(users);
     var loadNextUserFollowing = function() {
         currentUser++;
         if (currentUser >= usersFollowingToLoad.length) {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading Followers for ' + usersFollowingToLoad.length + ' Users');
-            return loadGroups(users, groups, content, discussions, collections, currentBatch);
+            return loadGroups(users, groups, content, discussions, folders, currentBatch);
         }
 
         userAPI.loadFollowing(usersFollowingToLoad[currentUser], users, SERVER_URL, loadNextUserFollowing);
@@ -187,7 +187,7 @@ var loadFollowing = function(users, groups, content, discussions, collections, c
 // GROUPS //
 ////////////
 
-var loadGroups = function(users, groups, content, discussions, collections, currentBatch) {
+var loadGroups = function(users, groups, content, discussions, folders, currentBatch) {
     var currentGroup = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroup = function() {
@@ -225,13 +225,13 @@ var loadGroups = function(users, groups, content, discussions, collections, curr
         } else {
             general.writeObjectToFile('./scripts/generatedIds/groups-' + currentBatch + '.txt', idMappings['groups'][currentBatch]);
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + ' Groups');
-            loadGroupMemberships(users, groups, content, discussions, collections, currentBatch);
+            loadGroupMemberships(users, groups, content, discussions, folders, currentBatch);
         }
     };
     loadNextGroup();
 };
 
-var loadGroupMemberships = function(users, groups, content, discussions, collections, currentBatch) {
+var loadGroupMemberships = function(users, groups, content, discussions, folders, currentBatch) {
     var currentGroupMembership = -1;
     var groupsToLoad = _.values(groups);
     var loadNextGroupMembership = function() {
@@ -254,7 +254,7 @@ var loadGroupMemberships = function(users, groups, content, discussions, collect
             }
         } else {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + groupsToLoad.length + 'Group Memberships');
-            loadContent(users, groups, content, discussions, collections, currentBatch);
+            loadContent(users, groups, content, discussions, folders, currentBatch);
         }
     };
     loadNextGroupMembership();
@@ -264,7 +264,7 @@ var loadGroupMemberships = function(users, groups, content, discussions, collect
 // CONTENT //
 /////////////
 
-var loadContent = function(users, groups, content, discussions, collections, currentBatch) {
+var loadContent = function(users, groups, content, discussions, folders, currentBatch) {
     var currentContent = -1;
     var contentToLoad = _.values(content);
     var loadNextContent = function() {
@@ -308,7 +308,7 @@ var loadContent = function(users, groups, content, discussions, collections, cur
             general.writeObjectToFile('./scripts/generatedIds/content-' + currentBatch + '.txt', idMappings['content'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + contentToLoad.length + ' Content Items');
-            loadDiscussions(users, groups, content, discussions, collections, currentBatch);
+            loadDiscussions(users, groups, content, discussions, folders, currentBatch);
         }
     };
     loadNextContent();
@@ -318,7 +318,7 @@ var loadContent = function(users, groups, content, discussions, collections, cur
 // DISCUSSIONS //
 /////////////////
 
-var loadDiscussions = function(users, groups, content, discussions, collections, currentBatch) {
+var loadDiscussions = function(users, groups, content, discussions, folders, currentBatch) {
     var currentDiscussion = -1;
     var discussionsToLoad = _.values(discussions);
     var loadNextDiscussion = function() {
@@ -363,37 +363,37 @@ var loadDiscussions = function(users, groups, content, discussions, collections,
             general.writeObjectToFile('./scripts/generatedIds/discussions-' + currentBatch + '.txt', idMappings['discussions'][currentBatch]);
 
             console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + discussionsToLoad.length + ' Discussions');
-            return loadCollections(users, groups, content, discussions, collections, currentBatch);
+            return loadfolders(users, groups, content, discussions, folders, currentBatch);
         }
     };
     loadNextDiscussion();
 };
 
-/////////////////
-// COLLECTIONS //
-/////////////////
+/////////////
+// FOLDERS //
+/////////////
 
-var loadCollections = function(users, groups, content, discussions, collections, currentBatch) {
-    var currentCollectionIndex = -1;
-    var collectionsToLoad = _.values(collections);
-    var loadNextCollection = function() {
-        currentCollectionIndex++;
-        if (currentCollectionIndex >= collectionsToLoad.length) {
-            general.writeObjectToFile('./scripts/generatedIds/collections-' + currentBatch + '.txt', idMappings['collections'][currentBatch]);
+var loadfolders = function(users, groups, content, discussions, folders, currentBatch) {
+    var currentfolderIndex = -1;
+    var foldersToLoad = _.values(folders);
+    var loadNextfolder = function() {
+        currentfolderIndex++;
+        if (currentfolderIndex >= foldersToLoad.length) {
+            general.writeObjectToFile('./scripts/generatedIds/folders-' + currentBatch + '.txt', idMappings['folders'][currentBatch]);
 
-            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + collectionsToLoad.length + ' Collections');
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading ' + foldersToLoad.length + ' folders');
             return finishBatch(currentBatch);
         }
 
-        var nextCollection = collectionsToLoad[currentCollectionIndex];
+        var nextfolder = foldersToLoad[currentfolderIndex];
 
-        // Convert all collections membership ids to the generated user and group ids
-        _.each(nextCollection.roles, function(membership, role) {
+        // Convert all folders membership ids to the generated user and group ids
+        _.each(nextfolder.roles, function(membership, role) {
             membership.users = _.map(membership.users, function(originalUserId) {
                 if (idMappings.users[currentBatch][originalUserId]) {
                     return idMappings.users[currentBatch][originalUserId].generatedId;
                 } else {
-                    console.log('    Warning: Could not map collection membership for user "%s"', originalUserId);
+                    console.log('    Warning: Could not map folder membership for user "%s"', originalUserId);
                     return originalUserId;
                 }
             });
@@ -402,36 +402,36 @@ var loadCollections = function(users, groups, content, discussions, collections,
                 if (idMappings.groups[currentBatch][originalGroupId]) {
                     return idMappings.groups[currentBatch][originalGroupId].generatedId;
                 } else {
-                    console.log('    Warning: Could not map collection membership for group "%s"', originalGroupId);
+                    console.log('    Warning: Could not map folder membership for group "%s"', originalGroupId);
                     return originalGroupId;
                 }
             });
         });
 
         // Convert all content ids to the generated server content ids
-        nextCollection.contentIds = _.map(nextCollection.contentIds, function(originalContentId) {
+        nextfolder.contentIds = _.map(nextfolder.contentIds, function(originalContentId) {
             if (idMappings.content[currentBatch][originalContentId]) {
                 return idMappings.content[currentBatch][originalContentId].generatedId;
             } else {
-                console.log('    Warning: Could not map content item id for collection "%s"', originalContentId);
+                console.log('    Warning: Could not map content item id for folder "%s"', nextfolder.id);
             }
         });
 
-        collectionAPI.loadCollection(nextCollection, users, groups, content, SERVER_URL, function() {
-            idMappings.collections[currentBatch][nextCollection.originalid] = {
-                'id': nextCollection.originalid,
-                'generatedId': nextCollection.generatedid
+        folderAPI.loadfolder(nextfolder, users, groups, content, SERVER_URL, function() {
+            idMappings.folders[currentBatch][nextfolder.originalid] = {
+                'id': nextfolder.originalid,
+                'generatedId': nextfolder.generatedid
             };
 
-            if (currentCollectionIndex % 10 === 0) {
-                console.log('  ' + new Date().toUTCString() + ': Finished Loading Collection ' + currentCollectionIndex + ' of ' + collectionsToLoad.length);
+            if (currentfolderIndex % 10 === 0) {
+                console.log('  ' + new Date().toUTCString() + ': Finished Loading folder ' + currentfolderIndex + ' of ' + foldersToLoad.length);
             }
 
-            return loadNextCollection();
+            return loadNextfolder();
         });
     };
 
-    loadNextCollection();
+    loadNextfolder();
 };
 
 ///////////
