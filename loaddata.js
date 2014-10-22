@@ -173,6 +173,10 @@ var loadFollowing = function(users, groups, content, discussions, folders, curre
     var usersFollowingToLoad = _.values(users);
     var loadNextUserFollowing = function() {
         currentUser++;
+        if (currentUser % 10 === 0) {
+            console.log('  ' + new Date().toUTCString() + ': Finished Loading Follower ' + currentUser + ' of ' + usersFollowingToLoad.length);
+        }
+
         if (currentUser >= usersFollowingToLoad.length) {
             console.log('  ' + new Date().toUTCString() + ': Finished Loading Followers for ' + usersFollowingToLoad.length + ' Users');
             return loadGroups(users, groups, content, discussions, folders, currentBatch);
