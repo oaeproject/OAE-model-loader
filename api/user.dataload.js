@@ -29,6 +29,8 @@ exports.loadUser = function(user, SERVER_URL, callback) {
                 // Rethrowing since missing groups will cascade wildfire through the rest of the data-load process
                 throw ex;
             }
+        } else {
+            console.error('Error creating user: %s', body);
         }
 
         fillUpBasicInfo(user, SERVER_URL, function() {
@@ -48,7 +50,7 @@ var createUser = function(user, SERVER_URL, callback) {
         'password': user.password,
         'visibility': user.userAccountPrivacy,
         'displayName': user.displayName,
-        'email': user.email
+        'email': user.basicInfo.email
     };
 
     general.urlReq(SERVER_URL + '/api/user/create', {
@@ -60,9 +62,6 @@ var createUser = function(user, SERVER_URL, callback) {
 var fillUpBasicInfo = function(user, SERVER_URL, callback) {
     if (user.hasBasicInfoSection) {
          var basicInfo = {};
-         if (user.hasEmail) {
-             basicInfo['email'] = user.email;
-         }
          if (user.hasDepartment) {
              basicInfo['department'] = user.department;
          }

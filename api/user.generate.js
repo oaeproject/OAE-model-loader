@@ -3,7 +3,7 @@
  * Educational Community License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may
  * obtain a copy of the License at
- * 
+ *
  *     http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
@@ -25,7 +25,6 @@ var DISTRIBUTIONS = {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
         'USER_ACCOUNT_PRIVACY': [[0.7, 'public'], [0.3, 'loggedin']],
         'HAS_BASIC_INFO_SECTION': [[0.7, true],[0.3, false]],
-        'HAS_EMAIL': [[0.9, true], [0.1, false]],
         'HAS_DEPARTMENT': [[0.8, true], [0.2, false]],
         'HAS_COLLEGE': [[0.5, true], [0.5, false]],
         'HAS_ABOUT_ME_SECTION': [[0.4, true],[0.6, false]],
@@ -48,7 +47,6 @@ var DISTRIBUTIONS = {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
         'USER_ACCOUNT_PRIVACY': [[0.4, 'public'], [0.6, 'loggedin']],
         'HAS_BASIC_INFO_SECTION': [[0.7, true],[0.3, false]],
-        'HAS_EMAIL': [[0.7, true], [0.3, false]],
         'HAS_DEPARTMENT': [[0.7, true], [0.3, false]],
         'HAS_COLLEGE': [[0.3, true], [0.7, false]],
         'HAS_ABOUT_ME_SECTION': [[0.4, true],[0.6, false]],
@@ -71,7 +69,6 @@ var DISTRIBUTIONS = {
         'SEX': [[0.5, 'M'],[0.5, 'F']],
         'USER_ACCOUNT_PRIVACY': [[0.7, 'public'], [0.3, 'loggedin']],
         'HAS_BASIC_INFO_SECTION': [[0.7, true],[0.3, false]],
-        'HAS_EMAIL': [[0.8, true], [0.2, false]],
         'HAS_DEPARTMENT': [[0.7, true], [0.3, false]],
         'HAS_COLLEGE': [[0.3, true], [0.7, false]],
         'HAS_ABOUT_ME_SECTION': [[0.4, true],[0.6, false]],
@@ -152,7 +149,6 @@ exports.User = function(batchid, TENANT_ALIAS) {
 
     that.basicInfo = {
         hasBasicInfoSection: general.randomize(DISTRIBUTIONS[that.userType].HAS_BASIC_INFO_SECTION),
-        hasEmail: general.randomize(DISTRIBUTIONS[that.userType].HAS_EMAIL),
         email: general.generateEmail([that.firstName, that.lastName]),
         hasDepartment: general.randomize(DISTRIBUTIONS[that.userType].HAS_DEPARTMENT),
         department: general.generateDepartment(),
