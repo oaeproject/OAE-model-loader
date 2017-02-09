@@ -13,7 +13,7 @@ Create the following folders & add image files to
 * `./data/pictures/groups`
 * `./data/content`
 
-or alternatively download some [pre-packaged content](https://s3.amazonaws.com/oae-performance-files/model-loader-data.tar.gz), untar it and place the contents in the `data` directory
+or alternatively download some [pre-packaged content](https://s3-eu-west-1.amazonaws.com/oae-performance-files/model-loader-data.tar.gz), untar it and place the contents in the `data` directory
 
 ## Preparing the environment
 
