@@ -91,7 +91,7 @@ exports.getFilesInFolder = function(foldername, mimetypes) {
     var files = fs.readdirSync(foldername);
     var matchedFiles = [];
     for (var i = 0; i < files.length; i++) {
-        var type = mime.lookup(foldername + '/' + files[i]);
+        var type = mime.getType(foldername + '/' + files[i]);
         if (mimetypes.indexOf(type) !== -1) {
             matchedFiles.push(files[i]);
         }
@@ -324,7 +324,7 @@ var finishFilePost = function(reqUrlObj, path, name, options, cb) {
     // Add the filebody.
     var fileBody = fs.readFileSync(path);
     var fileSize = fs.statSync(path).size;
-    var contentType = mime.lookup(path);
+    var contentType = mime.getType(path);
     var fileBodyHeader = '';
     fileBodyHeader += util.format('Content-Disposition: form-data; name="file"; filename="%s"' + lf, name);
     fileBodyHeader += util.format('Content-Type: %s' + lf, contentType);
